@@ -84,7 +84,7 @@ type SwitchName = keyof typeof SWITCHES;
 type ExperimentName = keyof typeof EXPERIMENTS;
 
 const CACHE_DOC = "switches-cache.json";
-const SWITCHES_URL = "https://raw.githubusercontent.com/StamatisFloratos/Voyager/main/apps/site/public/switches.json";
+const SWITCHES_URL = "https://raw.githubusercontent.com/StamatisFloratos/Voyager/HEAD/apps/site/public/switches.json";
 const FETCH_TIMEOUT_MS = 5000;
 const MAX_BYTES = 4096;
 

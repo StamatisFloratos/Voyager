@@ -60,3 +60,20 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+  ios:
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+      - run: node apps/ios/scripts/bundle-shared.mjs --check
+      - run: swift test --package-path apps/ios/Packages/VoyagerKit
+      - name: Build Voyager for the simulator
+        run: >-
+          xcodebuild -project apps/ios/Voyager.xcodeproj -scheme Voyager -configuration Debug
+          -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/ios"
+          CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO -quiet build

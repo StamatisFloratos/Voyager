@@ -1,4 +1,4 @@
-import ArdiaSyncCore
+import VoyagerSyncCore
 import Foundation
 
 switch CommandLine.arguments.dropFirst().first {

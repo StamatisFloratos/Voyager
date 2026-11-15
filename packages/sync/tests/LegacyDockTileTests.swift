@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaSyncCore
+@testable import VoyagerSyncCore
 
 final class FakeDisk {
   var looked: [String] = []

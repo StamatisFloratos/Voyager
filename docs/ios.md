@@ -1,4 +1,8 @@
-# Ardia for iPhone
+# Voyager for iPhone
+
+Build the [Voyager Xcode project](../apps/ios/Voyager.xcodeproj) with the `Voyager` scheme. Run the companion package tests with `swift test --package-path apps/ios/Packages/VoyagerKit`. Its [package manifest](../apps/ios/Packages/VoyagerKit/Package.swift) depends on the local [VoyagerSyncCore library](../packages/sync/Package.swift).
+
+The notes below describe the original Ardia project and its release process.
 
 A native SwiftUI iPhone browser in the spirit of Arc Search, and Ardia's companion: it joins the Mac's
 end-to-end-encrypted sync (`docs/sync.md`) as one more device, so your Mac's tabs, pinned tabs, bookmarks and
