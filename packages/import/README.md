@@ -1,6 +1,6 @@
-# @ardia/import
+# @voyager/import
 
-Imports another browser's data into Ardia. The native code lives in `ios/`; `ios/Core/` is plain Swift with no
+Imports another browser's data into Voyager. The native code lives in `ios/`; `ios/Core/` is plain Swift with no
 Expo dependency, so `Package.swift` builds and tests it on its own. `src/index.ts` is the typed JS wrapper and the UI
 is `apps/browser/src/components/import/`. Every test reads fixtures. Never point anything at a real profile.
 
@@ -49,7 +49,7 @@ Shared code: `Model.swift` (`ImportKind`, `ImportResult` and the other result ty
    (`engine/chromium/src/chrome/browser/ardia/ac_cookies.cc`, `ac_autofill.cc`).
 5. `apps/browser/src/components/import/ImportWindow.tsx` is the wizard: choose, then profiles, then unlock, then
    progress, then done. `apps/browser/src/state/import/apply.ts` writes the JS-side kinds into the store (bookmarks, history, tabs, Arc spaces,
-   Dia profiles) and saves passwords with `savePassword` (`@ardia/ardiacore`). For cookies and autofill it calls
+   Dia profiles) and saves passwords with `savePassword` (`@voyager/ardiacore`). For cookies and autofill it calls
    `importNative`, which calls `writeImported`. Before any tab is made, the result's `favicons` for the pages that
    profile gets go to `adoptFavicons` (`apps/browser/src/state/favicons/favicons.ts`): into the sidebar's icon cache at once, and
    into the profile's Chrome favicon database with `ac_favicons_set`, so they survive a relaunch without a page load.
@@ -61,7 +61,7 @@ Shared code: `Model.swift` (`ImportKind`, `ImportResult` and the other result ty
   Keychain item. `SafeStorageKeychain.secret` reads it, and macOS shows a system prompt when it does. It runs only from
   `unlockBrowser`, after the user goes through the unlock step (`ENCRYPTED` kinds in `ImportWindow.tsx`).
 - **Agents never trigger it.** The Swift tests pass the fixture key (`Fixtures.chromiumKey`, `importer.setKey`),
-  and app runs set `ARDIA_TEST` `importSecret`. Firefox has no Keychain item; its primary password goes through
+  and app runs set `VOYAGER_TEST` `importSecret`. Firefox has no Keychain item; its primary password goes through
   `unlockBrowser(id, { primaryPassword })`.
 - Cookie values, addresses and card numbers never reach JS. `ImportResult` and `SafariExport` leave them out of their
   `CodingKeys` and encode only the counts. They're held in `SecretBytes`; `Wire.swift` serialises them into
@@ -71,7 +71,7 @@ Shared code: `Model.swift` (`ImportKind`, `ImportResult` and the other result ty
 
 ## Fixtures
 
-`pnpm --filter @ardia/import fixtures` runs `fixtures/generate.py`, which wipes `fixtures/home/` and
+`pnpm --filter @voyager/import fixtures` runs `fixtures/generate.py`, which wipes `fixtures/home/` and
 `fixtures/misc/` and rebuilds everything below deterministically. The test secrets are in `fixtures/secrets.json`.
 `fixtures/dia/` and `fixtures/extensions/` are written by hand. Don't open the Firefox `places.sqlite` with the
 sqlite3 CLI: it checkpoints the WAL the tests depend on.
@@ -94,21 +94,21 @@ sqlite3 CLI: it checkpoints the WAL the tests depend on.
 
 | What | Command |
 |---|---|
-| Swift tests (`tests/`, against `fixtures/`) | `pnpm --filter @ardia/import test` (`swift test`, scratch path in `$TMPDIR`) |
-| Rebuild fixtures | `pnpm --filter @ardia/import fixtures` |
-| Typecheck the JS wrapper | `pnpm --filter @ardia/import typecheck` |
-| End to end in a hidden Debug instance (cookies, addresses, cards) | `node packages/import/scripts/e2e.mjs <Ardia.app> <scratch dir>` (`--help`) |
+| Swift tests (`tests/`, against `fixtures/`) | `pnpm --filter @voyager/import test` (`swift test`, scratch path in `$TMPDIR`) |
+| Rebuild fixtures | `pnpm --filter @voyager/import fixtures` |
+| Typecheck the JS wrapper | `pnpm --filter @voyager/import typecheck` |
+| End to end in a hidden Debug instance (cookies, addresses, cards) | `node packages/import/scripts/e2e.mjs <Voyager.app> <scratch dir>` (`--help`) |
 | Run one script in that instance (`e2e.mjs --keep`) | `scripts/agent/ac eval <scratch dir>/data '<js>'` |
 
 ## Test hooks (`ios/ImportModule.swift`)
 
 | Key | Effect |
 |---|---|
-| `ARDIA_INSTANCE` `importSourceDir` | Discovery reads browsers from this folder instead of `~/Library/Application Support`. Point it at `<fake home>/Library/Application Support` |
-| `ARDIA_INSTANCE` `importSafariHome` | Safari direct reads from this home. If it isn't set, the home is two levels above `importSourceDir`, and only when that is set |
-| `ARDIA_TEST` `importSecret` | `unlockBrowser` uses this as every browser's Safe Storage secret and never touches the Keychain (test instances only) |
-| `ARDIA_TEST` `importDiaBundleId` | Dia's tabs come from this app instead of `company.thebrowser.dia`: it's the one opened and quit, and discovery offers the tabs when it's installed (test instances only) |
-| `ARDIA_TEST` `importDiaWindows` | A JSON file of `DiaScript.Window`s (`fixtures/dia/applescript-windows.json`) answers in place of the Apple Events, and Automation consent counts as given, so no macOS prompt shows; the app from `importDiaBundleId` is still opened and quit (test instances only) |
+| `VOYAGER_INSTANCE` `importSourceDir` | Discovery reads browsers from this folder instead of `~/Library/Application Support`. Point it at `<fake home>/Library/Application Support` |
+| `VOYAGER_INSTANCE` `importSafariHome` | Safari direct reads from this home. If it isn't set, the home is two levels above `importSourceDir`, and only when that is set |
+| `VOYAGER_TEST` `importSecret` | `unlockBrowser` uses this as every browser's Safe Storage secret and never touches the Keychain (test instances only) |
+| `VOYAGER_TEST` `importDiaBundleId` | Dia's tabs come from this app instead of `company.thebrowser.dia`: it's the one opened and quit, and discovery offers the tabs when it's installed (test instances only) |
+| `VOYAGER_TEST` `importDiaWindows` | A JSON file of `DiaScript.Window`s (`fixtures/dia/applescript-windows.json`) answers in place of the Apple Events, and Automation consent counts as given, so no macOS prompt shows; the app from `importDiaBundleId` is still opened and quit (test instances only) |
 
 ## Adding a source or a kind
 
@@ -121,7 +121,7 @@ sqlite3 CLI: it checkpoints the WAL the tests depend on.
 3. Write the reader in `ios/Core/<Source><Kind>.swift`. Read SQLite through `SQLiteSnapshot`, check `cancellation`,
    and throw `ImportError`. Then add its `(kind, family)` case in `Importer.importData`.
 4. Add a fixture: a `build_*` function in `fixtures/generate.py`, or a branch of an existing one. Run
-   `pnpm --filter @ardia/import fixtures` and write a test in `tests/`.
+   `pnpm --filter @voyager/import fixtures` and write a test in `tests/`.
 5. Apply it in the app. Add the kind to `IMPORT_KINDS` (and `ENCRYPTED_KINDS` if it's encrypted) in
    `apps/browser/src/state/import/flow.ts`, its title and icon to `KIND_LOOK` in `components/import/model.ts`, and write
    it in `state/import/apply.ts`. A secret kind goes through `ImportWriter` and a new engine call instead.

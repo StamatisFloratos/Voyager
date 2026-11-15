@@ -1,4 +1,4 @@
-import type { CommandAction } from "@ardia/core";
+import type { CommandAction } from "@voyager/core";
 import type { BrowserCommand } from "../../platform/commands";
 import { isBookmarked } from "../bookmarks/bookmarks";
 import { hidesBookmarkCommand } from "../bookmarks/visibility";

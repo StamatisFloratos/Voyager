@@ -1,4 +1,4 @@
-import { call, nativeModule, on, type TabStripTransaction } from "@ardia/ardiacore";
+import { call, nativeModule, on, type TabStripTransaction } from "@voyager/ardiacore";
 
 export {
   sendTabStripCommand,
@@ -25,7 +25,7 @@ export {
   type ScrollState,
   type ProtectedMediaRequest,
   type AppBadge,
-} from "@ardia/ardiacore";
+} from "@voyager/ardiacore";
 
 const Tabs = nativeModule("ArdiaTabs");
 

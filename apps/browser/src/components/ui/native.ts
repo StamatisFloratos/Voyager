@@ -19,8 +19,8 @@ export {
   type MagnifyUpdate,
   type SurfaceProps,
   type SymbolProps,
-} from "@ardia/shell";
+} from "@voyager/shell";
 
-export { SwipeArea, WebView, type SwipeAreaHandle, type SwipeEvent, type WebViewHandle } from "@ardia/ardiacore";
+export { SwipeArea, WebView, type SwipeAreaHandle, type SwipeEvent, type WebViewHandle } from "@voyager/ardiacore";
 
-export { DIA_SPECTRUM, Meadow, meadowTextStyle, PowerUp, ThemeSwatch, WindowBackdrop, type MeadowTone } from "@ardia/shaders";
+export { DIA_SPECTRUM, Meadow, meadowTextStyle, PowerUp, ThemeSwatch, WindowBackdrop, type MeadowTone } from "@voyager/shaders";

@@ -84,7 +84,7 @@ final class ControlSocket {
   }
 
   private func refuse(_ reason: String, path: String = "") -> [String: Any] {
-    NSLog("[control] the ardia command's socket didn't start: %@", reason)
+    NSLog("[control] the voyager command's socket didn't start: %@", reason)
     return status("off", reason: reason, path: path)
   }
 
@@ -94,7 +94,7 @@ final class ControlSocket {
     do {
       dir = try DocumentStore.url(Self.socketName).deletingLastPathComponent().path
     } catch {
-      return refuse("Ardia has no data folder.")
+      return refuse("Voyager has no data folder.")
     }
     let path = (dir as NSString).appendingPathComponent(Self.socketName)
     if let problem = Self.unsafeFolder(dir) { return refuse(problem, path: path) }
@@ -105,7 +105,7 @@ final class ControlSocket {
     guard lock >= 0 else { return refuse("Couldn't open the socket's lock file (\(Self.errnoText())).", path: path) }
     guard flock(lock, LOCK_EX | LOCK_NB) == 0 else {
       Darwin.close(lock)
-      return refuse("Another Ardia is serving this data folder.", path: path)
+      return refuse("Another Voyager is serving this data folder.", path: path)
     }
     var old = stat()
     if lstat(path, &old) == 0 {

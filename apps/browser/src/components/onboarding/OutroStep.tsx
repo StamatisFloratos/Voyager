@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { addToDock, backgroundInstance, isDefaultBrowser, isInDock, setAsDefaultBrowser } from "../../state/app/appSettings";
 import { isSharing, setSharing } from "../../state/telemetry/client";
+import { telemetryAvailable } from "../../state/telemetry/transport";
 import { SHARING_COPY } from "../../state/telemetry/copy";
 import { Button, Symbol, Text } from "../ui";
 import { lineHeight, proseLineHeight, space } from "../ui/tokens";
@@ -29,7 +30,8 @@ export function OutroStep() {
   const setDefault = extras.setDefault ?? !backgroundInstance;
   const trial = !redo && (extras.trial ?? false);
   const dock = extras.dock ?? true;
-  const share = extras.share ?? isSharing();
+  const canShare = telemetryAvailable();
+  const share = canShare && (extras.share ?? isSharing());
 
   useEffect(() => {
     void Promise.all([isDefaultBrowser(), isInDock()]).then(([isDefault, inDock]) => setSystem({ isDefault, inDock }));
@@ -76,18 +78,22 @@ export function OutroStep() {
         </View>
       ) : null}
       <View style={{ gap: space.ml }}>
-        <OptionCard
-          control="check"
-          icon="stethoscope"
-          title={SHARING_COPY.toggle}
-          subtitle={SHARING_COPY.onboarding.row}
-          selected={share}
-          onHover={setReceipt}
-          onPress={() => setOnboardingExtras({ share: !share })}
-        />
-        <Text size="small" color={colors.rowSubtitle} style={NOTE}>
-          {SHARING_COPY.onboarding.note}
-        </Text>
+        {canShare ? (
+          <>
+            <OptionCard
+              control="check"
+              icon="stethoscope"
+              title={SHARING_COPY.toggle}
+              subtitle={SHARING_COPY.onboarding.row}
+              selected={share}
+              onHover={setReceipt}
+              onPress={() => setOnboardingExtras({ share: !share })}
+            />
+            <Text size="small" color={colors.rowSubtitle} style={NOTE}>
+              {SHARING_COPY.onboarding.note}
+            </Text>
+          </>
+        ) : null}
         {customizing ? null : <CustomizeMoreLink />}
       </View>
     </StepLayout>

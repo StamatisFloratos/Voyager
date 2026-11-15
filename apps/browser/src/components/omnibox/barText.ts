@@ -1,4 +1,4 @@
-import { displayUrl, type SearchScope, type Suggestion } from "@ardia/core";
+import { displayUrl, type SearchScope, type Suggestion } from "@voyager/core";
 import type { BarSnapshot } from "../../state/omnibox/barState";
 
 export type Selection = { start: number; end: number };

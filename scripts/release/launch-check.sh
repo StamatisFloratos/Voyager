@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-usage="usage: scripts/release/launch-check.sh <exported Ardia.app>"
+usage="usage: scripts/release/launch-check.sh <exported Voyager.app>"
 app="${1:?$usage}"
 . "$(dirname "$0")/lib.sh"
 

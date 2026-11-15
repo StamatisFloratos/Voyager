@@ -1,4 +1,4 @@
-import type { SearchScope } from "@ardia/core";
+import type { SearchScope } from "@voyager/core";
 import { memo, type ReactNode, type RefObject } from "react";
 import { View } from "react-native";
 import { Button, capsule, ContextMenuArea, ink, useHover, useTheme } from "../ui";

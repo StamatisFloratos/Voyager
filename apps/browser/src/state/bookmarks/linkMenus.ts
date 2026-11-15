@@ -1,4 +1,4 @@
-import { cleanUrl, markdownLink } from "@ardia/core";
+import { cleanUrl, markdownLink } from "@voyager/core";
 import { copyText } from "../../platform/clipboard";
 import type { MenuItem } from "../../platform/menus";
 import { withOptionAlternate, type MenuEntry } from "../app/menuSections";

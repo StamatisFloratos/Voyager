@@ -5,7 +5,7 @@ import * as bundledList from "../../../../../packages/core/src/bangList.ts";
 import { bangListServer, docs, heldSaves } from "../../test-native/index.ts";
 
 globalThis.require = (id) => {
-  assert.equal(id, "@ardia/core/src/bangList.ts");
+  assert.equal(id, "@voyager/core/src/bangList.ts");
   return bundledList;
 };
 const { bangStatus, bangsFor, createBangSubmitter, loadBangs, mayBeBang, refreshBangs, refreshBangsOnce, resetBangsForTests } = await import("./bangs.ts");

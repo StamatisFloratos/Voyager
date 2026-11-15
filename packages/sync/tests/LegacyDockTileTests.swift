@@ -22,8 +22,8 @@ func fakeDisk(_ files: Set<String>, unknown: Set<String> = [], caseInsensitive: 
 }
 
 final class LegacyDockTileTests: XCTestCase {
-  let app = URL(fileURLWithPath: "/Applications/Ardia.app", isDirectory: true)
-  let bundleId = "com.ardia.browser"
+  let app = URL(fileURLWithPath: "/Applications/Voyager.app", isDirectory: true)
+  let bundleId = "com.stamatisfloratos.voyager"
   let oldURL = "file:///Applications/\(LegacyName.appFileName)/"
   let oldAppPath = "/Applications/\(LegacyName.appFileName)"
 
@@ -48,10 +48,10 @@ final class LegacyDockTileTests: XCTestCase {
   var messages: [String: Any] { tile("com.apple.MobileSMS", "file:///System/Applications/Messages.app/", label: "Messages", guid: 10) }
   var dia: [String: Any] { tile("company.thebrowser.dia", "file:///Applications/Dia.app/", label: "Dia", guid: 11) }
   var oldTile: [String: Any] { tile(LegacyName.bundleId, oldURL, label: LegacyName.appName, guid: 12) }
-  var ardiaTile: [String: Any] { tile(bundleId, "file:///Applications/Ardia.app/", label: "Ardia", guid: 13) }
+  var ardiaTile: [String: Any] { tile(bundleId, "file:///Applications/Voyager.app/", label: "Voyager", guid: 13) }
 
   func repoint(_ tiles: [[String: Any]], disk: LegacyDockTile.Disk? = nil) -> LegacyDockTile.Result {
-    LegacyDockTile.repointed(tiles, app: app, bundleId: bundleId, label: "Ardia", disk: disk ?? fakeDisk(["/Applications/Ardia.app"]))
+    LegacyDockTile.repointed(tiles, app: app, bundleId: bundleId, label: "Voyager", disk: disk ?? fakeDisk(["/Applications/Voyager.app"]))
   }
 
   func data(_ tile: [String: Any]) -> [String: Any] { tile["tile-data"] as! [String: Any] }
@@ -69,8 +69,8 @@ final class LegacyDockTileTests: XCTestCase {
     XCTAssertFalse(result.keptLive)
     XCTAssertEqual(ids(tiles), ["com.apple.MobileSMS", bundleId, "company.thebrowser.dia"])
     let rewritten = tiles[1], fields = data(rewritten)
-    XCTAssertEqual(fields["file-label"] as? String, "Ardia")
-    XCTAssertEqual(fields["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Ardia.app/", "_CFURLStringType": 15])
+    XCTAssertEqual(fields["file-label"] as? String, "Voyager")
+    XCTAssertEqual(fields["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Voyager.app/", "_CFURLStringType": 15])
     for key in ["book", "file-mod-date", "parent-mod-date"] { XCTAssertNil(fields[key], key) }
     XCTAssertEqual(rewritten["GUID"] as? Int, 12)
     XCTAssertEqual(rewritten["tile-type"] as? String, "file-tile")
@@ -83,7 +83,7 @@ final class LegacyDockTileTests: XCTestCase {
     XCTAssertEqual(NSArray(array: try XCTUnwrap(repoint([oldTile, messages, ardiaTile]).tiles)), NSArray(array: [messages, ardiaTile]))
     let byFile = with(ardiaTile) {
       $0["bundle-identifier"] = "something.else"
-      $0["file-data"] = ["_CFURLString": "file:///Applications/ARDIA.app", "_CFURLStringType": 15]
+      $0["file-data"] = ["_CFURLString": "file:///Applications/VOYAGER.app", "_CFURLStringType": 15]
     }
     XCTAssertEqual(NSArray(array: try XCTUnwrap(repoint([oldTile, byFile]).tiles)), NSArray(array: [byFile]))
   }
@@ -97,11 +97,11 @@ final class LegacyDockTileTests: XCTestCase {
   }
 
   func testAnOldAppStillThereKeepsItsTileAndIsLookedAtAgain() {
-    let result = repoint([messages, oldTile], disk: fakeDisk(["/Applications/Ardia.app", oldAppPath]))
+    let result = repoint([messages, oldTile], disk: fakeDisk(["/Applications/Voyager.app", oldAppPath]))
     XCTAssertNil(result.tiles)
     XCTAssertTrue(result.keptLive)
     let byPath = with(oldTile) { $0["bundle-identifier"] = "" }
-    let alone = repoint([byPath], disk: fakeDisk(["/Applications/Ardia.app", oldAppPath]))
+    let alone = repoint([byPath], disk: fakeDisk(["/Applications/Voyager.app", oldAppPath]))
     XCTAssertNil(alone.tiles)
     XCTAssertTrue(alone.keptLive)
     XCTAssertEqual(ids(repoint([byPath]).tiles), [bundleId])
@@ -109,7 +109,7 @@ final class LegacyDockTileTests: XCTestCase {
 
   func testADeadOldTileIsRepointedWhileALiveOneStays() throws {
     let live = tile(LegacyName.bundleId, "file:///Users/me/Old/\(LegacyName.appFileName)/", label: LegacyName.appName, guid: 20)
-    let result = repoint([oldTile, live], disk: fakeDisk(["/Applications/Ardia.app", "/Users/me/Old/\(LegacyName.appFileName)"]))
+    let result = repoint([oldTile, live], disk: fakeDisk(["/Applications/Voyager.app", "/Users/me/Old/\(LegacyName.appFileName)"]))
     XCTAssertEqual(ids(result.tiles), [bundleId, LegacyName.bundleId])
     XCTAssertEqual(NSArray(array: [try XCTUnwrap(result.tiles)[1]]), NSArray(array: [live]))
     XCTAssertTrue(result.keptLive)
@@ -118,10 +118,10 @@ final class LegacyDockTileTests: XCTestCase {
   func testOldTilesAreFoundByIdOrByPath() throws {
     let elsewhere = tile(LegacyName.bundleId.uppercased(), "file:///Users/me/Downloads/\(LegacyName.appFileName)/", label: LegacyName.appName)
     XCTAssertEqual(ids(repoint([elsewhere]).tiles), [bundleId])
-    let followed = tile(LegacyName.bundleId, "file:///Applications/Ardia.app/", label: LegacyName.appName)
-    XCTAssertEqual(data(try XCTUnwrap(repoint([followed]).tiles)[0])["file-label"] as? String, "Ardia")
+    let followed = tile(LegacyName.bundleId, "file:///Applications/Voyager.app/", label: LegacyName.appName)
+    XCTAssertEqual(data(try XCTUnwrap(repoint([followed]).tiles)[0])["file-label"] as? String, "Voyager")
     let posix = with(oldTile) { $0["file-data"] = ["_CFURLString": self.oldAppPath, "_CFURLStringType": 0] }
-    XCTAssertNil(repoint([posix], disk: fakeDisk(["/Applications/Ardia.app", oldAppPath])).tiles)
+    XCTAssertNil(repoint([posix], disk: fakeDisk(["/Applications/Voyager.app", oldAppPath])).tiles)
     XCTAssertEqual(ids(repoint([posix]).tiles), [bundleId])
     XCTAssertNil(repoint([tile("other.app", "file:///Users/me/\(LegacyName.appFileName)/", label: "x")]).tiles)
   }
@@ -146,17 +146,17 @@ final class LegacyDockTileTests: XCTestCase {
   }
 
   func testOnACaseSensitiveVolumeOnlyTheSameFileMatches() {
-    let sensitive = fakeDisk(["/Applications/Ardia.app"], caseInsensitive: false)
+    let sensitive = fakeDisk(["/Applications/Voyager.app"], caseInsensitive: false)
     let lower = tile("", "file:///Applications/\(LegacyName.appFileName.lowercased())/", label: "x")
     XCTAssertNil(repoint([lower], disk: sensitive).tiles)
     XCTAssertEqual(ids(repoint([lower]).tiles), [bundleId])
-    let other = tile("something.else", "file:///Applications/ardia.app/", label: "ardia")
+    let other = tile("something.else", "file:///Applications/voyager.app/", label: "voyager")
     XCTAssertEqual(ids(repoint([oldTile, other], disk: sensitive).tiles), [bundleId, "something.else"])
     XCTAssertEqual(ids(repoint([oldTile, other]).tiles), ["something.else"])
   }
 
   func testAnOldAppThatCantBeLookedAtKeepsItsTile() {
-    let result = repoint([messages, oldTile], disk: fakeDisk(["/Applications/Ardia.app"], unknown: [oldAppPath]))
+    let result = repoint([messages, oldTile], disk: fakeDisk(["/Applications/Voyager.app"], unknown: [oldAppPath]))
     XCTAssertNil(result.tiles)
     XCTAssertTrue(result.keptLive)
   }
@@ -164,8 +164,8 @@ final class LegacyDockTileTests: XCTestCase {
   func testOnlyTilesNamedLikeEitherAppAreLookedUp() {
     let disk = FakeDisk()
     let share = tile("", "file:///Volumes/Gone/Folder/", label: "Folder")
-    _ = LegacyDockTile.repointed([messages, dia, share, oldTile, ardiaTile], app: app, bundleId: bundleId, label: "Ardia",
-                                 disk: disk.disk(["/Applications/Ardia.app"]))
+    _ = LegacyDockTile.repointed([messages, dia, share, oldTile, ardiaTile], app: app, bundleId: bundleId, label: "Voyager",
+                                 disk: disk.disk(["/Applications/Voyager.app"]))
     XCTAssertFalse(disk.looked.contains { $0.hasPrefix("/Volumes") || $0.hasPrefix("/System") || $0.hasSuffix("Dia.app") }, "\(disk.looked)")
   }
 
@@ -175,23 +175,23 @@ final class LegacyDockTileTests: XCTestCase {
   }
 
   func testADeadArdiaTileIsntPinnedAndGoesLikeTheOldOne() throws {
-    let downloads = "/Users/me/Downloads/Ardia.app"
-    let deadArdia = tile(bundleId, "file://\(downloads)/", label: "Ardia", guid: 30)
+    let downloads = "/Users/me/Downloads/Voyager.app"
+    let deadArdia = tile(bundleId, "file://\(downloads)/", label: "Voyager", guid: 30)
     let result = try XCTUnwrap(repoint([oldTile, messages, deadArdia]).tiles)
     XCTAssertEqual(ids(result), [bundleId, "com.apple.MobileSMS"])
     XCTAssertEqual(result[0]["GUID"] as? Int, 12)
-    XCTAssertEqual(data(result[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Ardia.app/", "_CFURLStringType": 15])
+    XCTAssertEqual(data(result[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Voyager.app/", "_CFURLStringType": 15])
     let first = try XCTUnwrap(repoint([deadArdia, messages, oldTile]).tiles)
     XCTAssertEqual(ids(first), [bundleId, "com.apple.MobileSMS"])
     XCTAssertEqual(first[0]["GUID"] as? Int, 30)
-    XCTAssertEqual(data(first[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Ardia.app/", "_CFURLStringType": 15])
+    XCTAssertEqual(data(first[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Voyager.app/", "_CFURLStringType": 15])
     XCTAssertNil(repoint([deadArdia, messages]).tiles)
-    XCTAssertEqual(ids(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/Ardia.app", downloads])).tiles), [bundleId])
-    XCTAssertEqual(data(try XCTUnwrap(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/Ardia.app", downloads])).tiles)[0])["file-data"]
+    XCTAssertEqual(ids(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/Voyager.app", downloads])).tiles), [bundleId])
+    XCTAssertEqual(data(try XCTUnwrap(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/Voyager.app", downloads])).tiles)[0])["file-data"]
       as? [String: AnyHashable], ["_CFURLString": "file://\(downloads)/", "_CFURLStringType": 15])
-    let unknown = try XCTUnwrap(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/Ardia.app"], unknown: [downloads])).tiles)
+    let unknown = try XCTUnwrap(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/Voyager.app"], unknown: [downloads])).tiles)
     XCTAssertEqual(NSArray(array: [unknown[1]]), NSArray(array: [deadArdia]))
-    XCTAssertEqual(data(unknown[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Ardia.app/", "_CFURLStringType": 15])
+    XCTAssertEqual(data(unknown[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/Voyager.app/", "_CFURLStringType": 15])
   }
 
   func testTwoDeadOldTilesBecomeOne() {
@@ -209,7 +209,7 @@ final class LegacyDockTileTests: XCTestCase {
     var onSynchronize: ((Int) -> Void)?
     var writeWorks = true, restartWorks = true
     var flags: [String: Bool] = [:]
-    var disk = fakeDisk(["/Applications/Ardia.app"])
+    var disk = fakeDisk(["/Applications/Voyager.app"])
 
     var seams: LegacyDockTile.Seams {
       let disk = self.disk
@@ -299,11 +299,11 @@ final class LegacyDockTileTests: XCTestCase {
   func testAKeptOldTileIsLookedAtAgainWithoutRestarts() {
     let dock = FakeDock()
     dock.tiles = [oldTile]
-    dock.disk = fakeDisk(["/Applications/Ardia.app", oldAppPath])
+    dock.disk = fakeDisk(["/Applications/Voyager.app", oldAppPath])
     launch(dock)
     launch(dock)
     XCTAssertEqual(dock.state, "writes 0, restarts 0, done false")
-    dock.disk = fakeDisk(["/Applications/Ardia.app"])
+    dock.disk = fakeDisk(["/Applications/Voyager.app"])
     launch(dock)
     launch(dock)
     XCTAssertEqual(dock.state, "writes 1, restarts 1, done true")
@@ -361,15 +361,15 @@ final class LegacyDockTileTests: XCTestCase {
   }
 
   func testATileThatWasntLookedUpStopsTheWrite() {
-    let other = "/Users/me/Applications/Ardia.app"
+    let other = "/Users/me/Applications/Voyager.app"
     let dock = FakeDock()
     dock.tiles = [oldTile]
-    dock.onSynchronize = { if $0 == 2 { dock.tiles = [self.oldTile, self.tile(self.bundleId, "file://\(other)/", label: "Ardia")] } }
+    dock.onSynchronize = { if $0 == 2 { dock.tiles = [self.oldTile, self.tile(self.bundleId, "file://\(other)/", label: "Voyager")] } }
     launch(dock)
     XCTAssertEqual(dock.state, "writes 0, restarts 0, done false")
     XCTAssertNil(dock.flags[LegacyDockTile.restartKey])
     dock.onSynchronize = nil
-    dock.disk = fakeDisk(["/Applications/Ardia.app", other])
+    dock.disk = fakeDisk(["/Applications/Voyager.app", other])
     launch(dock)
     XCTAssertEqual(dock.state, "writes 1, restarts 1, done true")
     XCTAssertEqual(ids(dock.tiles), [bundleId])
@@ -397,11 +397,11 @@ final class LegacyDockTileTests: XCTestCase {
   }
 
   func testPathsAreNormalizedByStringAlone() {
-    XCTAssertEqual(LegacyDockTile.lexical("/Applications//Ardia.app/"), "/Applications/Ardia.app")
-    XCTAssertEqual(LegacyDockTile.lexical("/Applications/./x/../Ardia.app"), "/Applications/Ardia.app")
+    XCTAssertEqual(LegacyDockTile.lexical("/Applications//Voyager.app/"), "/Applications/Voyager.app")
+    XCTAssertEqual(LegacyDockTile.lexical("/Applications/./x/../Voyager.app"), "/Applications/Voyager.app")
     XCTAssertEqual(LegacyDockTile.lexical("/private/var/automount/Network/../x"), "/private/var/automount/x")
     XCTAssertEqual(LegacyDockTile.lexical("/../.."), "/")
-    XCTAssertNil(LegacyDockTile.lexical("Applications/Ardia.app"))
+    XCTAssertNil(LegacyDockTile.lexical("Applications/Voyager.app"))
     let encoded = with(oldTile) { $0["file-data"] = ["_CFURLString": "file:///Applications/\(LegacyName.appName)%2Eapp/", "_CFURLStringType": 15] }
     XCTAssertEqual(LegacyDockTile.rawName(data(encoded)), LegacyName.appFileName.lowercased())
     XCTAssertEqual(LegacyDockTile.filePath(data(encoded)), oldAppPath)
@@ -409,11 +409,11 @@ final class LegacyDockTileTests: XCTestCase {
 
   func testOnlyTheInstalledCopyQualifies() {
     let home = FileManager.default.homeDirectoryForCurrentUser
-    XCTAssertTrue(LegacyDockTile.isInstalled(URL(fileURLWithPath: "/Applications/Ardia.app")))
-    XCTAssertTrue(LegacyDockTile.isInstalled(home.appendingPathComponent("Applications/Ardia.app")))
+    XCTAssertTrue(LegacyDockTile.isInstalled(URL(fileURLWithPath: "/Applications/Voyager.app")))
+    XCTAssertTrue(LegacyDockTile.isInstalled(home.appendingPathComponent("Applications/Voyager.app")))
     XCTAssertFalse(LegacyDockTile.isInstalled(URL(fileURLWithPath: oldAppPath)))
-    XCTAssertFalse(LegacyDockTile.isInstalled(URL(fileURLWithPath: "/tmp/build/Ardia.app")))
-    XCTAssertFalse(LegacyDockTile.isInstalled(home.appendingPathComponent("Library/Developer/Xcode/DerivedData/x/Ardia.app")))
-    XCTAssertFalse(LegacyDockTile.isInstalled(URL(fileURLWithPath: "/private/var/folders/x/T/AppTranslocation/0000/d/Ardia.app")))
+    XCTAssertFalse(LegacyDockTile.isInstalled(URL(fileURLWithPath: "/tmp/build/Voyager.app")))
+    XCTAssertFalse(LegacyDockTile.isInstalled(home.appendingPathComponent("Library/Developer/Xcode/DerivedData/x/Voyager.app")))
+    XCTAssertFalse(LegacyDockTile.isInstalled(URL(fileURLWithPath: "/private/var/folders/x/T/AppTranslocation/0000/d/Voyager.app")))
   }
 }

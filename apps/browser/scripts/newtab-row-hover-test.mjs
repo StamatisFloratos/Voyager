@@ -8,7 +8,7 @@ import { launch, reporter, session } from "../../../scripts/lib/instance.mjs";
 const args = process.argv.slice(2);
 const appArg = args.find((a) => !a.startsWith("--"));
 if (!appArg) {
-  console.error("usage: node newtab-row-hover-test.mjs <Debug Ardia.app> [--port=<DevTools port>] [--trials=<n>] [--keep-data]\n\nThe sidebar's New Tab row loses its hover once the pointer leaves it: click it, open a page from the New Tab page, move the pointer off, and every row the pointer entered has heard it leave, also when the row's size changed under the pointer as the new tab slid in (GitHub issue: New Tab stays highlighted). Each trial runs with new tabs next to the current one and at the bottom.");
+  console.error("usage: node newtab-row-hover-test.mjs <Debug Voyager.app> [--port=<DevTools port>] [--trials=<n>] [--keep-data]\n\nThe sidebar's New Tab row loses its hover once the pointer leaves it: click it, open a page from the New Tab page, move the pointer off, and every row the pointer entered has heard it leave, also when the row's size changed under the pointer as the new tab slid in (GitHub issue: New Tab stays highlighted). Each trial runs with new tabs next to the current one and at the bottom.");
   process.exit(2);
 }
 const appPath = resolve(appArg);

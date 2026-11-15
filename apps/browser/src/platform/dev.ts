@@ -1,4 +1,4 @@
-import { nativeModule, type Click, type ClickResult, type IntroMusicCues, type KeyPress, type KeyPressResult } from "@ardia/shell";
+import { nativeModule, type Click, type ClickResult, type IntroMusicCues, type KeyPress, type KeyPressResult } from "@voyager/shell";
 
 const Dev = nativeModule("ArdiaDev");
 

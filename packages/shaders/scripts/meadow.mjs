@@ -81,7 +81,7 @@ function page(script) {
 <body aria-hidden="true">
 <section class="hero" data-meadow>
 <canvas class="meadow-canvas" data-meadow-canvas></canvas>
-<div class="hero-text"><div class="hero-title"><span class="line"><span class="icon"></span></span><span class="line"><span class="wordmark">Ardia</span></span><span class="line"><span class="tagline">Your new home on the internet</span></span></div></div>
+<div class="hero-text"><div class="hero-title"><span class="line"><span class="icon"></span></span><span class="line"><span class="wordmark">Voyager</span></span><span class="line"><span class="tagline">Your new home on the internet</span></span></div></div>
 </section>
 <script>${script.trim()}</script>
 </body>

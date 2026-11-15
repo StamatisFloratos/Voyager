@@ -1,5 +1,5 @@
-import { nativeModule } from "@ardia/shell";
+import { nativeModule } from "@voyager/shell";
 
-export { completeInline, translation } from "@ardia/shell";
+export { completeInline, translation } from "@voyager/shell";
 
 export const startDictation = () => nativeModule("ArdiaShell").startDictation();

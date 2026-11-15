@@ -48,10 +48,10 @@ enum StagedUpdateCopies {
     do {
       try tool.run()
     } catch {
-      return NSLog("Ardia: couldn't unregister \(bundle.path) from Launch Services: \(error.localizedDescription)")
+      return NSLog("Voyager: couldn't unregister \(bundle.path) from Launch Services: \(error.localizedDescription)")
     }
     guard ended.wait(timeout: .now() + deadline) == .timedOut else { return }
-    NSLog("Ardia: lsregister didn't unregister \(bundle.path) within \(Int(deadline)) s; stopping it")
+    NSLog("Voyager: lsregister didn't unregister \(bundle.path) within \(Int(deadline)) s; stopping it")
     tool.terminate()
     if ended.wait(timeout: .now() + 1) == .timedOut { kill(tool.processIdentifier, SIGKILL) }
   }

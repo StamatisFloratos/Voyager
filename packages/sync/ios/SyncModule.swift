@@ -304,7 +304,7 @@ public class SyncModule: Module {
       : RecoveryKit.pdf(words: words, created: Date(), device: device)
   }
 
-  private static let temporaryKitFolder = FileManager.default.temporaryDirectory.appendingPathComponent("Ardia Recovery Kit", isDirectory: true)
+  private static let temporaryKitFolder = FileManager.default.temporaryDirectory.appendingPathComponent("Voyager Recovery Kit", isDirectory: true)
 
   private static func removeTemporaryKits() {
     try? FileManager.default.removeItem(at: temporaryKitFolder)
@@ -344,8 +344,8 @@ public class SyncModule: Module {
 
   static var defaultFolder: URL {
     if let testFolder { return testFolder }
-    if let dataDirectory { return dataDirectory.appendingPathComponent("Ardia Sync", isDirectory: true) }
-    let folder = SyncFolder.iCloudDrive.appendingPathComponent("Ardia Sync", isDirectory: true)
+    if let dataDirectory { return dataDirectory.appendingPathComponent("Voyager Sync", isDirectory: true) }
+    let folder = SyncFolder.iCloudDrive.appendingPathComponent("Voyager Sync", isDirectory: true)
     let legacy = SyncFolder.iCloudDrive.appendingPathComponent(LegacyName.syncFolderName, isDirectory: true)
     if !FileManager.default.fileExists(atPath: folder.path), SyncFolder.hasSyncData(legacy) { return legacy }
     return folder

@@ -1,4 +1,4 @@
-import { ArdiaError, ardiaError } from "@ardia/core";
+import { ArdiaError, ardiaError } from "@voyager/core";
 import { requireNativeModule, type EventSubscription } from "expo-modules-core";
 import type { EngineCalls, EngineEvents } from "./api";
 

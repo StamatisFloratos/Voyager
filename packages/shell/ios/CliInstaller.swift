@@ -15,7 +15,7 @@ final class CliInstaller {
 
   private static var installerEnvironment: [String: String] {
     var environment = LaunchConfig.shared.environmentForChildProcesses
-    for (key, name) in [("cliHome", "ARDIA_CLI_HOME"), ("cliBinDir", "ARDIA_CLI_BIN_DIR"), ("cliUrl", "ARDIA_CLI_URL")] {
+    for (key, name) in [("cliHome", "VOYAGER_CLI_HOME"), ("cliBinDir", "VOYAGER_CLI_BIN_DIR"), ("cliUrl", "VOYAGER_CLI_URL")] {
       if let value = LaunchConfig.shared.instance(key) { environment[name] = value }
     }
     return environment
@@ -27,7 +27,7 @@ final class CliInstaller {
     if let path = LaunchConfig.shared.instance("cliHome") { return URL(fileURLWithPath: path, isDirectory: true) }
     if LaunchConfig.shared.isolated { return nil }
     return FileManager.default.homeDirectoryForCurrentUser
-      .appendingPathComponent("Library/Application Support/Ardia/CLI", isDirectory: true)
+      .appendingPathComponent("Library/Application Support/Voyager/CLI", isDirectory: true)
   }
 
   static func installedVersion() -> String? {
@@ -42,18 +42,18 @@ final class CliInstaller {
     if LaunchConfig.shared.isolated, let path = LaunchConfig.shared.testValue("cliInstallScript") {
       return URL(fileURLWithPath: path).resolvingSymlinksInPath()
     }
-    return Bundle.main.url(forResource: "ardia-cli-install", withExtension: "sh")?.resolvingSymlinksInPath()
+    return Bundle.main.url(forResource: "voyager-cli-install", withExtension: "sh")?.resolvingSymlinksInPath()
   }
 
   private static func pinnedDigest() -> String? {
-    guard let url = Bundle.main.url(forResource: "ardia-cli", withExtension: "sha256"),
+    guard let url = Bundle.main.url(forResource: "voyager-cli", withExtension: "sha256"),
       let text = try? String(contentsOf: url, encoding: .utf8)
     else { return nil }
     let digest = text.split(whereSeparator: { $0.isWhitespace }).first.map(String.init)?.lowercased() ?? ""
     return digest.range(of: digestPattern, options: .regularExpression) != nil ? digest : nil
   }
 
-  private let queue = DispatchQueue(label: "dev.ardia.cli-installer")
+  private let queue = DispatchQueue(label: "com.stamatisfloratos.voyager.cli-installer")
   private var waiting: [([String: Any]) -> Void] = []
   private var lineListeners: [(String) -> Void] = []
 
@@ -80,14 +80,14 @@ final class CliInstaller {
 
   private func run() {
     if LaunchConfig.shared.isolated && (LaunchConfig.shared.instance("cliHome") == nil || LaunchConfig.shared.instance("cliBinDir") == nil) {
-      return finish(failure("A test instance installs only with ARDIA_INSTANCE cliHome and cliBinDir set."))
+      return finish(failure("A test instance installs only with VOYAGER_INSTANCE cliHome and cliBinDir set."))
     }
     let version = Self.appVersion
     guard version.range(of: Self.versionPattern, options: .regularExpression) != nil else {
-      return finish(failure("This build's version (\(version)) has no ardia command release."))
+      return finish(failure("This build's version (\(version)) has no voyager command release."))
     }
     guard let script = Self.script(), FileManager.default.isReadableFile(atPath: script.path) else {
-      return finish(failure("The installer isn't in this build of Ardia."))
+      return finish(failure("The installer isn't in this build of Voyager."))
     }
     var arguments = [script.path, "--version", version]
     if let digest = Self.pinnedDigest() { arguments += ["--sha256", digest] }

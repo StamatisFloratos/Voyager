@@ -7,7 +7,7 @@ const { sidebarEntries, numberedTabs } = await import("../sidebar/entries.ts");
 const { flushPersistence, loadSession, startPersistence } = await import("../session/persist.ts");
 const stub = await import("../../test-native/index.ts");
 
-const { Clock } = await import("@ardia/sync");
+const { Clock } = await import("@voyager/sync");
 const S = () => useBrowser.getState();
 const stamp = (wall) => new Clock("", null, () => wall).tick();
 const reset = () => S().hydrate({});

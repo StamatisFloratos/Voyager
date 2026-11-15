@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import VoyagerBrowser
 import Foundation
 
 struct SearchSuggestion: Identifiable, Hashable {
@@ -64,7 +64,7 @@ enum SearchInput {
     if lower.hasPrefix("http://") || lower.hasPrefix("https://") {
       return URL(string: text.replacingOccurrences(of: " ", with: "%20"))
     }
-    if lower.hasPrefix("about:") || lower.hasPrefix("ardia:") { return nil }
+    if lower.hasPrefix("about:") || lower.hasPrefix("voyager:") { return nil }
     let hostPart = String(lower.split(separator: "/", maxSplits: 1).first ?? "")
     let hostOnly = String(hostPart.split(separator: ":").first ?? "")
     if hostOnly == "localhost" || isIPv4(hostOnly) {

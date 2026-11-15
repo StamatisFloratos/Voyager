@@ -7,7 +7,7 @@
       "type": ["string", "null"],
       "pattern": "^[a-z0-9][a-z0-9_-]*$",
       "default": null,
-      "description": "A theme in themes/<name>.json, or null for Ardia's own palette."
+      "description": "A theme in themes/<name>.json, or null for Voyager's own palette."
     },
     "settings": {
       "type": "object",

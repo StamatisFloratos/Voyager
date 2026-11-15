@@ -19,7 +19,7 @@ import { ExportBookmarksRow } from "./ExportBookmarksRow";
 import { SetupCodeRow } from "./SetupCodeRow";
 import { UI_LOCALE } from "../../../lib/uiLocale";
 
-const APP = "Ardia";
+const APP = "Voyager";
 
 export function GeneralPane() {
   const openLinksInLittleArdia = useSettings((s) => s.openLinksInLittleArdia);
@@ -48,7 +48,7 @@ export function GeneralPane() {
           anchor="general.openLinksInLittleArdia"
           description={
             openLinksInLittleArdia
-              ? `A link from Discord, Slack or Mail opens in Little Ardia, a small window of its own. ⌘O moves it into ${APP}; closing it throws it away.`
+              ? `A link from Discord, Slack or Mail opens in Little Voyager, a small window of its own. ⌘O moves it into ${APP}; closing it throws it away.`
               : `A link from Discord, Slack or Mail opens as a new tab in the ${APP} window you used last.`
           }
         />

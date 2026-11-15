@@ -2,7 +2,7 @@ import type { StateCreator } from "zustand";
 import type { BrowserState } from "../browser/store";
 import type { Tab } from "../browser/types";
 import { isIncognitoProfile, without } from "../browser/model";
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import { isString, listOf } from "../../lib/decode";
 
 export type MuteState = "site" | "tab" | null;

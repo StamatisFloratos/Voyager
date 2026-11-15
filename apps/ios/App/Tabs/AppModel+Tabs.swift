@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaSync
+import VoyagerBrowser
+import VoyagerSync
 import Foundation
 import SwiftData
 import UIKit

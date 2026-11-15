@@ -1,4 +1,4 @@
-import { call, on, type ContentBlockerState, type ContentBlockerStats, type FilterList, type FilterListCategory } from "@ardia/ardiacore";
+import { call, on, type ContentBlockerState, type ContentBlockerStats, type FilterList, type FilterListCategory } from "@voyager/ardiacore";
 
 export type { ContentBlockerState, FilterList, FilterListCategory };
 

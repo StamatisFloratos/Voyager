@@ -9,9 +9,9 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import telemetry
-from ardia_cli.browse import actions, client, commands, daemon, limits
-from ardia_cli.browse.errors import BrowseError, Gated, OutcomeUnknown, Unreachable
+from voyager_cli import telemetry
+from voyager_cli.browse import actions, client, commands, daemon, limits
+from voyager_cli.browse.errors import BrowseError, Gated, OutcomeUnknown, Unreachable
 from tests.test_browse_review import make_daemon
 
 
@@ -131,7 +131,7 @@ class ZeroViewport(unittest.TestCase):
             run(actions.laid_out(page))
         self.assertEqual(caught.exception.code, "no_viewport")
         self.assertIn("no size yet (0×0", caught.exception.message)
-        self.assertIn("ardia browse tab t4 --show", caught.exception.message)
+        self.assertIn("voyager browse tab t4 --show", caught.exception.message)
 
     def test_a_viewport_the_session_set_itself_is_left_alone(self):
         page = ViewportPage([0], gated=False)
@@ -150,7 +150,7 @@ class TextareaFill(unittest.TestCase):
                 return "L"
 
             async def call(self, function, *args, **kwargs):
-                if "ardiaBrowse.info" in function:
+                if "voyagerBrowse.info" in function:
                     return {"tag": tag, "type": "text" if tag == "input" else None, "editable": True, "disabled": False, "value": ""}
                 return True
 

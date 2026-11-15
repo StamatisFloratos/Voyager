@@ -1,6 +1,6 @@
 import AppIntents
-import ArdiaBrowser
-import ArdiaDesign
+import VoyagerBrowser
+import VoyagerDesign
 import CoreSpotlight
 import SwiftUI
 import UIKit

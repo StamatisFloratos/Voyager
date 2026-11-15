@@ -8,7 +8,7 @@ import scheduler
 from scheduler import Scheduler
 
 TASKS = ["calendar", "expenses", "research", "booking", "shop", "grid", "kanban", "multitab"]
-CONTENDERS = [{"id": "ardia-claude", "kind": "ardia"}, {"id": "ardia-codex", "kind": "ardia"},
+CONTENDERS = [{"id": "voyager-claude", "kind": "voyager"}, {"id": "voyager-codex", "kind": "voyager"},
               {"id": "aside-opus", "kind": "aside"}, {"id": "aside-sol", "kind": "aside"}]
 REALISM_TASKS = ["expenses", "kanban", "bulk"]
 REALISM_CONTENDERS = CONTENDERS + [{"id": f"{side}-{agent}", "kind": side}
@@ -152,15 +152,15 @@ class SchedulerTest(unittest.TestCase):
             self.assertGreaterEqual(b - a, scheduler.SETTLE_S)
 
     def test_retried_runs_run_again_and_rate_limits_drop_to_one_lane(self):
-        limited = "grid--ardia-codex--r1"
-        s, items, log = simulate(5, retry_ids=["shop--ardia-claude--r1"], rate_limit_ids=[limited])
+        limited = "grid--voyager-codex--r1"
+        s, items, log = simulate(5, retry_ids=["shop--voyager-claude--r1"], rate_limit_ids=[limited])
         starts = [e[2] for e in log if e[0] == "start"]
-        self.assertEqual(starts.count("shop--ardia-claude--r1"), 2)
+        self.assertEqual(starts.count("shop--voyager-claude--r1"), 2)
         self.assertEqual(starts.count(limited), 2)
-        self.assertEqual(s.cap("ardia-codex"), 1)
+        self.assertEqual(s.cap("voyager-codex"), 1)
         retried_at = next(e[1] for e in log if e[0] == "retry" and e[2] == limited)
         for running in overlapping([e for e in log if e[1] > retried_at]):
-            self.assertLessEqual(sum(1 for e in running if e[5] == "ardia-codex"), 1)
+            self.assertLessEqual(sum(1 for e in running if e[5] == "voyager-codex"), 1)
 
     def test_contenders_progress_together(self):
         _, items, log = simulate(7)

@@ -1,4 +1,4 @@
-import { call, NO_PASSKEY_ACCESS, type PageCookie, type PasskeyAccess, type PasskeyAccessStatus } from "@ardia/ardiacore";
+import { call, NO_PASSKEY_ACCESS, type PageCookie, type PasskeyAccess, type PasskeyAccessStatus } from "@voyager/ardiacore";
 
 export { NO_PASSKEY_ACCESS };
 export type { PasskeyAccess, PasskeyAccessStatus, PageCookie };

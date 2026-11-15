@@ -1,4 +1,4 @@
-import { bangDocument, bangTable, checkedBangTable, findBang, joinBangTables, readBangDocument, slimBangs, type BangTable } from "@ardia/core";
+import { bangDocument, bangTable, checkedBangTable, findBang, joinBangTables, readBangDocument, slimBangs, type BangTable } from "@voyager/core";
 import { fetchBangList, readDocument, saveDocument, writeDocument } from "../../platform/documents";
 import { useEffect, useSyncExternalStore } from "react";
 import { loadBundledBangs, refreshesBangs } from "./bangPlatform";

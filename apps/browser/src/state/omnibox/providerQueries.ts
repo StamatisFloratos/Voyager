@@ -1,4 +1,4 @@
-import type { ProviderSection } from "@ardia/core";
+import type { ProviderSection } from "@voyager/core";
 import type { OmniboxProvider } from "./providers";
 
 export const PROVIDER_DEADLINE_MS = 1500;

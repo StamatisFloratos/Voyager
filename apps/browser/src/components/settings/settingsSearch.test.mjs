@@ -14,7 +14,7 @@ const TOP = [
   ["remote debugging", ["advanced.cliControl"]],
   ["command line", ["advanced.cliInstall", "advanced.cliControl"]],
   ["terminal", ["advanced.cliInstall", "advanced.cliControl"]],
-  ["ardia command", ["advanced.cliInstall"]],
+  ["voyager command", ["advanced.cliInstall"]],
   ["dark", ["appearance.theme"]],
   ["dark mode", ["appearance.theme"]],
   ["theme", ["appearance.theme"]],
@@ -75,7 +75,7 @@ const TOP = [
   ["microphone", ["privacy.sitePermissions"]],
   ["startup", ["general.openAtLogin"]],
   ["little arc", ["general.openLinksInLittleArdia"]],
-  ["little ardia", ["general.openLinksInLittleArdia"]],
+  ["little voyager", ["general.openLinksInLittleArdia"]],
   ["little window", ["general.openLinksInLittleArdia"]],
   ["links from other apps", ["general.openLinksInLittleArdia"]],
   ["slack", ["general.openLinksInLittleArdia"]],
@@ -170,7 +170,7 @@ test("titles rank above keywords, keywords above descriptions", () => {
 
 test("every word of the query has to match", () => {
   assert.ok(!ids("block ads").includes("privacy.blockTrackers"));
-  assert.ok(ids("the ardia command").includes("advanced.cliInstall"));
+  assert.ok(ids("the voyager command").includes("advanced.cliInstall"));
 });
 
 test("garbage finds nothing", () => {

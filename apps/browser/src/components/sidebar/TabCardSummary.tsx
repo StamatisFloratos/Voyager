@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { displayUrl } from "@ardia/core";
+import { displayUrl } from "@voyager/core";
 import type { Tab } from "../../state/browser/types";
 import { tabTitle } from "../../state/browser/model";
 import { awayTitle } from "../../state/pins/organize";

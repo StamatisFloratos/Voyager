@@ -7,8 +7,8 @@ import { launch, session, sleep } from "../../../scripts/lib/instance.mjs";
 const args = process.argv.slice(2);
 const appArg = args.find((a) => !a.startsWith("--"));
 if (!appArg) {
-  console.error("usage: node little-ardia-links-test.mjs <Debug Ardia.app> [--only=<name,name>]");
-  console.error("Sends real GURL Apple Events to a hidden instance's pid (warm) and launches it with a link (cold), with Settings › General › Open links from other apps in Little Ardia off and on, and checks where each link opens.");
+  console.error("usage: node little-ardia-links-test.mjs <Debug Voyager.app> [--only=<name,name>]");
+  console.error("Sends real GURL Apple Events to a hidden instance's pid (warm) and launches it with a link (cold), with Settings › General › Open links from other apps in Little Voyager off and on, and checks where each link opens.");
   process.exit(2);
 }
 const app = resolve(appArg);
@@ -103,7 +103,7 @@ try {
     await warm(`warm-${tag}`, setting);
     await warm(`warm-no-window-${tag}`, setting, (i) => i.eval(`const s = ac.store.getState(); s.windowOrder.forEach((id) => s.closeWindow(id)); return true`));
     await warm(`warm-minimized-${tag}`, setting, (i) => menu(i, "Window", ["Minimize All"]));
-    await warm(`warm-hidden-${tag}`, setting, (i) => menu(i, "Ardia", ["Hide Ardia"]));
+    await warm(`warm-hidden-${tag}`, setting, (i) => menu(i, "Voyager", ["Hide Voyager"]));
     await warm(`warm-other-profile-${tag}`, setting, (i) => i.eval(`ac.store.setState((s) => ({ ui: { ...s.ui, lastProfileId: "work" } })); return true`), {
       profiles: ["Personal", "Work"],
       windows: [{ id: "w1" }, { id: "w2", profileId: "work" }],

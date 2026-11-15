@@ -56,7 +56,7 @@ test("config.schema.json lists the allowlist with defaults, shortcuts by command
   assert.equal(accepts(schema, { settings: { cliControl: true } }), false);
 });
 
-test("theme.schema.json has every role but dark with Ardia's values as defaults, and agrees with the app's own check", () => {
+test("theme.schema.json has every role but dark with Voyager's values as defaults, and agrees with the app's own check", () => {
   const schema = themeSchema(colorRoles);
   assert.deepEqual(keywordsOutsideSubset(schema), []);
   for (const mode of ["dark", "light"]) {

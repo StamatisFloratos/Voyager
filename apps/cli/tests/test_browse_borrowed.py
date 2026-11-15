@@ -6,9 +6,9 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli.browse import audit, capture, commands, script, vault
-from ardia_cli.browse.errors import BrowseError
-from ardia_cli.browse.state import State
+from voyager_cli.browse import audit, capture, commands, script, vault
+from voyager_cli.browse.errors import BrowseError
+from voyager_cli.browse.state import State
 
 
 class Stop(Exception):
@@ -102,13 +102,13 @@ class BorrowedTab(unittest.TestCase):
             with self.assertRaises(BrowseError) as caught:
                 asyncio.run(function(ctx(name), argv))
             self.assertEqual(caught.exception.code, "borrowed_tab", name)
-            self.assertIn("ardia browse tab t", caught.exception.message)
+            self.assertIn("voyager browse tab t", caught.exception.message)
 
     def refused(self, function, argv, name=""):
         with self.assertRaises(BrowseError) as caught:
             asyncio.run(function(commands.Ctx(self.state, {}, "/", {}, None, name), argv))
         self.assertEqual(caught.exception.code, "borrowed_tab", argv)
-        self.assertIn("pick it with `ardia browse tab t", caught.exception.message)
+        self.assertIn("pick it with `voyager browse tab t", caught.exception.message)
         return caught.exception.message
 
     def test_storage_changes_refuse_a_borrowed_tab_and_reads_still_work(self):
@@ -120,8 +120,8 @@ class BorrowedTab(unittest.TestCase):
         self.assertEqual(result.text, "(empty)")
 
     def test_set_device_asks_for_touch_before_it_changes_the_viewport(self):
-        from ardia_cli import command_metrics
-        from ardia_cli.browse.errors import Gated
+        from voyager_cli import command_metrics
+        from voyager_cli.browse.errors import Gated
 
         self.state.current = "MINE"
         self.state.target_infos["MINE"] = {"targetId": "MINE", "url": "about:blank"}
@@ -161,7 +161,7 @@ class BorrowedTab(unittest.TestCase):
         self.refused(commands.cmd_cookies, ["set", "--curl", "cookies.txt"])
 
     def test_settings_state_load_init_scripts_and_routes_refuse_a_borrowed_tab(self):
-        from ardia_cli.browse import capture
+        from voyager_cli.browse import capture
 
         for argv in (["credentials", "u", "p"], ["headers", "{}"], ["offline", "on"], ["viewport", "800", "600"], ["geo", "1", "2"]):
             self.refused(commands.cmd_set, argv)

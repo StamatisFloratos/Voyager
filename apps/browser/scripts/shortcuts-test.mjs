@@ -8,7 +8,7 @@ import { isAlive, launch, reporter, session, sleep } from "../../../scripts/lib/
 const [appArg, port] = process.argv.slice(2);
 const appPath = appArg && resolve(appArg);
 if (!appPath) {
-  console.error("usage: node shortcuts-test.mjs <Debug Ardia.app> [cdpPort]");
+  console.error("usage: node shortcuts-test.mjs <Debug Voyager.app> [cdpPort]");
   process.exit(2);
 }
 const startedAt = Date.now();
@@ -669,7 +669,7 @@ await sleep(1000);
     const ok = reservedShortcuts.has(name) ? (fired && seen === 0) || off : !fired && seen > 0;
     if (!ok) wrong.push(`${name}: ${describe(r)}, the page saw ${seen} keydown`);
   }
-  check("a page that cancels every keydown: Ardia acts on the reserved shortcuts, the page gets every other one", !wrong.length, wrong.join("; "));
+  check("a page that cancels every keydown: Voyager acts on the reserved shortcuts, the page gets every other one", !wrong.length, wrong.join("; "));
 }
 {
   await swallowKeys();
@@ -935,7 +935,7 @@ await sleep(1000);
         if (!ok) wrong.push(`${name} in the ${inField ? "field" : "page"}: ${describe(r)}, listener ${ready}, ${saw(counts)} (first responder ${r.firstResponder})`);
       }
     }
-    check("a WebKit page that cancels every keydown: Ardia acts on the reserved shortcuts (a disabled one is dropped, not passed to the page), the page gets every other one",
+    check("a WebKit page that cancels every keydown: Voyager acts on the reserved shortcuts (a disabled one is dropped, not passed to the page), the page gets every other one",
       !wrong.length, wrong.length ? wrong.join("; ") : disabled.length ? `disabled and kept from the page: ${disabled.join(", ")}` : "");
   }
 

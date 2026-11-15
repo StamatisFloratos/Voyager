@@ -6,7 +6,7 @@ ardiacore="$root/packages/ardiacore"
 die() { echo "error: $*" >&2; exit 1; }
 
 load_notary_auth() {
-  local profile="${NOTARY_PROFILE:-ardia}"
+  local profile="${NOTARY_PROFILE:-voyager}"
   [ -f "$root/scripts/.notary.env" ] && . "$root/scripts/.notary.env"
   if [ -n "${NOTARY_KEY:-}" ]; then
     notary_auth=(--key "$NOTARY_KEY" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER")

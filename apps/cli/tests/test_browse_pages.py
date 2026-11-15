@@ -13,12 +13,12 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli.browse import cli as browse_cli
-from ardia_cli import command_metrics
-from ardia_cli.browse import commands, daemon, readpages, script
-from ardia_cli.browse.errors import BrowseError, OutcomeUnknown, Usage
+from voyager_cli.browse import cli as browse_cli
+from voyager_cli import command_metrics
+from voyager_cli.browse import commands, daemon, readpages, script
+from voyager_cli.browse.errors import BrowseError, OutcomeUnknown, Usage
 
-SCRATCH = Path.home() / "ardia-scratch"
+SCRATCH = Path.home() / "voyager-scratch"
 
 
 def run(coro):
@@ -190,8 +190,8 @@ SCRATCH_DIRS = []
 
 
 def scratch_registry(key="reader", session="reader"):
-    from ardia_cli.browse import paths
-    from ardia_cli.browse.tabs import Registry
+    from voyager_cli.browse import paths
+    from voyager_cli.browse.tabs import Registry
 
     SCRATCH.mkdir(exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix="browse-registry-", dir=SCRATCH))
@@ -201,7 +201,7 @@ def scratch_registry(key="reader", session="reader"):
 
 
 def peer(registry, key):
-    from ardia_cli.browse.tabs import Registry
+    from voyager_cli.browse.tabs import Registry
 
     return Registry(registry.browse_fd, key, key)
 
@@ -252,7 +252,7 @@ class ReadingTabs(unittest.TestCase):
             return {"url": url, "finalUrl": url, "title": url.rsplit("/", 1)[1], "text": f"text of {url}", "source": "browser"}
 
         page_class = lambda state, target_id: FakeReader(state, target_id, state.browser)
-        patches = [mock.patch.object(readpages, "read_in", read_in), mock.patch("ardia_cli.browse.page.Page", page_class)]
+        patches = [mock.patch.object(readpages, "read_in", read_in), mock.patch("voyager_cli.browse.page.Page", page_class)]
         for patch in patches:
             patch.start()
             self.addCleanup(patch.stop)
@@ -290,7 +290,7 @@ class ReadingTabs(unittest.TestCase):
         self.assertEqual(self.state.browser.closed, ["R1"])
         self.assertEqual(self.state.opened, set())
 
-    def test_a_page_whose_tab_ardia_detached_is_read_again_in_a_new_tab(self):
+    def test_a_page_whose_tab_voyager_detached_is_read_again_in_a_new_tab(self):
         self.detaches.add("R1")
         request = {"argv": ["read"], "options": {}}
         command_metrics.begin(request)
@@ -323,7 +323,7 @@ class ReadingTabs(unittest.TestCase):
 
 class DetachedPage(unittest.TestCase):
     def test_a_detached_page_never_sends_its_command_to_the_browser_session(self):
-        from ardia_cli.browse.page import Page
+        from voyager_cli.browse.page import Page
 
         sent = []
 
@@ -342,7 +342,7 @@ class DetachedPage(unittest.TestCase):
         self.assertNotIn(("Page.getFrameTree", None), sent)
 
     def test_a_command_waiting_on_a_tab_that_detaches_fails_at_once(self):
-        from ardia_cli.browse.page import Page
+        from voyager_cli.browse.page import Page
 
         class Browser:
             async def send(self, method, params=None, session=None, timeout=30):
@@ -365,7 +365,7 @@ class DetachedPage(unittest.TestCase):
         self.assertEqual(run(go("Page.navigate"))[0], "outcome_unknown")
 
     def test_a_cancelled_command_is_still_cancelled(self):
-        from ardia_cli.browse.page import Page
+        from voyager_cli.browse.page import Page
 
         class Browser:
             async def send(self, method, params=None, session=None, timeout=30):
@@ -388,9 +388,9 @@ class RefusedAttach(unittest.TestCase):
     def refused(self, windows):
         from unittest import mock
 
-        from ardia_cli.browse import tabs
-        from ardia_cli.browse.errors import Gated
-        from ardia_cli.browse.page import Page
+        from voyager_cli.browse import tabs
+        from voyager_cli.browse.errors import Gated
+        from voyager_cli.browse.page import Page
 
         async def refuse(method, params=None, session=None, timeout=30):
             raise Gated(method, reason="to that target")
@@ -402,24 +402,24 @@ class RefusedAttach(unittest.TestCase):
             run(Page(reader_state(), "T1").attach(SimpleNamespace(send=refuse)))
         return caught.exception
 
-    def test_it_names_the_tab_ardia_has_for_that_page(self):
+    def test_it_names_the_tab_voyager_has_for_that_page(self):
         error = self.refused([{"tabs": [{"id": "tab-1", "targetId": "T1", "url": "chrome://settings/"}]}])
         self.assertEqual(error.data, {"method": "Target.attachToTarget", "reason": "to that target"})
-        self.assertIn("Target.attachToTarget to that target isn't allowed for the ardia command", error.message)
-        self.assertTrue(error.message.endswith("(Ardia has it open as tab-1 at chrome://settings/)"))
+        self.assertIn("Target.attachToTarget to that target isn't allowed for the voyager command", error.message)
+        self.assertTrue(error.message.endswith("(Voyager has it open as tab-1 at chrome://settings/)"))
 
-    def test_it_says_when_ardia_lists_no_tab_for_that_page(self):
+    def test_it_says_when_voyager_lists_no_tab_for_that_page(self):
         error = self.refused([{"tabs": [{"id": "tab-2", "targetId": "T2", "url": "https://example.com/"}]}])
-        self.assertIn("`ardia windows` lists no tab with that page", error.message)
+        self.assertIn("`voyager windows` lists no tab with that page", error.message)
 
-    def test_it_adds_nothing_when_ardia_cant_say(self):
-        self.assertTrue(self.refused(None).message.endswith("or is in a window Ardia keeps for itself"))
-        self.assertTrue(self.refused([{"tabs": [{"id": "tab-1", "url": ""}]}]).message.endswith("or is in a window Ardia keeps for itself"))
+    def test_it_adds_nothing_when_voyager_cant_say(self):
+        self.assertTrue(self.refused(None).message.endswith("or is in a window Voyager keeps for itself"))
+        self.assertTrue(self.refused([{"tabs": [{"id": "tab-1", "url": ""}]}]).message.endswith("or is in a window Voyager keeps for itself"))
 
 
 class TempTabRecovery(unittest.TestCase):
     def test_a_reader_tab_is_owned_by_its_exact_id_and_closed_through_a_reservation(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = reader_state()
         owned = []
@@ -433,22 +433,22 @@ class TempTabRecovery(unittest.TestCase):
         self.assertEqual(owned, [])
 
     def test_a_user_tab_whose_url_looks_like_a_marker_is_never_closed(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = reader_state()
-        state.browser.urls = {"USER": "https://example.test/doc#ardia-temp-0123456789abcdef", "BLANK": "about:blank#ardia-temp-feedface"}
+        state.browser.urls = {"USER": "https://example.test/doc#voyager-temp-0123456789abcdef", "BLANK": "about:blank#voyager-temp-feedface"}
         state.target_infos = {target: {"targetId": target, "url": url} for target, url in state.browser.urls.items()}
         dead = peer(state.registry, "dead-daemon")
         dead.note_temporary("I", "GONE")
         with dead._open("I") as data:
             data["intents"] = {marker: {"key": "dead-daemon", "session": "dead", "pid": 1, "at": 0}
-                               for marker in ("ardia-temp-0123456789abcdef", "ardia-temp-feedface")}
+                               for marker in ("voyager-temp-0123456789abcdef", "voyager-temp-feedface")}
         run(temptabs.sweep(state))
         self.assertEqual(state.browser.closed, [])
         self.assertEqual(state.registry.temporaries("I"), [])
 
     def test_a_failed_close_keeps_ownership_and_a_later_sweep_retries_it(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         for how in ("stuck", "fails", "disconnected"):
             state = reader_state()
@@ -473,7 +473,7 @@ class TempTabRecovery(unittest.TestCase):
             self.assertEqual(state.registry.temporaries("I"), [], how)
 
     def test_a_sweep_spares_the_tabs_this_daemon_is_using(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = reader_state()
         controller = []
@@ -485,8 +485,8 @@ class TempTabRecovery(unittest.TestCase):
         self.assertEqual(state.browser.closed, [target])
 
     def test_a_new_incarnation_reclaims_its_predecessors_tabs_even_with_the_same_pid(self):
-        from ardia_cli.browse import temptabs
-        from ardia_cli.browse.tabs import Registry
+        from voyager_cli.browse import temptabs
+        from voyager_cli.browse.tabs import Registry
 
         before = reader_state()
         owned = []
@@ -501,7 +501,7 @@ class TempTabRecovery(unittest.TestCase):
         self.assertEqual(after.registry.temporaries("I"), [])
 
     def test_a_dead_sessions_tab_is_closed_only_once_it_is_confirmed_gone(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = reader_state()
         dead = peer(state.registry, "dead-daemon")
@@ -515,7 +515,7 @@ class TempTabRecovery(unittest.TestCase):
         self.assertEqual(state.registry.temporaries("I"), [])
 
     def test_a_sweep_that_cannot_list_targets_deletes_nothing(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = reader_state()
         dead = peer(state.registry, "dead-daemon")
@@ -527,7 +527,7 @@ class TempTabRecovery(unittest.TestCase):
 
 class FilteredRefresh(unittest.TestCase):
     def test_a_refresh_filtered_for_display_never_drops_ownership_of_an_unlisted_target(self):
-        from ardia_cli.browse.state import State
+        from voyager_cli.browse.state import State
 
         registry = scratch_registry()
         state = State({"session": "reader", "key": registry.key, "browse_fd": registry.browse_fd}, lambda: None)
@@ -556,7 +556,7 @@ class FilteredRefresh(unittest.TestCase):
 
 class CapacityFirst(unittest.TestCase):
     def full_state(self):
-        from ardia_cli.browse import tabs
+        from voyager_cli.browse import tabs
 
         state = reader_state()
         other = peer(state.registry, "other-session")
@@ -565,7 +565,7 @@ class CapacityFirst(unittest.TestCase):
         return state
 
     def test_a_full_registry_refuses_before_any_tab_is_created(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = self.full_state()
         owned = []
@@ -576,8 +576,8 @@ class CapacityFirst(unittest.TestCase):
         self.assertEqual(owned, [])
 
     def test_a_failed_create_gives_its_reserved_slot_back(self):
-        from ardia_cli.browse import tabs, temptabs
-        from ardia_cli.browse.errors import Gated
+        from voyager_cli.browse import tabs, temptabs
+        from voyager_cli.browse.errors import Gated
 
         state = reader_state()
         other = peer(state.registry, "other-session")
@@ -597,8 +597,8 @@ class CapacityFirst(unittest.TestCase):
         self.assertEqual(state.registry.temporaries("I"), [target])
 
     def test_a_slot_left_by_an_earlier_run_is_freed_by_the_next_sweep(self):
-        from ardia_cli.browse import temptabs
-        from ardia_cli.browse.tabs import Registry
+        from voyager_cli.browse import temptabs
+        from voyager_cli.browse.tabs import Registry
 
         state = reader_state()
         earlier = Registry(state.registry.browse_fd, state.registry.key, state.registry.session)
@@ -609,7 +609,7 @@ class CapacityFirst(unittest.TestCase):
         self.assertEqual(state.browser.closed, [])
 
     def test_a_registry_write_failing_after_the_create_keeps_closing_the_tab_until_it_is_gone(self):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = reader_state()
         state.browser.close_fails = True
@@ -634,7 +634,7 @@ class CapacityFirst(unittest.TestCase):
 
 class ShutdownDrain(unittest.TestCase):
     def queued_state(self, close_fails):
-        from ardia_cli.browse import temptabs
+        from voyager_cli.browse import temptabs
 
         state = reader_state()
         state.browser.close_fails = close_fails
@@ -647,7 +647,7 @@ class ShutdownDrain(unittest.TestCase):
         return state, queue
 
     def shut_down(self, state):
-        from ardia_cli.browse import daemon as daemon_module
+        from voyager_cli.browse import daemon as daemon_module
 
         disconnected = []
 
@@ -675,8 +675,8 @@ class ShutdownDrain(unittest.TestCase):
         self.assertEqual(state.registry.temporaries("I"), [])
 
     def test_shutdown_records_a_tab_it_could_not_close_so_the_next_run_recovers_it(self):
-        from ardia_cli.browse import temptabs
-        from ardia_cli.browse.tabs import Registry
+        from voyager_cli.browse import temptabs
+        from voyager_cli.browse.tabs import Registry
 
         state, queue = self.queued_state(close_fails=True)
 
@@ -704,7 +704,7 @@ class RegistryBounds(unittest.TestCase):
         return scratch_registry(key, session)
 
     def test_temporaries_are_capped_per_instance(self):
-        from ardia_cli.browse import tabs
+        from voyager_cli.browse import tabs
 
         one = self.registry("one", "one")
         two = peer(one, "two")
@@ -716,7 +716,7 @@ class RegistryBounds(unittest.TestCase):
         self.assertIn(str(tabs.MAX_TEMPORARIES), caught.exception.message)
 
     def test_a_full_registry_fits_its_byte_budget_and_keeps_every_owner(self):
-        from ardia_cli.browse import paths, tabs
+        from voyager_cli.browse import paths, tabs
 
         mine = self.registry("mine", "séssion-ünïcode-🙂" * 2)
         long = lambda index: f"{index:064X}"
@@ -734,7 +734,7 @@ class RegistryBounds(unittest.TestCase):
         self.assertLess(protected, tabs.FILE_BUDGET)
 
     def test_unused_ids_go_before_any_ownership(self):
-        from ardia_cli.browse import paths, tabs
+        from voyager_cli.browse import paths, tabs
 
         mine = self.registry()
         dead = peer(mine, "dead")
@@ -759,7 +759,7 @@ class ReadRouting(unittest.TestCase):
 
     def test_urls_go_to_the_browser_and_one_http_url_keeps_the_fetch(self):
         with mock.patch.object(readpages, "run", mock.AsyncMock(return_value="pages")) as pages, \
-                mock.patch("ardia_cli.browse.readurl.run", return_value="fetched") as fetched:
+                mock.patch("voyager_cli.browse.readurl.run", return_value="fetched") as fetched:
             self.assertEqual(run(commands.cmd_read(self.ctx(), ["http://a/", "http://b/"])), "pages")
             self.assertEqual(run(commands.cmd_read(self.ctx(), ["http://a/"])), "pages")
             self.assertEqual(run(commands.cmd_read(self.ctx(), ["--links", "/p/", "-s", "main"])), "pages")
@@ -786,7 +786,7 @@ class ReadRouting(unittest.TestCase):
                 raise BrowseError(f"{url} answered HTTP 404")
             return commands.Result({"content": f"body {url}", "finalUrl": url, "title": "T " + url[-2:]}, "")
 
-        with mock.patch("ardia_cli.browse.readurl.run", side_effect=fake):
+        with mock.patch("voyager_cli.browse.readurl.run", side_effect=fake):
             result = readpages.run_local({"http": True}, ["http://a/1", "http://a/bad"], None, {})
         self.assertEqual(result.data["pages"][0], {"url": "http://a/1", "source": "http", "finalUrl": "http://a/1", "title": "T /1", "text": "body http://a/1"})
         self.assertIn("=== [2/2] ✗ http://a/bad\nhttp://a/bad answered HTTP 404", result.text)
@@ -832,7 +832,7 @@ class ScriptPieces(unittest.TestCase):
 
     def test_an_unknown_outcome_stops_the_script(self):
         async def fake_dispatch(ctx, name, argv):
-            raise OutcomeUnknown("`click`", "Ardia didn't answer")
+            raise OutcomeUnknown("`click`", "Voyager didn't answer")
 
         ctx = commands.Ctx(SimpleNamespace(), {}, "/", {}, None, "script")
         with mock.patch.object(daemon, "dispatch", fake_dispatch):
@@ -1008,7 +1008,7 @@ class CompositeOutcomes(unittest.TestCase):
 
 class Redaction(unittest.TestCase):
     def setUp(self):
-        from ardia_cli import redact
+        from voyager_cli import redact
 
         self.secret = "Tok3nThatCrossesTheCutBoundary0123456789abcdefghijklmn"
         redact.add_secret(self.secret)
@@ -1080,7 +1080,7 @@ class CreationRace(unittest.TestCase):
             with self.assertRaises(asyncio.CancelledError):
                 await task
 
-        with mock.patch("ardia_cli.browse.page.Page", lambda state, target_id: FakeReader(state, target_id, state.browser)):
+        with mock.patch("voyager_cli.browse.page.Page", lambda state, target_id: FakeReader(state, target_id, state.browser)):
             run(go())
         self.assertEqual(len(state.browser.created), 2)
         self.assertEqual(sorted(state.browser.closed), sorted(state.browser.created))
@@ -1098,7 +1098,7 @@ class CreationRace(unittest.TestCase):
             with self.assertRaises(asyncio.CancelledError):
                 await task
 
-        with mock.patch("ardia_cli.browse.page.Page", lambda state, target_id: FakeReader(state, target_id, state.browser)):
+        with mock.patch("voyager_cli.browse.page.Page", lambda state, target_id: FakeReader(state, target_id, state.browser)):
             run(go())
         self.assertEqual(state.browser.created, ["R1"])
         self.assertEqual(state.browser.closed, ["R1"])

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Native performance benchmark: launch, idle cost, memory, tab/window latency and background throttling of a
-// Release build, driven in hidden instances (ARDIA_BACKGROUND=1, a throwaway ARDIA_DATA_DIR each run).
+// Release build, driven in hidden instances (VOYAGER_BACKGROUND=1, a throwaway VOYAGER_DATA_DIR each run).
 //
 // Gate recipe, what each row means and which rows don't compare across engines: docs/perf/README.md.
 //
-//   node apps/browser/scripts/perf/native-bench.mjs --app <Ardia.app> --out <dir> [options]
+//   node apps/browser/scripts/perf/native-bench.mjs --app <Voyager.app> --out <dir> [options]
 //     --label <name>          name of this set of results (default: the folder two levels above the app, so
-//                             dist/0.2.22/export/Ardia.app is "0.2.22")
+//                             dist/0.2.22/export/Voyager.app is "0.2.22")
 //     --bundle <file>         Hermes bundle of scripts/perf/bench-entry.js to run (built from the working tree when
 //                             omitted). Pass the same file to a before and an after run so only native code differs.
 //                             It must match the app's NATIVE_API_VERSION, or every command fails with the skew.
@@ -15,7 +15,7 @@
 //                             candidate; each side's results land in <out>/<its label>/results.json.
 //     --control-bundle <file> the control's bundle (default: --app's bundle); --control-label <name> (default as --label)
 //     --prepared              --app (and --control) are copies this script already prepared (<out>/<label>/app/
-//                             Ardia.app: bundle swapped in, signed for the marker): run them in place, without
+//                             Voyager.app: bundle swapped in, signed for the marker): run them in place, without
 //                             building a bundle, copying or signing. `--only prepare` makes those copies and exits.
 //     --runs <n>              session and windows runs (default 3); --launch-runs <n> cold launches (default 5)
 //     --idle <secs>           each idle window (default 60)
@@ -43,7 +43,7 @@
 //                               sample     main-thread `sample`s, idle and while switching and scrolling
 //                               prepare    prepare the app copies and exit (see --prepared)
 //     --env K=V               repeatable: extra environment for every instance (DYLD_INSERT_LIBRARIES is appended to
-//                             the marker library). Instances stay muted; don't pass ARDIA_INSTANCE allowAudio.
+//                             the marker library). Instances stay muted; don't pass VOYAGER_INSTANCE allowAudio.
 //     --frames-n <n>          repetitions of each interaction per run in frames (default 8; framecounts uses at most 3)
 //     --frames-only <regex>   frames, framecounts: only the interactions whose name matches (case-insensitive)
 //     --frames-sample         frames: `sample` the app over the first repetition of each interaction (<out>/frames-sample/*.txt)
@@ -419,11 +419,11 @@ class Instance {
     const main = `^${exe.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}( |$)`;
     if (spawnSync("pgrep", ["-f", main]).status === 0) throw new Error("a bench instance is still running");
     const extra = [...opt.env, ...this.env].filter((e) => !e.startsWith("DYLD_INSERT_LIBRARIES="));
-    writeSwitches(this.dataDir, extra.find((e) => e.startsWith("ARDIA_SWITCHES="))?.slice(19));
+    writeSwitches(this.dataDir, extra.find((e) => e.startsWith("VOYAGER_SWITCHES="))?.slice(19));
     const dyld = [markerLibrary(), ...(this.frames ? [framesLibrary(toolDir, here)] : []), ...opt.env.filter((e) => e.startsWith("DYLD_INSERT_LIBRARIES=")).map((e) => e.slice(22))].join(":");
     this.t0 = Date.now();
     const env = appEnv(this.app, mergeLaunchEnv({
-      ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: this.dataDir, ARDIA_REMOTE_DEBUGGING_PORT: String(this.port),
+      VOYAGER_BACKGROUND: "1", VOYAGER_DATA_DIR: this.dataDir, VOYAGER_REMOTE_DEBUGGING_PORT: String(this.port),
       ...launchVariables({ instance: { updateFeed: this.feed } }), DYLD_INSERT_LIBRARIES: dyld,
     }, ...extra.map((e) => ({ [e.slice(0, e.indexOf("="))]: e.slice(e.indexOf("=") + 1) }))));
     execFileSync("open", ["-g", "-n", ...Object.entries(env).flatMap(([k, v]) => ["--env", `${k}=${v}`]), this.app,
@@ -572,12 +572,12 @@ async function launchRun(side, i) {
   if (copy) {
     rmSync(copy, { recursive: true, force: true });
     mkdirSync(copy, { recursive: true });
-    execFileSync("cp", ["-Rc", side.app, join(copy, "Ardia.app")]);
+    execFileSync("cp", ["-Rc", side.app, join(copy, "Voyager.app")]);
   }
-  const app = new Instance(copy ? { ...side, app: join(copy, "Ardia.app") } : side, freshDir(side, `launch-${i}`));
+  const app = new Instance(copy ? { ...side, app: join(copy, "Voyager.app") } : side, freshDir(side, `launch-${i}`));
   const traceFile = join(app.dataDir, "startup-trace.json");
   if (opt["trace-startup"]) {
-    app.env.push(`ARDIA_INSTANCE=chromiumSwitches=--trace-startup=${opt["trace-startup"]} --trace-startup-file=${traceFile} --trace-startup-duration=4 --trace-startup-format=json`);
+    app.env.push(`VOYAGER_INSTANCE=chromiumSwitches=--trace-startup=${opt["trace-startup"]} --trace-startup-file=${traceFile} --trace-startup-duration=4 --trace-startup-format=json`);
   }
   try {
     await app.launch();
@@ -1174,7 +1174,7 @@ const fail = (message) => {
   console.error(message);
   process.exit(64);
 };
-if (!opt.app) fail("usage: native-bench.mjs --app <Ardia.app> [--control <app>] [--out dir] [--only phases] … (--help)");
+if (!opt.app) fail("usage: native-bench.mjs --app <Voyager.app> [--control <app>] [--out dir] [--only phases] … (--help)");
 const JOURNEY_PHASES = ["newtabkey", "navigate"];
 const FRAME_PHASES = ["frames", "framecounts"];
 const PHASES = ["launch", "session", ...SESSION_PARTS, ...JOURNEY_PHASES, ...FRAME_PHASES, "windows", "throttle", "churn", "sample", "prepare"];

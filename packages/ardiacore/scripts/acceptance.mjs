@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Stage 1 acceptance for the app on ArdiaCore (docs/ardiacore-parity.md): boots the ArdiaCore build of the app hidden
-// (ARDIA_BACKGROUND=1, its own data dir and DevTools port; scripts/lib/instance.mjs), serves fixture pages, and
+// (VOYAGER_BACKGROUND=1, its own data dir and DevTools port; scripts/lib/instance.mjs), serves fixture pages, and
 // drives the real app through its dev harness (lib/devHarness.ts) and Chrome's DevTools protocol.
 //
-//   node packages/ardiacore/scripts/acceptance.mjs <Ardia.app> <scratch dir> [--keep] [check…]
+//   node packages/ardiacore/scripts/acceptance.mjs <Voyager.app> <scratch dir> [--keep] [check…]
 //   node packages/ardiacore/scripts/acceptance.mjs --attach <scratch dir> [check…]
 //   node packages/ardiacore/scripts/acceptance.mjs --list
 //
@@ -11,12 +11,12 @@
 //   --keep     leave the instance running at the end (and reuse the one this scratch dir already keeps)
 //   --attach   run against the instance a --keep run left in <scratch dir>: no boot, seconds per check
 //   SKIP=a,b   leave checks out; VERBOSE=1 prints the log as it goes; METRO_PORT (default 8081)
-//   ARDIA_TRACE=visibility,pip and ARDIA_INSTANCE=allowOcclusion,chromiumSwitches=… pass on to the instance
+//   VOYAGER_TRACE=visibility,pip and VOYAGER_INSTANCE=allowOcclusion,chromiumSwitches=… pass on to the instance
 //
 // Output: one line per check (PASS/FAIL, ms); a failure adds its first lines; the rest (evidence, state at a failure,
 // diagnostics) goes to <scratch dir>/data/acceptance.log, results to <scratch dir>/results.json. It never takes focus
 // and never touches a real profile: the data dir is <scratch dir>/data, wiped first (not when attaching).
-// Its instance keeps Chrome's audio (ARDIA_INSTANCE allowAudio) so Chrome reports audible tabs, and sends it to a fake output
+// Its instance keeps Chrome's audio (VOYAGER_INSTANCE allowAudio) so Chrome reports audible tabs, and sends it to a fake output
 // (--disable-audio-output): nothing reaches the speakers. The fixtures play at -60 dBFS (Chrome's audible threshold is
 // -72); the automatic Picture in Picture checks need ffmpeg for their clip (made once into <scratch dir>/media).
 //
@@ -179,7 +179,7 @@ if (attaching || keep) {
 const [appArg, scratchArg, ...only] = attaching ? [kept.app, ...argv] : argv;
 const { run: selected, deps } = selection(only);
 if (!appArg || !scratchArg) {
-  console.error("usage: acceptance.mjs <Ardia.app> <scratch dir> [--keep] [check…] | --attach <scratch dir> [check…] | --list | --help");
+  console.error("usage: acceptance.mjs <Voyager.app> <scratch dir> [--keep] [check…] | --attach <scratch dir> [check…] | --list | --help");
   process.exit(64);
 }
 const app = resolve(appArg);
@@ -404,7 +404,7 @@ const server = createServer((req, res) => {
           if (e.key === "f") document.fullscreenElement ? document.exitFullscreen() : document.body.requestFullscreen();
         });
       if (location.search.includes("handlers")) {
-        navigator.mediaSession.metadata = new MediaMetadata({ title: "Fixture video", artist: "Ardia" });
+        navigator.mediaSession.metadata = new MediaMetadata({ title: "Fixture video", artist: "Voyager" });
         for (const action of ["play", "pause", "seekbackward", "seekforward", "previoustrack", "nexttrack", "seekto"])
           navigator.mediaSession.setActionHandler(action, () => {});
       }
@@ -463,7 +463,7 @@ const tlsSpki = createHash("sha256").update(new X509Certificate(tlsCert).publicK
 
 let exe, stdout, pid, child, launchedAt, exited = null;
 let instance = null;
-const runner = { instance: instanceEntries(process.env.ARDIA_INSTANCE), trace: (process.env.ARDIA_TRACE ?? "").split(",").filter(Boolean) };
+const runner = { instance: instanceEntries(process.env.VOYAGER_INSTANCE), trace: (process.env.VOYAGER_TRACE ?? "").split(",").filter(Boolean) };
 let chromeSwitches = `--disable-media-route-providers-for-test ${runner.instance.chromiumSwitches ?? ""}`.trim();
 chromeSwitches += ` --host-resolver-rules=${["ib.adnxs.com", "securepubads.g.doubleclick.net", "pagead2.googlesyndication.com", "adpage.test"]
   .map((host) => `MAP ${host} 127.0.0.1:${server.address().port}`).concat([`one.${siteDataDomain}`, `two.${siteDataDomain}`, ...siteDataSecureHosts].map((host) => `MAP ${host} 127.0.0.1:${tlsServer.address().port}`)).join(", ")}`;
@@ -1544,7 +1544,7 @@ try {
         }, 5000);
         if (unclicked !== "InvalidStateError" || (await asks()) !== asked) throw new Error(`${kind} without a click: ${unclicked}, picker asks ${(await asks()) - asked}`);
         await cdp(t, "Runtime.evaluate", { expression: `share(${JSON.stringify(kind)})`, userGesture: true });
-        await until(`Ardia's picker for ${kind}`, async () => ((await asks()) > asked ? true : null), 10000);
+        await until(`Voyager's picker for ${kind}`, async () => ((await asks()) > asked ? true : null), 10000);
         const source = await evalApp(`return ac.webviews.get("${target.id}").mediaCaptureSourceId()`);
         if (!source) throw new Error("no capture source id for the target tab");
         await evalApp(`globalThis.acSharePicker.answerDisplayMedia("${tab.id}", ${JSON.stringify(source)}); return true`);
@@ -4111,10 +4111,10 @@ try {
         await closeWindow(priv);
         opened.splice(opened.indexOf(priv), 1);
         await sleep(500);
-        step("Little Ardia appears over the window");
+        step("Little Voyager appears over the window");
         const small = await opens("newLittleArdia", "small", `${base}/marker?other`, [wx + 60, wy + 60, 520, 420]);
         await sleep(900);
-        step("Little Ardia closes");
+        step("Little Voyager closes");
         await closeWindow(small);
         opened.splice(opened.indexOf(small), 1);
         await sleep(400);
@@ -5764,13 +5764,13 @@ try {
   await check("little-ardia", async () => {
     const before = await evalApp(`return Object.keys(ac.store.getState().windows)`);
     await evalApp(`ac.runCommand({ command: "newLittleArdia" }); return true`);
-    const id = await until("a Little Ardia window", async () => {
+    const id = await until("a Little Voyager window", async () => {
       const w = await evalApp(`return Object.values(ac.store.getState().windows).find((w) => w.kind === "small")?.id ?? null`);
       return w;
     });
     const tabId = await until("its tab", async () => evalApp(`return ac.store.getState().windows["${id}"]?.tabIds[0] ?? null`));
     await evalApp(`ac.store.getState().navigate("${tabId}", "${base}/b?small", { userInitiated: true }); return true`);
-    await until("Page B in Little Ardia", async () => evalApp(`return ac.store.getState().tabs["${tabId}"]?.title === "Page B"`));
+    await until("Page B in Little Voyager", async () => evalApp(`return ac.store.getState().tabs["${tabId}"]?.title === "Page B"`));
     return { window: id, tab: tabId };
   });
 
@@ -5799,8 +5799,8 @@ try {
     if (installed?.error) throw new Error(installed.error);
     const host = join(scratch, "echo-host.sh");
     writeFileSync(host, "#!/bin/sh\nexec cat\n", { mode: 0o755 });
-    const hostManifest = join(dir, "com.ardia.acceptance.echo.json");
-    writeFileSync(hostManifest, JSON.stringify({ name: "com.ardia.acceptance.echo", description: "echo", path: host, type: "stdio", allowed_origins: [`chrome-extension://${installed.id}/`] }));
+    const hostManifest = join(dir, "com.stamatisfloratos.voyager.acceptance.echo.json");
+    writeFileSync(hostManifest, JSON.stringify({ name: "com.stamatisfloratos.voyager.acceptance.echo", description: "echo", path: host, type: "stdio", allowed_origins: [`chrome-extension://${installed.id}/`] }));
     try {
       const worker = await until("the extension's worker", async () => {
         for (const t of (await targets()).filter((t) => t.type === "service_worker" && t.url.includes(installed.id))) {
@@ -5810,7 +5810,7 @@ try {
         return null;
       }, 15000);
       const reply = await cdp(worker, "Runtime.evaluate", {
-        expression: `chrome.runtime.sendNativeMessage("com.ardia.acceptance.echo", { ping: 42 }).then((r) => JSON.stringify(r), (e) => "error: " + e.message)`,
+        expression: `chrome.runtime.sendNativeMessage("com.stamatisfloratos.voyager.acceptance.echo", { ping: 42 }).then((r) => JSON.stringify(r), (e) => "error: " + e.message)`,
         awaitPromise: true,
         returnByValue: true,
       });
@@ -6412,7 +6412,7 @@ try {
       for (const line of set) places.set(window(line), (places.get(window(line)) ?? new Set()).add(sample(line)));
       for (const [win, at] of places) if (at.size > 1) moved.push({ phase, window: win, places: [...at] });
     }
-    if (!lines.some((line) => line.includes(" layout -> "))) throw new Error("no layout pass logged (is ARDIA_TRACE trafficLights set?)");
+    if (!lines.some((line) => line.includes(" layout -> "))) throw new Error("no layout pass logged (is VOYAGER_TRACE trafficLights set?)");
     if (bad.length || badAway.length || moved.length)
       throw new Error(`traffic lights left their spot: ${JSON.stringify({ moved, bad: bad.slice(0, 6), badAway: badAway.slice(0, 6) })}`);
     return { samples: lines.length, hiddenSamples: away.length, layoutPasses: lines.filter((line) => line.includes(" layout -> ")).length };
@@ -6669,7 +6669,7 @@ try {
   // MARK: Crash guard (ends the run)
 
   await check("crash-guard", async () => {
-    const reports = () => readdirSync(join(process.env.HOME, "Library/Logs/DiagnosticReports")).filter((f) => f.startsWith("Ardia-"));
+    const reports = () => readdirSync(join(process.env.HOME, "Library/Logs/DiagnosticReports")).filter((f) => f.startsWith("Voyager-"));
     const before = new Set(reports());
     const front = execFileSync("lsappinfo", ["front"]).toString().trim();
     const crashed = pid;

@@ -1,5 +1,7 @@
 # Dashboard: Triage
 
+> Upstream reference from Ardia 0.2.46. For current Voyager behavior, paths and build instructions, see [the fork notes](voyager.md).
+
 `/triage` in the dashboard (`apps/dashboard`) shows the feedback-triage data that `ardia-db` mirrors into the `sandbox` database on the telemetry ClickHouse: requests, the reply queue, people, releases and GitHub issues. It sits behind the same Hexclave sign-in and admin gate as every other page: a verified primary email and `is_admin: true` in the user's client read-only metadata.
 
 The dashboard's `/settings` page, which settings opted-in users change, is described in `docs/dashboard-settings.md`.

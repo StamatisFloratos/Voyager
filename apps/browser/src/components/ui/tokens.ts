@@ -1,4 +1,4 @@
-import type { AreaLightPalette } from "@ardia/shaders";
+import type { AreaLightPalette } from "@voyager/shaders";
 import type { ProfileColor } from "../../lib/profileLook";
 import { parseColor } from "../../lib/color";
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Captures the real Ardia app in the demo's seeded state, for compare.mjs.
+// Captures the real Voyager app in the demo's seeded state, for compare.mjs.
 //
-//   node packages/demo/scripts/reference.mjs [--app <Debug Ardia.app>] [--out DIR] [--themes light,dark]
+//   node packages/demo/scripts/reference.mjs [--app <Debug Voyager.app>] [--out DIR] [--themes light,dark]
 //                                        [--states idle,command,ntp,hover,menu,profile,field] [--favicons] [--keep]
 //                                        [--data DIR]
 //
@@ -61,18 +61,18 @@ function debugApps() {
   const out = join(builds, "build-train/out");
   const candidates = readdirSync(builds)
     .filter((d) => d.startsWith("build-"))
-    .map((d) => join(builds, d, "Build/Products/Debug/Ardia.app"))
-    .concat(existsSync(out) ? readdirSync(out).filter((d) => d.endsWith("-Debug")).map((d) => join(out, d, "Ardia.app")) : [])
-    .filter((app) => existsSync(join(app, "Contents/MacOS/Ardia")))
-    .sort((a, b) => statSync(join(b, "Contents/MacOS/Ardia")).mtimeMs - statSync(join(a, "Contents/MacOS/Ardia")).mtimeMs);
+    .map((d) => join(builds, d, "Build/Products/Debug/Voyager.app"))
+    .concat(existsSync(out) ? readdirSync(out).filter((d) => d.endsWith("-Debug")).map((d) => join(out, d, "Voyager.app")) : [])
+    .filter((app) => existsSync(join(app, "Contents/MacOS/Voyager")))
+    .sort((a, b) => statSync(join(b, "Contents/MacOS/Voyager")).mtimeMs - statSync(join(a, "Contents/MacOS/Voyager")).mtimeMs);
   if (!candidates.length) throw new Error("no Debug build under apps/browser/build-*");
   return candidates;
 }
 
 function cloneApp(source) {
-  const target = `${scratch}/Ardia.app`;
-  const stamp = `${scratch}/Ardia.app.source`;
-  const sourceTime = String(statSync(join(source, "Contents/MacOS/Ardia")).mtimeMs);
+  const target = `${scratch}/Voyager.app`;
+  const stamp = `${scratch}/Voyager.app.source`;
+  const sourceTime = String(statSync(join(source, "Contents/MacOS/Voyager")).mtimeMs);
   const current = existsSync(stamp) ? readFileSync(stamp, "utf8") : "";
   if (existsSync(target) && current === `${source}\n${sourceTime}`) return target;
   rmSync(target, { recursive: true, force: true });

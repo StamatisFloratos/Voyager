@@ -35,7 +35,7 @@ export async function confirmRemovingShared(windowId: string, groupId: string): 
   const name = (g && groupLabel(store(), g)) || "this folder";
   const { confirmed } = await confirm({
     title: `Remove “${name}” from the Sidebar?`,
-    message: `The folder stays in ${folderLabel(shared.folder.path)}, with every link in it, and the people you shared it with keep it. Ardia only stops syncing it on this Mac.`,
+    message: `The folder stays in ${folderLabel(shared.folder.path)}, with every link in it, and the people you shared it with keep it. Voyager only stops syncing it on this Mac.`,
     confirmTitle: "Remove",
     destructive: true,
     windowId,

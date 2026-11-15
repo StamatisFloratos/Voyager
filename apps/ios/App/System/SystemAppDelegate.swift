@@ -1,4 +1,4 @@
-import ArdiaDesign
+import VoyagerDesign
 import Observation
 import UIKit
 
@@ -20,9 +20,9 @@ final class SystemEvents {
 }
 
 enum QuickAction: String, CaseIterable {
-  case search = "com.ardia.browser.ios.search"
-  case voiceSearch = "com.ardia.browser.ios.voice"
-  case incognito = "com.ardia.browser.ios.incognito"
+  case search = "com.stamatisfloratos.voyager.ios.search"
+  case voiceSearch = "com.stamatisfloratos.voyager.ios.voice"
+  case incognito = "com.stamatisfloratos.voyager.ios.incognito"
 
   var link: SystemLink {
     switch self {

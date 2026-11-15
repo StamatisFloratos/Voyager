@@ -36,7 +36,7 @@ export function tabRefs(results: OpResult[], refs: string[]): string[] {
     return tabs;
   });
   const s = store();
-  for (const id of ids) if (!isEligibleTab(s, id)) throw new OpError("no_window", `There's no tab ${id} the ardia command can use.`);
+  for (const id of ids) if (!isEligibleTab(s, id)) throw new OpError("no_window", `There's no tab ${id} the voyager command can use.`);
   return [...new Set(ids)];
 }
 
@@ -59,7 +59,7 @@ function groupNamed(name: string, scope: NameScope): TabGroup {
   let found = pool.filter((g) => folded(g.name) === want);
   if (!found.length) found = pool.filter((g) => !g.name.trim() && folded(groupLabel(s, g)) === want);
   const where = `window ${scope.windowId}${scope.profileId ? `, profile ${scope.profileId}` : ""}`;
-  if (!found.length) throw new OpError("no_window", `There's no group named ${JSON.stringify(name)} in ${where} (ardia groups lists them; --window picks another window).`);
+  if (!found.length) throw new OpError("no_window", `There's no group named ${JSON.stringify(name)} in ${where} (voyager groups lists them; --window picks another window).`);
   if (found.length > 1) {
     const list = found.map((g) => `${g.id} (${JSON.stringify(groupLabel(s, g))}${g.parentId ? `, inside ${g.parentId}` : ""}, profile ${g.profileId})`).join(", ");
     throw new OpError("bad_request", `${JSON.stringify(name)} names ${found.length} groups in ${where}: ${list}. Give one id.`);
@@ -74,7 +74,7 @@ export function groupRef(results: OpResult[], ref: unknown, scope: () => NameSco
     const id = at === null ? (ownEntry(s.groups, ref) ? ref : null) : results[at]?.group;
     if (at !== null && !id) throw new OpError("bad_request", `${ref} made no group.`);
     if (id) {
-      if (!isEligibleGroup(s, id)) throw new OpError("no_window", `There's no group ${id} the ardia command can use.`);
+      if (!isEligibleGroup(s, id)) throw new OpError("no_window", `There's no group ${id} the voyager command can use.`);
       return ownEntry(s.groups, id)!;
     }
     return groupNamed(ref, scope());
@@ -104,7 +104,7 @@ export function anchorRef(results: OpResult[], ref: string): Anchor {
 }
 
 export function normalWindow(id: string): string {
-  if (eligibleKind(store(), id) !== "normal") throw new OpError("no_window", `There's no window ${id} the ardia command can use.`);
+  if (eligibleKind(store(), id) !== "normal") throw new OpError("no_window", `There's no window ${id} the voyager command can use.`);
   return id;
 }
 
@@ -121,7 +121,7 @@ export function defaultWindow(profileId?: string): string {
   const showing = profileId ? order.find((id) => s.windows[id]!.profileId === profileId) : undefined;
   const last = lastFocusedEligibleWindow(s);
   const found = showing ?? (last && isNormal(s, last) ? last : order[0]);
-  if (!found) throw new OpError("no_window", "No browser window the ardia command can use is open.");
+  if (!found) throw new OpError("no_window", "No browser window the voyager command can use is open.");
   return found;
 }
 

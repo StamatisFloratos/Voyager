@@ -9,7 +9,7 @@ import { openSplitPane } from "../splits/actions";
 import { showToast } from "../app/toasts";
 import { isPeekTab, otherSitePeekTabIds, shownPageId } from "./peek";
 import { closeFind } from "../find/actions";
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import { linkDestination } from "../../lib/linkWrappers";
 import { navigationOf } from "../tabs/pageSession";
 

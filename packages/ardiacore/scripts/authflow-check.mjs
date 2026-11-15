@@ -6,7 +6,7 @@ import { devtools, launch, session, sleep } from "../../../scripts/lib/instance.
 
 const [appArg, scratchArg] = process.argv.slice(2);
 if (!appArg) {
-  console.error("usage: authflow-check.mjs <Ardia.app> [scratch dir]\n\nchrome.identity.launchWebAuthFlow and getAuthToken in a hidden instance: silent and interactive sign-in,\ncancel by closing the sign-in window, a private window open, and a relaunch afterwards.");
+  console.error("usage: authflow-check.mjs <Voyager.app> [scratch dir]\n\nchrome.identity.launchWebAuthFlow and getAuthToken in a hidden instance: silent and interactive sign-in,\ncancel by closing the sign-in window, a private window open, and a relaunch afterwards.");
   process.exit(64);
 }
 const scratch = resolve(scratchArg ?? join(process.env.TMPDIR ?? "/tmp", `ac-authflow-check-${process.pid}`));

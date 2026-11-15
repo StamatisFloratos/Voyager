@@ -1,4 +1,4 @@
-import { hostSpoofReason, punycodeEncode } from "@ardia/core";
+import { hostSpoofReason, punycodeEncode } from "@voyager/core";
 
 export type UrlParts = {
   scheme: string;

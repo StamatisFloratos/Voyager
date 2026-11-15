@@ -7,7 +7,7 @@ import { launch, reporter, sleep } from "../../../scripts/lib/instance.mjs";
 const args = process.argv.slice(2);
 const appArg = args.find((a) => !a.startsWith("--"));
 if (!appArg) {
-  console.error("usage: node onboarding-test.mjs <Debug Ardia.app> [--port=<DevTools port>] [--keep-data]\n\nNo text field sits behind the onboarding card, where its I-beam and clicks would come through the rows, the first row's checkbox toggles on a click, another window keeps its New Tab field meanwhile, and the New Tab field is back and focused once onboarding ends, in a bar that keeps its height.");
+  console.error("usage: node onboarding-test.mjs <Debug Voyager.app> [--port=<DevTools port>] [--keep-data]\n\nNo text field sits behind the onboarding card, where its I-beam and clicks would come through the rows, the first row's checkbox toggles on a click, another window keeps its New Tab field meanwhile, and the New Tab field is back and focused once onboarding ends, in a bar that keeps its height.");
   process.exit(2);
 }
 const appPath = resolve(appArg);
@@ -57,11 +57,11 @@ try {
 
   await rep.check("the home step has no text field behind its card", async () => {
     const ax = await run(`acOnboarding.go("home"); return settle(1200).then(() => act("ax"));`);
-    assert.match(ax, /AXCheckBox: Set Ardia as default browser/, "the step is on screen");
+    assert.match(ax, /AXCheckBox: Set Voyager as default browser/, "the step is on screen");
     assert.deepEqual(textFields(ax), [], "a text field behind the card takes the first row's cursor and clicks");
   });
 
-  const label = JSON.stringify("Set Ardia as default browser");
+  const label = JSON.stringify("Set Voyager as default browser");
   const toggles = "a click on the first row's checkbox toggles it";
   if (await run(`return !!checkRow(${label})?.memoizedProps.accessibilityState?.disabled;`))
     rep.record(toggles, { skip: "this build is the system's default browser, so the row is disabled" });
@@ -74,7 +74,7 @@ try {
   await rep.check("another window keeps its New Tab field during onboarding", async () => {
     const axes = await run(`const id = ac.store.getState().createWindow(); return settle(1500).then(windowsAx).then((axes) => { ac.store.getState().closeWindow(id); return settle(500).then(() => axes); });`);
     assert.equal(axes.length, 2, "two windows");
-    const [onboarding, other] = /AXCheckBox: Set Ardia as default browser/.test(axes[0]) ? axes : [...axes].reverse();
+    const [onboarding, other] = /AXCheckBox: Set Voyager as default browser/.test(axes[0]) ? axes : [...axes].reverse();
     assert.deepEqual(textFields(onboarding), [], "the onboarding window");
     assert.equal(textFields(other).length, 1, "the other window's New Tab field");
   });

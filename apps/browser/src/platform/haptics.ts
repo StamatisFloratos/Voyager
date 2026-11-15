@@ -1,2 +1,2 @@
-export { hapticTick } from "@ardia/shell";
-export { swipeHaptic } from "@ardia/ardiacore";
+export { hapticTick } from "@voyager/shell";
+export { swipeHaptic } from "@voyager/ardiacore";

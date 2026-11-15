@@ -14,14 +14,14 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import command_metrics
-from ardia_cli.browse import actions, commands, help as helptext
-from ardia_cli.browse.errors import BrowseError, Usage
-from ardia_cli.browse.page import Element
+from voyager_cli import command_metrics
+from voyager_cli.browse import actions, commands, help as helptext
+from voyager_cli.browse.errors import BrowseError, Usage
+from voyager_cli.browse.page import Element
 
 CLI = Path(__file__).resolve().parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "browse"
-CHROME = os.environ.get("ARDIA_BROWSE_CHROME")
+CHROME = os.environ.get("VOYAGER_BROWSE_CHROME")
 
 
 def run(coroutine):
@@ -65,7 +65,7 @@ class HelpFallback(unittest.TestCase):
             self.assertLess(len(text), 2500, name)
 
     def test_a_command_without_an_entry_prints_one_line_and_no_flags(self):
-        self.assertEqual(helptext.command_help("pushstate"), "ardia browse back, forward, reload, pushstate <url>\nflags: none")
+        self.assertEqual(helptext.command_help("pushstate"), "voyager browse back, forward, reload, pushstate <url>\nflags: none")
         self.assertIs(helptext.command_help("no-such-command"), helptext.OVERVIEW)
 
     def test_drag_documents_its_sides(self):
@@ -191,11 +191,11 @@ def wait_for(check, seconds: float, what: str):
     raise AssertionError(f"timed out waiting for {what}")
 
 
-@unittest.skipUnless(CHROME and Path(CHROME).exists(), "set ARDIA_BROWSE_CHROME to a Chrome binary to act on real cells and lists")
+@unittest.skipUnless(CHROME and Path(CHROME).exists(), "set VOYAGER_BROWSE_CHROME to a Chrome binary to act on real cells and lists")
 class ActInChrome(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.scratch = Path(tempfile.mkdtemp(prefix="ardia-act-"))
+        cls.scratch = Path(tempfile.mkdtemp(prefix="voyager-act-"))
         cls.data = cls.scratch / "cli-data"
         cls.data.mkdir()
         cls.http_port, cls.port = free_port(), free_port()
@@ -223,10 +223,10 @@ class ActInChrome(unittest.TestCase):
     @classmethod
     def browse(cls, *args, check=True):
         env = dict(os.environ, PYTHONPATH=str(CLI))
-        done = subprocess.run([sys.executable, "-m", "ardia_cli", "browse", "--port", str(cls.port), "--data-dir", str(cls.data), "--session", "act",
+        done = subprocess.run([sys.executable, "-m", "voyager_cli", "browse", "--port", str(cls.port), "--data-dir", str(cls.data), "--session", "act",
                                *args], capture_output=True, text=True, timeout=120, env=env, cwd=CLI)
         if check and done.returncode:
-            raise AssertionError(f"ardia browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
+            raise AssertionError(f"voyager browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
         return done
 
     def setUp(self):

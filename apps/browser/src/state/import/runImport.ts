@@ -1,4 +1,4 @@
-import { ardiaError } from "@ardia/core";
+import { ardiaError } from "@voyager/core";
 import { orWarn } from "../../lib/fallback";
 import { confirm } from "../app/system";
 import { plural } from "../browser/model";
@@ -103,7 +103,7 @@ function readAppTabs(): Promise<AppTabs> {
       (e: unknown): AppTabs => {
         const { code } = ardiaError(e);
         if (code === "locked")
-          return { note: `${NOT_BROUGHT} macOS didn't allow Ardia to ask Dia for them. Allow it in System Settings › Privacy & Security › Automation, then import again.` };
+          return { note: `${NOT_BROUGHT} macOS didn't allow Voyager to ask Dia for them. Allow it in System Settings › Privacy & Security › Automation, then import again.` };
         return { note: `${NOT_BROUGHT} ${code === "notRunning" ? "Dia didn't open." : "Dia didn't answer."}` };
       },
     );

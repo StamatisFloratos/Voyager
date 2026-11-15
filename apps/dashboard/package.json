@@ -1,5 +1,5 @@
 {
-  "name": "@ardia/dashboard",
+  "name": "@voyager/dashboard",
   "private": true,
   "type": "module",
   "scripts": {

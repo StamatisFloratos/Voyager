@@ -1,4 +1,4 @@
-import { appUrlOrigin, urlForDisplay } from "@ardia/core";
+import { appUrlOrigin, urlForDisplay } from "@voyager/core";
 import { displayHostOf } from "../../lib/url";
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";

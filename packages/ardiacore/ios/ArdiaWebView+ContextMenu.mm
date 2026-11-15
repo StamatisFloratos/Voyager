@@ -72,7 +72,7 @@ constexpr int64_t kSharedImageLifetime = 3600;
 NSString *SharedImagesRoot() {
   ArdiaLaunchConfig *config = ArdiaLaunchConfig.shared;
   NSString *base = config.isolated && config.dataDirectory.length ? config.dataDirectory : NSTemporaryDirectory();
-  return [base stringByAppendingPathComponent:@"Ardia Shared Images"].stringByStandardizingPath;
+  return [base stringByAppendingPathComponent:@"Voyager Shared Images"].stringByStandardizingPath;
 }
 
 bool IsPrivateDirectory(NSString *path) {

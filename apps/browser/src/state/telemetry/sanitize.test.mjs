@@ -8,7 +8,7 @@ const leaks = (text, ...secrets) => secrets.filter((s) => text.includes(s));
 
 test("web addresses, hosts and app URLs are stripped", () => {
   const out = scrubText(
-    "Failed to load https://mail.example.com/inbox?q=secret#frag, then ardia://settings/passwords and chrome://version from bank.co.uk:8443",
+    "Failed to load https://mail.example.com/inbox?q=secret#frag, then voyager://settings/passwords and chrome://version from bank.co.uk:8443",
   );
   assert.deepEqual(leaks(out, "example", "inbox", "secret", "passwords", "settings", "version", "bank"), []);
   assert.match(out, /^Failed to load <url> then <url> and <url> from <host>$/);
@@ -18,8 +18,8 @@ test("web addresses, hosts and app URLs are stripped", () => {
 });
 
 test("file paths and file names are stripped, with the user's name", () => {
-  const out = scrubText("Couldn't read /Users/alice/Library/Application Support/Ardia/history.json");
-  assert.deepEqual(leaks(out, "alice", "Library", "Ardia", "history"), []);
+  const out = scrubText("Couldn't read /Users/alice/Library/Application Support/Voyager/history.json");
+  assert.deepEqual(leaks(out, "alice", "Library", "Voyager", "history"), []);
   assert.ok(out.startsWith("Couldn't read <path>"));
   assert.equal(scrubText("Couldn't save live-folders-work.json"), "Couldn't save <file>");
   assert.equal(scrubText("open ~/Documents/Taxes 2025.pdf failed"), "open <path> <file> failed");
@@ -79,7 +79,7 @@ test("an uncaught NSException sends its name and its throw site first, never its
     exceptionName: "NSRangeException",
     exceptionReason:
       "*** -[TabStrip select:]: index 3 beyond bounds for https://private.example/a?q=1 in /Users/someone/Library/x.json by me@example.com, id 0123456789abcdef0123\nsecond line",
-    frames: [{ image: "AppKit", symbol: "+[NSApplication _crashOnException:]", offset: 0x3d5e74 }, { image: "Ardia", symbol: "main", offset: 0x4a10, symbolOffset: 8 }],
+    frames: [{ image: "AppKit", symbol: "+[NSApplication _crashOnException:]", offset: 0x3d5e74 }, { image: "Voyager", symbol: "main", offset: 0x4a10, symbolOffset: 8 }],
     exceptionFrames: [
       { image: "CoreFoundation", symbol: "__exceptionPreprocess", offset: 0x1007b0 },
       { image: "libobjc.A.dylib", symbol: "objc_exception_throw", offset: 0x165c },
@@ -123,9 +123,9 @@ test("native frames keep their image offset and drop a stripped image's nearest 
     { image: "Chromium Framework", symbol: "ac_engine_set_event_sink", offset: 0x2139600 },
     { image: "Chromium Framework", symbol: "ArdiaCoreMain", symbolOffset: 760, offset: 0x442c72c },
     { image: "Chromium Framework", offset: 0x2ef170 },
-    { image: "Ardia", offset: 0x3fd9f0 },
+    { image: "Voyager", offset: 0x3fd9f0 },
     { image: "CoreAutoLayout", symbol: "_NSBitSetResize", symbolOffset: 120000, offset: 0x9a10 },
-    { image: "/Users/someone/Ardia.app/Contents/MacOS/Ardia", symbol: "-[X open:/Users/someone/a]", symbolOffset: 4, offset: 16 },
+    { image: "/Users/someone/Voyager.app/Contents/MacOS/Voyager", symbol: "-[X open:/Users/someone/a]", symbolOffset: 4, offset: 16 },
   ]).reverse();
   assert.deepEqual(
     frames.map((f) => [f.function, f.image_offset, f.resolved]),
@@ -134,12 +134,12 @@ test("native frames keep their image offset and drop a stripped image's nearest 
       ["Chromium Framework + 0x2139600", "0x2139600", false],
       ["ArdiaCoreMain", "0x442c72c", true],
       ["Chromium Framework + 0x2ef170", "0x2ef170", false],
-      ["Ardia + 0x3fd9f0", "0x3fd9f0", false],
+      ["Voyager + 0x3fd9f0", "0x3fd9f0", false],
       ["_NSBitSetResize", "0x9a10", true],
       ["-[X <path>", "0x10", true],
     ],
   );
-  assert.equal(frames[6].module, "Ardia");
+  assert.equal(frames[6].module, "Voyager");
   assert.deepEqual(frames.map((f) => f.in_app), [true, true, true, true, true, false, true]);
 });
 
@@ -147,15 +147,15 @@ test("crash reports name only the app's own images, by UUID", () => {
   const { images } = nativeCrashExceptions({
     frames: [],
     images: [
-      { name: "Ardia", uuid: "1C77EF99-77D4-3DE8-9BA2-6929E276BC60" },
+      { name: "Voyager", uuid: "1C77EF99-77D4-3DE8-9BA2-6929E276BC60" },
       { name: "Chromium Framework", uuid: "4c4c4479-5555-3144-a199-a2cbd9a6d85f" },
       { name: "AppKit", uuid: "77e3adb8-e4e8-3912-8599-d43182877c10" },
-      { name: "Ardia", uuid: "not a uuid" },
+      { name: "Voyager", uuid: "not a uuid" },
       { name: "/Users/someone/evil", uuid: "4c4c4479-5555-3144-a199-a2cbd9a6d85f" },
     ],
   });
   assert.deepEqual(images, [
-    { name: "Ardia", uuid: "1c77ef99-77d4-3de8-9ba2-6929e276bc60" },
+    { name: "Voyager", uuid: "1c77ef99-77d4-3de8-9ba2-6929e276bc60" },
     { name: "Chromium Framework", uuid: "4c4c4479-5555-3144-a199-a2cbd9a6d85f" },
   ]);
 });
@@ -272,7 +272,7 @@ test("a native exception's free-text reason never leaves, whatever it holds", ()
   for (const report of [
     { frames: [], exceptionName: "NSInvalidArgumentException", exceptionReason: secret },
     { frames: [], exceptionReason: secret },
-    { frames: [], exceptionFrames: [{ image: "Ardia", offset: 1 }], exceptionReason: secret },
+    { frames: [], exceptionFrames: [{ image: "Voyager", offset: 1 }], exceptionReason: secret },
   ]) {
     const out = nativeCrashExceptions(report);
     assert.equal(JSON.stringify(out).includes("Alice"), false, JSON.stringify(out));

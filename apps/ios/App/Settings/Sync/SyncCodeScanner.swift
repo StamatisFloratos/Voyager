@@ -1,5 +1,5 @@
 import AVFoundation
-import ArdiaDesign
+import VoyagerDesign
 import SwiftUI
 import VisionKit
 
@@ -43,7 +43,7 @@ struct SyncCodeScannerSheet: View {
         case .denied:
           unavailable(
             title: "Allow Camera Access",
-            message: "Ardia uses the camera only to read the code your Mac shows. You can allow it in Settings, or type the 24 words instead.",
+            message: "Voyager uses the camera only to read the code your Mac shows. You can allow it in Settings, or type the 24 words instead.",
             showsSettings: true
           )
         case .unsupported:
@@ -71,7 +71,7 @@ struct SyncCodeScannerSheet: View {
       VStack(spacing: Spacing.tight) {
         Text("Scan the Code on Your Mac")
           .font(.title3.bold())
-        Text("In Ardia on your Mac, open Settings › Sync › Connect Another Device.")
+        Text("In Voyager on your Mac, open Settings › Sync › Connect Another Device.")
           .font(.subheadline)
           .foregroundStyle(.white.opacity(0.75))
           .multilineTextAlignment(.center)
@@ -85,7 +85,7 @@ struct SyncCodeScannerSheet: View {
         .accessibilityHidden(true)
       Spacer()
       if showsRejection {
-        Text("Not an Ardia sync code.")
+        Text("Not a Voyager sync code.")
           .font(.subheadline.weight(.medium))
           .multilineTextAlignment(.center)
           .padding(.horizontal, Spacing.page)

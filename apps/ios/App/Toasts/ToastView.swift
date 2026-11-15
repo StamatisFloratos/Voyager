@@ -1,4 +1,4 @@
-import ArdiaDesign
+import VoyagerDesign
 import SwiftUI
 
 struct ToastView: View {

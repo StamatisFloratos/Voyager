@@ -1,10 +1,10 @@
 import type { BarPlacement } from "../omnibox/barPlacement";
-import type { TabGroupColor } from "@ardia/core";
+import type { TabGroupColor } from "@voyager/core";
 import type { PageEngine } from "../../platform/tabs";
 import type { ProfileColor, ProfileTheme } from "../../lib/profileLook";
 
 export type { ProfileColor, ProfileTheme, ThemeColor, ThemeLook, ThemeStop } from "../../lib/profileLook";
-export type { ThemeMode, ThemeTexture } from "@ardia/core";
+export type { ThemeMode, ThemeTexture } from "@voyager/core";
 
 export type Frame = [number, number, number, number];
 

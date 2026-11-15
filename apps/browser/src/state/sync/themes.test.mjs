@@ -4,7 +4,7 @@ import { test } from "node:test";
 globalThis.__DEV__ = false;
 
 const { useBrowser } = await import("../browser/store.ts");
-const { Clock, emptyScope, syncScope } = await import("@ardia/sync");
+const { Clock, emptyScope, syncScope } = await import("@voyager/sync");
 const adapters = await import("./profileAdapters.ts");
 const { settleThemeAdoption } = await import("./syncThemes.ts");
 

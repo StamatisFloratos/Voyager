@@ -1,4 +1,4 @@
-import { call, on, type BookmarkOp, type EngineBookmark } from "@ardia/ardiacore";
+import { call, on, type BookmarkOp, type EngineBookmark } from "@voyager/ardiacore";
 
 export type { EngineBookmark, BookmarkOp };
 

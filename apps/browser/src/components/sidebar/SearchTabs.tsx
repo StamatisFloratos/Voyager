@@ -1,4 +1,4 @@
-import { displayUrl, fuzzyScore, hostOf } from "@ardia/core";
+import { displayUrl, fuzzyScore, hostOf } from "@voyager/core";
 import { useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, View, type TextInput } from "react-native";
 import { switchToTab } from "../../state/browser/actions";

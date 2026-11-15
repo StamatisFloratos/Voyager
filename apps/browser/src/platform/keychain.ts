@@ -1,4 +1,4 @@
-import { nativeModule } from "@ardia/shell";
+import { nativeModule } from "@voyager/shell";
 
 const Keychain = nativeModule("ArdiaKeychain");
 

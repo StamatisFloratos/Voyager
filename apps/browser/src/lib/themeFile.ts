@@ -115,13 +115,13 @@ function modeSchema(mode: ThemeMode, palette: RolePalette): JsonSchema {
     const kind = roleKind(role, value);
     if (kind) properties[role] = roleSchema(kind, value);
   }
-  return { type: "object", description: `Roles for the ${mode} appearance; a role left out keeps Ardia's value`, properties, additionalProperties: false };
+  return { type: "object", description: `Roles for the ${mode} appearance; a role left out keeps Voyager's value`, properties, additionalProperties: false };
 }
 
 export function themeSchema(defaults: RolePalettes): object {
   return {
     $schema: JSON_SCHEMA_DIALECT,
-    description: "An Ardia theme: colour roles that replace Ardia's own, per appearance",
+    description: "A Voyager theme: colour roles that replace Voyager's own, per appearance",
     type: "object",
     properties: { $schema: { type: "string" }, dark: modeSchema("dark", defaults.dark), light: modeSchema("light", defaults.light) },
     additionalProperties: false,

@@ -1,7 +1,7 @@
 import { useBrowser } from "../browser/store";
 import { activeTabId } from "../browser/model";
 import type { HistoryEntry } from "../browser/types";
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 
 type PinnableSite = { id: string; title: string; url: string };
 

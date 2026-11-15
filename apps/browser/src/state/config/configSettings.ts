@@ -5,7 +5,7 @@ import { CONFIG_EXCLUDED_KEYS, isConfigSettingKey } from "../settings/configAllo
 import { SETTING_SPECS, searchEngines, type SettingKey, type Settings } from "../settings/settings";
 import { configShortcuts } from "./configShortcuts";
 import { parseLaunchAction } from "../automation/launchActions";
-import { readProviderEntries } from "@ardia/core";
+import { readProviderEntries } from "@voyager/core";
 
 export const CONFIG_FILE = "config.json";
 

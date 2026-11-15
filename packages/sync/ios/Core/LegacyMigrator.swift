@@ -128,7 +128,7 @@ struct LegacyMigrator {
       while context.oldAppRunning() {
         let choice = context.ask(
           "Quit \(LegacyName.appName) to continue",
-          "Ardia is the new name of \(LegacyName.appName). Quit \(LegacyName.appName), then click Continue to bring your tabs, passwords and settings across.",
+          "Voyager is the new name of \(LegacyName.appName). Quit \(LegacyName.appName), then click Continue to bring your tabs, passwords and settings across.",
           ["Continue", "Quit"])
         if choice != 0 { return .quit }
       }
@@ -138,8 +138,8 @@ struct LegacyMigrator {
         log("couldn't copy \(context.oldData.path): \(error)")
         try? fm.removeItem(at: stagingURL)
         let choice = context.ask(
-          "Ardia couldn't bring your data across",
-          "Copying your data from \(LegacyName.appName) failed (\(error.localizedDescription)). Nothing was changed. You can try again, quit, or start Ardia without it; \(LegacyName.appName)'s data stays where it is.",
+          "Voyager couldn't bring your data across",
+          "Copying your data from \(LegacyName.appName) failed (\(error.localizedDescription)). Nothing was changed. You can try again, quit, or start Voyager without it; \(LegacyName.appName)'s data stays where it is.",
           ["Try Again", "Quit", "Start Without It"])
         if choice == 0 { continue }
         if choice == 2 { return finish(Journal(phase: "done", outcome: "fresh")) }
@@ -188,8 +188,8 @@ struct LegacyMigrator {
       } catch {
         log("couldn't move the data in: \(error)")
         let choice = context.ask(
-          "Ardia couldn't finish bringing your data across",
-          "Moving your copied data into place failed (\(error.localizedDescription)). \(LegacyName.appName)'s data is untouched. Try again, or quit and Ardia will finish the next time it opens.",
+          "Voyager couldn't finish bringing your data across",
+          "Moving your copied data into place failed (\(error.localizedDescription)). \(LegacyName.appName)'s data is untouched. Try again, or quit and Voyager will finish the next time it opens.",
           ["Try Again", "Quit"])
         if choice != 0 { return false }
       }
@@ -304,8 +304,8 @@ struct LegacyMigrator {
   private func askAboutKey(_ item: Renamed.KeychainItem, _ why: String) -> SecretsResult {
     log("\(item.oldService): \(why)")
     let choice = context.ask(
-      "Ardia needs your passwords' key",
-      "To keep your saved passwords and website logins, allow Ardia to use “\(item.oldService)” (the key \(LegacyName.appName) kept them with); choose Always Allow when macOS asks. Or start Ardia without \(LegacyName.appName)'s data, which stays where it is.",
+      "Voyager needs your passwords' key",
+      "To keep your saved passwords and website logins, allow Voyager to use “\(item.oldService)” (the key \(LegacyName.appName) kept them with); choose Always Allow when macOS asks. Or start Voyager without \(LegacyName.appName)'s data, which stays where it is.",
       ["Try Again", "Quit", "Start Without It"])
     return choice == 0 ? .copied([:]) : choice == 2 ? .startFresh : .quit
   }
@@ -521,7 +521,7 @@ struct LegacyMigrator {
     return result
   }
 
-  private func log(_ message: String) { NSLog("Ardia: migration from \(LegacyName.appName): \(message)") }
+  private func log(_ message: String) { NSLog("Voyager: migration from \(LegacyName.appName): \(message)") }
 }
 
 extension LegacyMigrator.Context {

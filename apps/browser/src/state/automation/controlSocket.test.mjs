@@ -51,7 +51,7 @@ function fresh() {
 test("hello, unknown methods and malformed lines", async () => {
   fresh();
   await controlOn();
-  assert.deepEqual(call("hello").result, { app: "Ardia", version: "1.0", protocol: 3 });
+  assert.deepEqual(call("hello").result, { app: "Voyager", version: "1.0", protocol: 3 });
   const unknown = call("dance");
   assert.equal(unknown.error.code, "unknown_method");
   const bad = call(null, null, { raw: "not json" });
@@ -118,11 +118,11 @@ test("a request tagged with an old generation, or arriving after Stop, never run
   assert.equal(stub.controlSocket.running, false);
 });
 
-test("windows lists normal and Little Ardia windows, never private ones, and redacts internal pages", async () => {
+test("windows lists normal and Little Voyager windows, never private ones, and redacts internal pages", async () => {
   fresh();
   await controlOn();
   const w = S().createWindow({ url: "https://a.example/" });
-  S().newTab(w, { url: "ardia://history?q=secret#frag" });
+  S().newTab(w, { url: "voyager://history?q=secret#frag" });
   S().createWindow({ kind: "private", url: "https://secret.example/" });
   const little = S().createWindow({ kind: "small", url: "https://c.example/" });
   const listed = (await callAsync("windows")).result;
@@ -130,14 +130,14 @@ test("windows lists normal and Little Ardia windows, never private ones, and red
   const main = listed.find((x) => x.id === w);
   assert.equal(main.profile, S().windows[w].profileId);
   assert.equal(typeof main.profileName, "string");
-  const history = main.tabs.find((t) => t.url.startsWith("ardia://history"));
-  assert.deepEqual([history.url, history.title], ["ardia://history", "History"]);
+  const history = main.tabs.find((t) => t.url.startsWith("voyager://history"));
+  assert.deepEqual([history.url, history.title], ["voyager://history", "History"]);
   assert.equal(main.tabs.filter((t) => t.active).length, 1);
   for (const t of main.tabs) assert.deepEqual(Object.keys(t).sort(), ["active", "group", "id", "pageGeneration", "pinned", "profile", "targetId", "title", "url"]);
   assert.ok(!JSON.stringify(listed).includes("secret"));
 });
 
-test("windows names each tab's DevTools target so the ardia command never pairs tabs by address", async () => {
+test("windows names each tab's DevTools target so the voyager command never pairs tabs by address", async () => {
   fresh();
   await controlOn();
   const w = S().createWindow({ url: "https://same.example/" });
@@ -313,7 +313,7 @@ test("the pill shows for a socket run while CDP is external, and Stop hides it a
   assert.equal(useCliIndicator.getState().shown, false);
 });
 
-test("a Little Ardia target never falls back to a private window", async () => {
+test("a Little Voyager target never falls back to a private window", async () => {
   fresh();
   await controlOn();
   const priv = S().createWindow({ kind: "private", url: "https://secret.example/" });

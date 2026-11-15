@@ -1,4 +1,4 @@
-import { call } from "@ardia/ardiacore";
+import { call } from "@voyager/ardiacore";
 
 export const setPeekModifier = (modifier: "alt" | "shift" | "off") => call("webView.setPeekModifier", { modifier });
 export const setSplitLinkModifier = (modifier: "alt" | "altShift") => call("webView.setSplitLinkModifier", { modifier });

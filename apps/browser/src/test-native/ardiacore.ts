@@ -16,7 +16,7 @@ import type {
   LinkRoute,
   TabStripCommand,
   TabStripTransaction,
-} from "@ardia/ardiacore";
+} from "@voyager/ardiacore";
 import type { EventSubscription } from "expo-modules-core";
 import { nativeEvents, unfaked } from "./events";
 

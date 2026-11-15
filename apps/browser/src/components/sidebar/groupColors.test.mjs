@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { TAB_GROUP_COLORS } from "@ardia/core";
+import { TAB_GROUP_COLORS } from "@voyager/core";
 import { groupBoxAtRest, groupSurface, groupTint } from "./tokens.ts";
 import { GROUP_COLORS } from "../../state/groups/tokens.ts";
 

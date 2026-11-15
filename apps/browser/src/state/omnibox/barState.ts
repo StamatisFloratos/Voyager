@@ -1,4 +1,4 @@
-import type { SearchScope } from "@ardia/core";
+import type { SearchScope } from "@voyager/core";
 import { useBrowser } from "../browser/store";
 import { activeTabId } from "../browser/model";
 import { expectFocus, heroBarFocus } from "../focus/focusClaims";

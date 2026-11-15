@@ -77,7 +77,7 @@ export function openTabs(urls: string[], where: Space, created: string[]): strin
   const ids: string[] = [];
   for (const url of urls) {
     const id = store().newTab(where.windowId, { url, background: true, profileId: where.profileId });
-    if (!id) throw new OpError("refused", `${url || "A New Tab"} didn't open: a tab.opening rule cancelled it, or Ardia refused it.`);
+    if (!id) throw new OpError("refused", `${url || "A New Tab"} didn't open: a tab.opening rule cancelled it, or Voyager refused it.`);
     ids.push(id);
     created.push(id);
   }
@@ -235,7 +235,7 @@ function createGroup(results: OpResult[], op: Op): OpResult {
     intoSpace(given, where);
     placeEach(ids, dest && pinned && !parentId ? { pinned: true, row: true, beforeId } : { pinned: false, groupId: parentId, beforeId });
     id = store().groupTabs(ids, { pinned, name: op.name as string | undefined });
-    if (!id) throw new OpError("failed", "Ardia didn't do that: the group couldn't be made.");
+    if (!id) throw new OpError("failed", "Voyager didn't do that: the group couldn't be made.");
     const patch = groupPatch({ ...op, name: undefined });
     if (Object.keys(patch).length) store().updateGroup(id, patch);
     expectGroup(id, { ...patch, windowId: where.windowId, profileId: where.profileId, pinned, parentId, tabs: ids });
@@ -251,7 +251,7 @@ function regroupedId(g: TabGroup): string {
   const tab = g.tabIds.find((id) => s.tabs[id]);
   const inner = tab ? innermostGroupOf(s.groups, tab) : undefined;
   const id = inner ? rootOf(s.groups, inner.id)?.id : undefined;
-  if (!id) throw new OpError("failed", `Ardia didn't do that: group ${g.id} didn't move.`);
+  if (!id) throw new OpError("failed", `Voyager didn't do that: group ${g.id} didn't move.`);
   return id;
 }
 

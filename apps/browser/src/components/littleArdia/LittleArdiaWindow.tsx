@@ -25,7 +25,7 @@ import { SMALL_BAR_HEIGHT, SMALL_LIGHTS_CENTER } from "../../state/windows/small
 import { HistoryButton } from "../toolbar/NavButtons";
 import { toolbarPalette } from "../ui/toolbarColors";
 import { useHistoryAvailability } from "../../state/tabs/navigation";
-import { LITTLE_ARDIA_PINCH, NAV_CENTER_PAST_ZOOM, SMALL_BAR_ROW, TRAFFIC_LIGHT_PITCH } from "./tokens";
+import { LITTLE_VOYAGER_PINCH, NAV_CENTER_PAST_ZOOM, SMALL_BAR_ROW, TRAFFIC_LIGHT_PITCH } from "./tokens";
 
 const NAV_LEFT = SMALL_LIGHTS_CENTER[0] + 2 * TRAFFIC_LIGHT_PITCH + NAV_CENTER_PAST_ZOOM - SMALL_BAR_BUTTON / 2;
 const NAV_PITCH = SMALL_BAR_BUTTON + SMALL_BAR_GAP;
@@ -75,7 +75,7 @@ function useLittleArdiaPinch(windowId: string) {
     },
     idle: () => leaving.current || isWindowClosing(windowId),
     begin: () => scale.stopAnimation(),
-    follow: (magnification) => scale.setValue(pinchScale(magnification, LITTLE_ARDIA_PINCH.smallest, LITTLE_ARDIA_PINCH.largest)),
+    follow: (magnification) => scale.setValue(pinchScale(magnification, LITTLE_VOYAGER_PINCH.smallest, LITTLE_VOYAGER_PINCH.largest)),
     settle,
     open: () => {
       notePinch("littleArdia", "open");
@@ -121,7 +121,7 @@ function LittleArdiaBar() {
       field={tab ? <PageField tab={tab} windowId={windowId} hidden={panelOpen} /> : null}
       buttons={[
         { icon: copied ? "checkmark" : "link", disabled: !tab?.url, tooltip: "Copy Link (⇧⌘C)", onPress: copy },
-        { icon: "arrow.up.left.and.arrow.down.right", tooltip: "Open in Ardia (⌘O)", onPress: () => openInMainWindow(windowId) },
+        { icon: "arrow.up.left.and.arrow.down.right", tooltip: "Open in Voyager (⌘O)", onPress: () => openInMainWindow(windowId) },
       ]}
       trailing={severalProfiles ? <ProfileButton windowId={windowId} /> : undefined}
     >

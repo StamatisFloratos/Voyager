@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import VoyagerBrowser
 import SwiftUI
 
 extension View {
@@ -14,20 +14,20 @@ private struct SettingsLaunchHooks: ViewModifier {
     #if DEBUG
     content.task {
       let arguments = ProcessInfo.processInfo.arguments
-      if let index = arguments.firstIndex(of: "-ArdiaFilterState"), arguments.indices.contains(index + 1) {
+      if let index = arguments.firstIndex(of: "-VoyagerFilterState"), arguments.indices.contains(index + 1) {
         app.filterLists.seedDemo(states: FilterStateSample.states(arguments[index + 1], lists: app.filterLists.enabledLists.map(\.id)))
       }
-      if arguments.contains("-ArdiaTrustedSites") {
+      if arguments.contains("-VoyagerTrustedSites") {
         for host in ["nytimes.com", "theverge.com", "bbc.co.uk"] { app.blocking.setExempt(host, true) }
       }
-      if arguments.contains("-ArdiaMyFiltersSample") {
+      if arguments.contains("-VoyagerMyFiltersSample") {
         _ = await app.filterLists.applyMyFilters(MyFiltersSample.text)
       }
-      if arguments.contains("-ArdiaSettingsPage") || arguments.contains("-ArdiaOpenSettings") {
+      if arguments.contains("-VoyagerSettingsPage") || arguments.contains("-VoyagerOpenSettings") {
         try? await Task.sleep(for: .milliseconds(600))
         app.sheet = .settings
       }
-      if let index = arguments.firstIndex(of: "-ArdiaOpenSheet"), arguments.indices.contains(index + 1) {
+      if let index = arguments.firstIndex(of: "-VoyagerOpenSheet"), arguments.indices.contains(index + 1) {
         try? await Task.sleep(for: .milliseconds(600))
         switch arguments[index + 1] {
         case "archive": app.openArchive()
@@ -35,7 +35,7 @@ private struct SettingsLaunchHooks: ViewModifier {
         default: break
         }
       }
-      if let index = arguments.firstIndex(of: "-ArdiaToast"), arguments.indices.contains(index + 1) {
+      if let index = arguments.firstIndex(of: "-VoyagerToast"), arguments.indices.contains(index + 1) {
         try? await Task.sleep(for: .seconds(1.5))
         switch arguments[index + 1] {
         case "copied": app.toasts.show(.copiedURL)
@@ -63,7 +63,7 @@ enum FilterStateSample {
     case "offline":
       return Dictionary(uniqueKeysWithValues: lists.map { ($0, FilterListState.offline) })
     case "failed":
-      return ["ublock-filters": .failed(String(localized: "The server didn’t respond. Ardia will try again in a few minutes."))]
+      return ["ublock-filters": .failed(String(localized: "The server didn’t respond. Voyager will try again in a few minutes."))]
     default:
       return [:]
     }

@@ -1,4 +1,4 @@
-import { ArdiaError, ardiaError, type TabGroupColor } from "@ardia/core";
+import { ArdiaError, ardiaError, type TabGroupColor } from "@voyager/core";
 import { requireNativeModule, type EventSubscription } from "expo-modules-core";
 
 export type ImportKind =

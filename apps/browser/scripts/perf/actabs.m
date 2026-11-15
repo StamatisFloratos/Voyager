@@ -285,7 +285,7 @@ static void CountAdds(void) {
 }
 
 __attribute__((constructor)) static void Start(void) {
-  const char *dir = getenv("ARDIA_DATA_DIR");
+  const char *dir = getenv("VOYAGER_DATA_DIR");
   if (!dir || !getenv("AC_BENCH_TABS")) return;
   if (![NSBundle.mainBundle.bundlePath hasSuffix:@".app"] || [NSBundle.mainBundle.bundlePath containsString:@"Helper"]) return;
   gDir = [NSString stringWithUTF8String:dir];

@@ -20,7 +20,7 @@ NSString *SeenKey(NSString *profile, NSString *url) {
 
 NSString *FaviconDirectory(NSString *profile) {
   NSString *dir = ardia_host::ProfileDirectoryName(profile);
-  return [[ArdiaHost.dataDirectory stringByAppendingPathComponent:dir] stringByAppendingPathComponent:@"Ardia Favicons"];
+  return [[ArdiaHost.dataDirectory stringByAppendingPathComponent:dir] stringByAppendingPathComponent:@"Voyager Favicons"];
 }
 
 bool SafeName(NSString *name) {

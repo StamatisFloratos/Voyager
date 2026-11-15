@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { mount } from "../../test-hooks.mjs";
 
 globalThis.__DEV__ = false;
-const { providerApprovalKey } = await import("@ardia/core");
+const { providerApprovalKey } = await import("@voyager/core");
 const { useBrowser } = await import("../../state/browser/store.ts");
 const { useSuggestions } = await import("./useSuggestions.ts");
 const { keywordScope, offeredScope } = await import("../../state/omnibox/scopes.ts");

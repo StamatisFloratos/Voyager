@@ -10,17 +10,17 @@ const stored = () => ({
   machine: MACHINE,
   harness: 1,
   browsers: {
-    ardia: { name: "Ardia", version: "0.2.38-nightly.8", chromium: "155", measured: "2026-10-19" },
+    ardia: { name: "Voyager", version: "0.2.38-nightly.8", chromium: "155", measured: "2026-10-19" },
     dia: { name: "Dia", version: "1.53.0", chromium: "155", measured: "2026-10-16" },
     helium: { name: "Helium", version: "0.19.3.1", chromium: "155" },
   },
   rows: [
     { id: "newtab", label: "New tab → first paint", unit: "ms", lowerIsBetter: true, best: "ardia",
-      browsers: { ardia: entry("Ardia", "0.2.38-nightly.8", 55), dia: entry("Dia", "1.53.0", 89), helium: entry("Helium", "0.19.3.1", 71) } },
+      browsers: { ardia: entry("Voyager", "0.2.38-nightly.8", 55), dia: entry("Dia", "1.53.0", 89), helium: entry("Helium", "0.19.3.1", 71) } },
     { id: "launch-restore", label: "Cold launch → restored tab painted", unit: "ms", lowerIsBetter: true, best: "helium",
-      browsers: { ardia: entry("Ardia", "0.2.38-nightly.8", 360), dia: entry("Dia", "1.53.0", null, { n: 0, note: "start view" }), helium: entry("Helium", "0.19.3.1", 355) } },
+      browsers: { ardia: entry("Voyager", "0.2.38-nightly.8", 360), dia: entry("Dia", "1.53.0", null, { n: 0, note: "start view" }), helium: entry("Helium", "0.19.3.1", 355) } },
     { id: "speedometer", label: "Speedometer 3", unit: "score", lowerIsBetter: false, best: "ardia",
-      browsers: { ardia: entry("Ardia", "0.2.38-nightly.7", 59.1, { measured: "2026-10-18" }), helium: entry("Helium", "0.19.3.1", 58.5), dia: entry("Dia", "1.53.0", 58.2) } },
+      browsers: { ardia: entry("Voyager", "0.2.38-nightly.7", 59.1, { measured: "2026-10-18" }), helium: entry("Helium", "0.19.3.1", 58.5), dia: entry("Dia", "1.53.0", 58.2) } },
   ],
   method: "docs/perf/vs-browsers.md",
   notes: ["stored note"],
@@ -30,18 +30,18 @@ const fresh = (over = {}) => ({
   date: "2026-11-09",
   machine: { ...MACHINE, macOS: "27.3 (26C10)" },
   harness: 1,
-  browsers: { ardia: { name: "Ardia", version: "0.2.46", chromium: "155" } },
+  browsers: { ardia: { name: "Voyager", version: "0.2.46", chromium: "155" } },
   rows: [
-    { id: "newtab", label: "New tab → first paint", unit: "ms", lowerIsBetter: true, best: "ardia", browsers: { ardia: entry("Ardia", "0.2.46", 80) } },
-    { id: "launch-restore", label: "Cold launch → restored tab painted", unit: "ms", lowerIsBetter: true, best: "ardia", browsers: { ardia: entry("Ardia", "0.2.46", 340) } },
-    { id: "memory-1", label: "Memory, 1 tab", unit: "MB", lowerIsBetter: true, best: "ardia", browsers: { ardia: entry("Ardia", "0.2.46", 290) } },
+    { id: "newtab", label: "New tab → first paint", unit: "ms", lowerIsBetter: true, best: "ardia", browsers: { ardia: entry("Voyager", "0.2.46", 80) } },
+    { id: "launch-restore", label: "Cold launch → restored tab painted", unit: "ms", lowerIsBetter: true, best: "ardia", browsers: { ardia: entry("Voyager", "0.2.46", 340) } },
+    { id: "memory-1", label: "Memory, 1 tab", unit: "MB", lowerIsBetter: true, best: "ardia", browsers: { ardia: entry("Voyager", "0.2.46", 290) } },
   ],
   method: "docs/perf/vs-browsers.md",
   notes: ["fresh note"],
   ...over,
 });
 
-test("rivals keep their figures, version and own measured date; Ardia is replaced and dated today", () => {
+test("rivals keep their figures, version and own measured date; Voyager is replaced and dated today", () => {
   const m = mergeRivals(fresh(), stored());
   assert.equal(m.date, "2026-11-09");
   assert.deepEqual(Object.fromEntries(Object.entries(m.browsers).map(([k, b]) => [k, [b.version, b.measured]])), {
@@ -50,7 +50,7 @@ test("rivals keep their figures, version and own measured date; Ardia is replace
     helium: ["0.19.3.1", "2026-10-19"],
   });
   const newtab = m.rows.find((r) => r.id === "newtab");
-  assert.deepEqual(newtab.browsers.ardia, { ...entry("Ardia", "0.2.46", 80), measured: "2026-11-09" });
+  assert.deepEqual(newtab.browsers.ardia, { ...entry("Voyager", "0.2.46", 80), measured: "2026-11-09" });
   assert.deepEqual(newtab.browsers.dia, { ...entry("Dia", "1.53.0", 89), measured: "2026-10-16" });
   assert.deepEqual(newtab.browsers.helium, { ...entry("Helium", "0.19.3.1", 71), measured: "2026-10-19" });
   assert.equal(newtab.best, "helium");
@@ -66,7 +66,7 @@ test("a rival's note and null median survive; best is taken again over the merge
   assert.equal(restore.best, "ardia");
 });
 
-test("a row the Ardia run didn't measure keeps every entry, Ardia's included, at its own date", () => {
+test("a row the Voyager run didn't measure keeps every entry, Voyager's included, at its own date", () => {
   const speedometer = mergeRivals(fresh(), stored()).rows.find((r) => r.id === "speedometer");
   assert.equal(speedometer.browsers.ardia.version, "0.2.38-nightly.7");
   assert.equal(speedometer.browsers.ardia.measured, "2026-10-18");
@@ -74,7 +74,7 @@ test("a row the Ardia run didn't measure keeps every entry, Ardia's included, at
   assert.equal(speedometer.browsers.helium.measured, "2026-10-19");
 });
 
-test("a row only the new run has is added with Ardia alone; stored row order is kept", () => {
+test("a row only the new run has is added with Voyager alone; stored row order is kept", () => {
   const m = mergeRivals(fresh(), stored());
   assert.deepEqual(m.rows.map((r) => r.id), ["newtab", "launch-restore", "speedometer", "memory-1"]);
   assert.deepEqual(Object.keys(m.rows.at(-1).browsers), ["ardia"]);

@@ -17,7 +17,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ardia_cli import caller, cli, endpoint, feedback, telemetry, telemetry_scrub, usage
+from voyager_cli import caller, cli, endpoint, feedback, telemetry, telemetry_scrub, usage
 from test_telemetry import CLEARED, INSTALL_ID, Stub, attributes, scratch_dir, write_consent
 
 REPO = Path(__file__).resolve().parents[3]
@@ -30,7 +30,7 @@ class FeedbackService:
         self.statuses = {"create": 201, "upload": 200, "complete": 200}
         self.requests: list[dict] = []
         self.files: dict[str, bytes] = {}
-        self.issue_url = "https://github.com/mantrakp04/ardia/issues/1234"
+        self.issue_url = "https://github.com/StamatisFloratos/Voyager/issues/1234"
         service = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -95,9 +95,9 @@ class FeedbackCase(unittest.TestCase):
         self.home = self.temp / "cli"
         self.service = FeedbackService()
         self.addCleanup(self.service.close)
-        dropped = CLEARED + ("ARDIA_CLI_HOME", feedback.TEST_URL_ENV, usage.STAR_PROMPT_ENV) + usage.CI_ENV
+        dropped = CLEARED + ("VOYAGER_CLI_HOME", feedback.TEST_URL_ENV, usage.STAR_PROMPT_ENV) + usage.CI_ENV
         env = {k: v for k, v in os.environ.items() if k not in dropped}
-        env.update({"ARDIA_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.service.url})
+        env.update({"VOYAGER_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.service.url})
         for patch in (
             mock.patch.dict(os.environ, env, clear=True),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.temp / "not-the-installed-app"),
@@ -164,7 +164,7 @@ class ScrubTest(unittest.TestCase):
             "{'client_secret': 'abc', 'page': 2}": "{'client_secret': <redacted>, 'page': 2}",
             'access_token => "zz9" next': "access_token => <redacted> next",
             "SESSION_ID=abc123; theme=dark": "SESSION_ID=<redacted>; theme=dark",
-            "ardia browse fill @e2 --password hunter2 --session work": "ardia browse fill @e2 --password <redacted> --session work",
+            "voyager browse fill @e2 --password hunter2 --session work": "voyager browse fill @e2 --password <redacted> --session work",
             "token: abc123 then snapshot failed": "token: <redacted> then snapshot failed",
             "export GITHUB_TOKEN=abc123def": "export GITHUB_TOKEN=<redacted>",
             "DB_PASSWORD=hunter2\nSTRIPE_SECRET_KEY=whsec_1": "DB_PASSWORD=<redacted>\nSTRIPE_SECRET_KEY=<redacted>",
@@ -224,13 +224,13 @@ class ScrubTest(unittest.TestCase):
 
     def test_talking_about_sessions_auth_and_tokens_survives(self):
         for text in (
-            "ardia browse session list shows nothing after ardia browse --session work open https://example.com",
-            "ardia browse auth save github failed: the token expired and auth load said no saved state",
+            "voyager browse session list shows nothing after voyager browse --session work open https://example.com",
+            "voyager browse auth save github failed: the token expired and auth load said no saved state",
             "the Bearer token expired; Authorization header missing from the docs",
             "basic usage of --session work is unclear; session cookies vanish after reload",
             "the token didn't refresh\nsnapshot was fine",
             "password fields are skipped by fill, which is right, but the error says element_not_editable",
-            "ardia browse click @e7 on 0.2.44 exited 2 at 16:53 after 1234 ms",
+            "voyager browse click @e7 on 0.2.44 exited 2 at 16:53 after 1234 ms",
         ):
             with self.subTest(text=text):
                 self.assertEqual(self.clean(text), text)
@@ -292,7 +292,7 @@ class TitleAndDescriptionTest(FeedbackCase):
 
     def test_body_matches_the_contract_and_carries_no_raw_length(self):
         write_consent(self.data, lastVersion="0.2.45", lastBuild=245, sessionOpen=True, sessionId=APP_SESSION)
-        self.send("--title", "t", "--kind", "slow", "--command", "ardia browse open https://a.test/x?sid=1", "it took 9 s for bob@example.com")
+        self.send("--title", "t", "--kind", "slow", "--command", "voyager browse open https://a.test/x?sid=1", "it took 9 s for bob@example.com")
         body = self.service.created()["body"]
         self.assertEqual(set(body), {
             "kind", "title", "description", "source", "install_id", "session_id", "app_version", "app_build", "channel",
@@ -303,7 +303,7 @@ class TitleAndDescriptionTest(FeedbackCase):
         self.assertEqual(body["description"], "it took 9 s for <email>")
         self.assertEqual(body["session_id"], APP_SESSION)
         self.assertEqual((body["app_version"], body["app_build"]), ("0.2.45", "245"))
-        self.assertEqual(body["diagnostics"]["about_command"], "ardia browse open https://a.test/x?<redacted>")
+        self.assertEqual(body["diagnostics"]["about_command"], "voyager browse open https://a.test/x?<redacted>")
         self.assertEqual(body["diagnostics"]["agent"], "Claude Code")
         self.assertNotIn("text_chars", json.dumps(body))
         self.assertEqual(body["watch_days"], 0)
@@ -315,7 +315,7 @@ class IdentityTest(FeedbackCase):
         status, out, _ = self.send("--title", "t", "d")
         self.assertEqual(status, 0)
         self.assertEqual(self.service.created()["body"]["install_id"], INSTALL_ID)
-        self.assertEqual(out.splitlines(), ["Sent. Reference FB-7K2Q.", "Issue: https://github.com/mantrakp04/ardia/issues/1234", "You appear to us as Brave Otter."])
+        self.assertEqual(out.splitlines(), ["Sent. Reference FB-7K2Q.", "Issue: https://github.com/StamatisFloratos/Voyager/issues/1234", "You appear to us as Brave Otter."])
 
     def test_sharing_off_sends_with_a_one_time_id(self):
         write_consent(self.data, sharing=False)
@@ -362,7 +362,7 @@ class SendingTest(FeedbackCase):
         self.assertEqual(status, 0)
         self.assertEqual(self.service.steps(), ["create", "upload", "complete"])
         for request in self.service.requests:
-            self.assertEqual(request["headers"]["X-Ardia-Key"], telemetry.CLI_INGEST_KEY)
+            self.assertEqual(request["headers"]["X-Voyager-Key"], telemetry.CLI_INGEST_KEY)
         upload, complete = self.service.requests[1], self.service.requests[2]
         self.assertEqual(upload["path"], "/api/feedback/FB-7K2Q/files/attachment-1.png")
         self.assertEqual(upload["headers"]["Authorization"], "Bearer FB-7K2Q.1999999999.sig")
@@ -401,10 +401,10 @@ class SendingTest(FeedbackCase):
     def test_each_reason_is_named(self):
         cases = [
             ({"DO_NOT_TRACK": "1"}, "DO_NOT_TRACK=1 is set"),
-            ({"ARDIA_TELEMETRY": "off"}, "ARDIA_TELEMETRY=off is set"),
-            ({"ARDIA_PORT": "9222"}, "ARDIA_PORT points ardia at a test browser"),
-            ({feedback.TEST_URL_ENV: "https://evil.example/api/feedback"}, "ARDIA_FEEDBACK_URL isn't a loopback http:// URL"),
-            ({feedback.TEST_URL_ENV: ""}, "this ardia is a checkout build (0.0.0.dev0)"),
+            ({"VOYAGER_TELEMETRY": "off"}, "VOYAGER_TELEMETRY=off is set"),
+            ({"VOYAGER_PORT": "9222"}, "VOYAGER_PORT points voyager at a test browser"),
+            ({feedback.TEST_URL_ENV: "https://evil.example/api/feedback"}, "VOYAGER_FEEDBACK_URL isn't a loopback http:// URL"),
+            ({feedback.TEST_URL_ENV: ""}, "no feedback service configured"),
         ]
         for extra, reason in cases:
             with self.subTest(extra=extra), mock.patch.dict(os.environ, extra):
@@ -444,11 +444,11 @@ class SendingTest(FeedbackCase):
         with mock.patch.object(usage, "take_feedback_slot", return_value="busy"):
             status, out, _ = self.send("--title", "t", "busy")
         self.assertEqual(status, 1)
-        self.assertIn("another ardia was updating the report count", out)
+        self.assertIn("another voyager was updating the report count", out)
         self.assertEqual(self.kept()[0]["description"], "busy")
 
     def test_a_checkout_without_a_cli_home_writes_nothing(self):
-        os.environ.pop("ARDIA_CLI_HOME")
+        os.environ.pop("VOYAGER_CLI_HOME")
         with mock.patch.object(usage, "open_folder") as opened, mock.patch.object(usage, "locked") as locked:
             status, out, _ = self.send("--title", "t", "no home")
             self.assertEqual(status, 0)
@@ -506,7 +506,7 @@ class TelemetrySessionAndKeyTest(unittest.TestCase):
         self.stub = Stub()
         self.addCleanup(self.stub.close)
         env = {k: v for k, v in os.environ.items() if k not in CLEARED}
-        env.update({"ARDIA_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
+        env.update({"VOYAGER_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
         for patch in (
             mock.patch.dict(os.environ, env, clear=True),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.root / "not-the-installed-app"),
@@ -564,7 +564,7 @@ class TelemetrySessionAndKeyTest(unittest.TestCase):
         self.run_cli("config", "path")
         self.assertEqual(telemetry.flush(self.root, self.stub.url, "test"), "done")
         self.assertTrue(self.stub.headers)
-        self.assertTrue(all(headers["X-Ardia-Key"] == telemetry.CLI_INGEST_KEY for headers in self.stub.headers))
+        self.assertTrue(all(headers["X-Voyager-Key"] == telemetry.CLI_INGEST_KEY for headers in self.stub.headers))
         sent = attributes(self.stub.records()[-1])
         self.assertTrue(sent["$session_id"])
 
@@ -663,11 +663,11 @@ class LocalServiceEndToEndTest(unittest.TestCase):
             self.server.kill()
         self.server.stdout.close()
 
-    def ardia(self, *argv) -> subprocess.CompletedProcess:
-        env = {k: v for k, v in os.environ.items() if k not in CLEARED + ("ARDIA_CLI_HOME",)}
-        env.update({"ARDIA_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.url})
+    def voyager(self, *argv) -> subprocess.CompletedProcess:
+        env = {k: v for k, v in os.environ.items() if k not in CLEARED + ("VOYAGER_CLI_HOME",)}
+        env.update({"VOYAGER_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.url})
         return subprocess.run(
-            [sys.executable, "-m", "ardia_cli", "feedback", "--data-dir", str(self.data), *argv],
+            [sys.executable, "-m", "voyager_cli", "feedback", "--data-dir", str(self.data), *argv],
             cwd=REPO / "apps" / "cli", env=env, capture_output=True, text=True, timeout=60,
         )
 
@@ -675,7 +675,7 @@ class LocalServiceEndToEndTest(unittest.TestCase):
         write_consent(self.data, sessionOpen=True, sessionId=APP_SESSION)
         shot = self.temp / "shot.png"
         shot.write_bytes(b"\x89PNG" + os.urandom(2048))
-        done = self.ardia("--title", "snapshot hides dialog buttons", "--kind", "bug", "--attach", str(shot),
+        done = self.voyager("--title", "snapshot hides dialog buttons", "--kind", "bug", "--attach", str(shot),
                           "the Save button in a dialog had no ref; Authorization: Bearer abc123 was in the log")
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
         reference = re.search(r"^Sent\. Reference (FB-[A-Z0-9]+)\.$", done.stdout, re.M).group(1)
@@ -692,7 +692,7 @@ class LocalServiceEndToEndTest(unittest.TestCase):
         print(f"\n[e2e] {done.stdout.strip()}")
 
     def test_sharing_off_gets_a_one_time_id(self):
-        done = self.ardia("--title", "idea", "--kind", "idea", "a --json flag on ardia windows")
+        done = self.voyager("--title", "idea", "--kind", "idea", "a --json flag on voyager windows")
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
         reference = re.search(r"Reference (FB-[A-Z0-9]+)", done.stdout).group(1)
         report = json.loads((self.store / "feedback" / reference / "report.json").read_text())
@@ -700,10 +700,10 @@ class LocalServiceEndToEndTest(unittest.TestCase):
         self.assertIn("(a one-time id: sharing is off)", done.stdout)
 
     def test_a_refusal_from_the_service_is_reported_and_kept(self):
-        done = self.ardia("--title", "t", "--attach", str(self.temp / "nothing.png"), "d")
+        done = self.voyager("--title", "t", "--attach", str(self.temp / "nothing.png"), "d")
         self.assertEqual(done.returncode, 2)
         self.stop()
-        offline = self.ardia("--title", "t", "service is down")
+        offline = self.voyager("--title", "t", "service is down")
         self.assertEqual(offline.returncode, 1)
         self.assertIn("Not sent: the network failed", offline.stdout)
 

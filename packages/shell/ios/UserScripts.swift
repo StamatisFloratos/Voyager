@@ -78,7 +78,7 @@ final class UserScripts {
   }
 
   func read() -> [String: Any] {
-    guard let dir else { return ["state": "invalid", "error": "Ardia has no data folder"] }
+    guard let dir else { return ["state": "invalid", "error": "Voyager has no data folder"] }
     try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     let lock = open(dir.appendingPathComponent(".lock").path, O_RDONLY | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0o644)
     guard lock >= 0 else { return ["state": "busy"] }
@@ -143,7 +143,7 @@ final class UserScripts {
   }
 
   func writeStatus(_ json: String) throws {
-    guard let dir else { throw Refused("Ardia has no data folder") }
+    guard let dir else { throw Refused("Voyager has no data folder") }
     try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     try Data(json.utf8).write(to: dir.appendingPathComponent("status.json"), options: .atomic)
   }

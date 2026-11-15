@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import VoyagerBrowser
 import Foundation
 
 enum DemoSeed {

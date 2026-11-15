@@ -8,7 +8,7 @@ import {
   type KeywordProvider,
   type ProviderConfig,
   type ProviderEntry,
-} from "@ardia/core";
+} from "@voyager/core";
 import { isProviderApproved } from "./providerApproval";
 import type { OmniboxProvider, ProviderRow } from "./providers";
 import { fetchRemoteRows } from "./remoteProvider";

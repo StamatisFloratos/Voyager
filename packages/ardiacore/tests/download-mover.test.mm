@@ -125,7 +125,7 @@ int main() {
     }
     {
       NSString *path = Finished(mover, @"report.pdf", @"first");
-      setxattr(path.fileSystemRepresentation, "com.apple.quarantine", "0083;00000000;Ardia;", 20, 0, 0);
+      setxattr(path.fileSystemRepresentation, "com.apple.quarantine", "0083;00000000;Voyager;", 20, 0, 0);
       NSDictionary *result = [mover moveDownloadAt:path toFolder:@"~/Downloads/Sorted/2026"];
       CHECK([Reason(result) isEqual:@"ok"]);
       NSString *moved = [gHome stringByAppendingPathComponent:@"Downloads/Sorted/2026/report.pdf"];

@@ -1,4 +1,4 @@
-import { call, inputIdleSeconds, on, type BatterySaverMode, type EngineTask, type HoverLostEpisode, type MemorySaverMode, type MemorySaverRequest, type SystemState } from "@ardia/ardiacore";
+import { call, inputIdleSeconds, on, type BatterySaverMode, type EngineTask, type HoverLostEpisode, type MemorySaverMode, type MemorySaverRequest, type SystemState } from "@voyager/ardiacore";
 
 export { inputIdleSeconds };
 export type { EngineTask, HoverLostEpisode, MemorySaverMode, SystemState };

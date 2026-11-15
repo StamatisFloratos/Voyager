@@ -1,5 +1,5 @@
-import { call } from "@ardia/ardiacore";
-import { nativeModule, type DragPreviewShape, type OpenWindowOptions, type Rect4, type WindowEvent } from "@ardia/shell";
+import { call } from "@voyager/ardiacore";
+import { nativeModule, type DragPreviewShape, type OpenWindowOptions, type Rect4, type WindowEvent } from "@voyager/shell";
 
 export type { DragPreviewShape, WindowEvent, OpenWindowOptions };
 

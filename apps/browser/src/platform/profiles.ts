@@ -1,4 +1,4 @@
-import { call, on, type BrowsingDataType } from "@ardia/ardiacore";
+import { call, on, type BrowsingDataType } from "@voyager/ardiacore";
 
 export type { BrowsingDataType };
 

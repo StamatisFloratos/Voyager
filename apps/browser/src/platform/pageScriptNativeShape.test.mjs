@@ -104,7 +104,7 @@ function notificationPage({ permission = "granted" } = {}) {
   return { window, NativeNotification, sent, shownNatively, nativeCloses, nativeShows, registration, idle, install, proto: ServiceWorkerRegistration.prototype };
 }
 
-test("Notification looks like Chrome's constructor and still shows Ardia's notification", async () => {
+test("Notification looks like Chrome's constructor and still shows Voyager's notification", async () => {
   const p = notificationPage();
   const Notification = p.window.Notification;
   assert.notEqual(Notification, p.NativeNotification);

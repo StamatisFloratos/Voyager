@@ -1,4 +1,4 @@
-import type { SearchScope } from "@ardia/core";
+import type { SearchScope } from "@voyager/core";
 import { useMemo, type RefObject } from "react";
 import type { TextInput } from "react-native";
 import { previewText } from "./barText";

@@ -1,4 +1,4 @@
-import { nativeModule, type UserScriptsFolder } from "@ardia/shell";
+import { nativeModule, type UserScriptsFolder } from "@voyager/shell";
 
 export type { UserScriptsFolder };
 

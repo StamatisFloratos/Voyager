@@ -1,5 +1,7 @@
 # Releasing
 
+> Upstream reference from Ardia 0.2.46. For current Voyager behavior, paths and build instructions, see [the fork notes](voyager.md).
+
 Releases are GitHub releases of `mantrakp04/ardia`, tagged `v<version>`, on two channels: **stable** (`0.2.37`, a full
 release) and **nightly** (`0.2.37-nightly.1`, a GitHub prerelease: one fix, shipped the day it's made; "Channels" below).
 Since the Release workflow (`.github/workflows/release.yml`, "CI releases" below) a release is built and published in

@@ -58,9 +58,9 @@ let oldDefault = { (new: String) in Renamed.defaultsKeys.first { $0.value == new
 final class LegacyMigrationTests: XCTestCase {
   var root: URL!
   var oldData: URL { root.appendingPathComponent("old/\(LegacyName.bundleId)") }
-  var newData: URL { root.appendingPathComponent("new/com.ardia.browser") }
+  var newData: URL { root.appendingPathComponent("new/com.stamatisfloratos.voyager") }
   var oldPrefs: URL { root.appendingPathComponent("prefs/\(LegacyName.bundleId)") }
-  var newPrefs: URL { root.appendingPathComponent("prefs/com.ardia.browser") }
+  var newPrefs: URL { root.appendingPathComponent("prefs/com.stamatisfloratos.voyager") }
   var oldKeychain = FakeKeychain()
   var newKeychain = FakeKeychain()
   var groups = FakeGroups()
@@ -95,7 +95,7 @@ final class LegacyMigrationTests: XCTestCase {
         old("openLinksInLittleArdia"): false,
         old("littleArdiaSize"): [700, 500],
         "shortcuts": [old("newLittleArdia"): ["cmd+opt+y"], "newTab": ["cmd+t"]],
-        "syncFolderInside": oldData.appendingPathComponent("Ardia Sync").path,
+        "syncFolderInside": oldData.appendingPathComponent("Voyager Sync").path,
       ],
       "tabs": [
         ["id": "t1", "url": "\(oldScheme)history", "title": "History", "windowId": "w1"],
@@ -117,7 +117,7 @@ final class LegacyMigrationTests: XCTestCase {
     try write(#"{"profile":{"info_cache":{"Default":{}}}}"#, "Chromium/Local State")
     try write("<?xml version=\"1.0\"?><plist version=\"1.0\"><array><real>1</real></array></plist>", oldPath("Chromium/ArdiaPictureInPicture.plist"))
     try write(#"["com.1password.1password.json"]"#, oldPath("Chromium/NativeMessagingHosts/.ardia-managed.json"))
-    try write("png", oldPath("Chromium/*/Ardia Favicons").replacingOccurrences(of: "*", with: "Default") + "/abc.png")
+    try write("png", oldPath("Chromium/*/Voyager Favicons").replacingOccurrences(of: "*", with: "Default") + "/abc.png")
     try Data(repeating: 7, count: 300_000).write(to: oldData.appendingPathComponent("Chromium/Default/Cookies"))
     try FileManager.default.createSymbolicLink(atPath: oldData.appendingPathComponent("Chromium/SingletonLock").path, withDestinationPath: "host-999999")
 
@@ -144,7 +144,7 @@ final class LegacyMigrationTests: XCTestCase {
       oldData: oldData, newData: newData, extras: extras,
       oldDefaults: PreferencesDomain(id: oldPrefs.path), newDefaults: PreferencesDomain(id: newPrefs.path),
       oldSecrets: oldKeychain, newSecrets: newKeychain,
-      accessGroups: [("T.\(LegacyName.bundleId).webauthn", "T.com.ardia.browser.webauthn")], groupMover: groups,
+      accessGroups: [("T.\(LegacyName.bundleId).webauthn", "T.com.stamatisfloratos.voyager.webauthn")], groupMover: groups,
       oldAppRunning: { [unowned self] in runningAnswers.isEmpty ? oldRunning : runningAnswers.removeFirst() },
       ask: { [unowned self] title, _, _ in
         asked.append(title)
@@ -182,43 +182,43 @@ final class LegacyMigrationTests: XCTestCase {
     XCTAssertNil(settings[old("openLinksInLittleArdia")])
     XCTAssertEqual(settings["littleArdiaSize"] as? [Int], [700, 500])
     XCTAssertEqual(settings["shortcuts"] as? [String: [String]], ["newLittleArdia": ["cmd+opt+y"], "newTab": ["cmd+t"]])
-    XCTAssertEqual(settings["syncFolderInside"] as? String, newData.appendingPathComponent("Ardia Sync").path)
+    XCTAssertEqual(settings["syncFolderInside"] as? String, newData.appendingPathComponent("Voyager Sync").path)
     let tabs = try XCTUnwrap(session["tabs"] as? [[String: Any]])
     XCTAssertEqual(tabs.map { $0["url"] as? String }, [
-      "ardia://history", "chrome://game", "ardia://game/?level=2",
+      "voyager://history", "chrome://game", "voyager://game/?level=2",
       "https://example.com/?next=\(oldScheme)history", "\(oldChromeGame)u",
     ])
     XCTAssertEqual(tabs[1]["title"] as? String, "Play \(oldGame)", "user text keeps what it says")
     XCTAssertEqual((session["groups"] as? [[String: Any]])?.first?["pinned"] as? Bool, true)
-    XCTAssertEqual((session["launchTab"] as? [String: Any])?["url"] as? String, "ardia://history")
+    XCTAssertEqual((session["launchTab"] as? [String: Any])?["url"] as? String, "voyager://history")
     XCTAssertEqual(session["weight"] as? Double, 0.1 + 0.2)
     XCTAssertEqual(try String(contentsOf: newData.appendingPathComponent("broken.json")), "not json")
     XCTAssertEqual(try String(contentsOf: newData.appendingPathComponent("downloads.json")), #"{"version":2,"downloads":[]}"#,
                    "a document that doesn't change isn't rewritten")
 
     let bookmarks = try String(contentsOf: newData.appendingPathComponent("Chromium/Default/Bookmarks"))
-    XCTAssertTrue(bookmarks.contains(#""url":"ardia://downloads""#))
+    XCTAssertTrue(bookmarks.contains(#""url":"voyager://downloads""#))
     XCTAssertTrue(bookmarks.contains(#""ac_sync_key":"bm-1""#))
     XCTAssertTrue(bookmarks.contains("\"name\":\"Handy: \(oldScheme)downloads\""))
 
     let fm = FileManager.default
     XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/ArdiaPictureInPicture.plist").path))
     XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/NativeMessagingHosts/.ardia-managed.json").path))
-    XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/Default/Ardia Favicons/abc.png").path))
+    XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/Default/Voyager Favicons/abc.png").path))
     XCTAssertEqual(try Data(contentsOf: newData.appendingPathComponent("Chromium/Default/Cookies")).count, 300_000)
     XCTAssertNil(try? fm.destinationOfSymbolicLink(atPath: newData.appendingPathComponent("Chromium/SingletonLock").path))
     XCTAssertFalse(fm.fileExists(atPath: newData.appendingPathComponent(LegacyMigrator.stagingName).path))
 
     XCTAssertEqual(newKeychain.items["Ardia Safe Storage"], ["Ardia": safeStorageKey])
-    XCTAssertEqual(newKeychain.items["Ardia Connected Accounts"], ["github": Data("gh-token".utf8), "google": Data("g-token".utf8)])
-    XCTAssertEqual(newKeychain.items["Ardia Sync Key"], ["device-1": Data(repeating: 1, count: 32)])
+    XCTAssertEqual(newKeychain.items["Voyager Connected Accounts"], ["github": Data("gh-token".utf8), "google": Data("g-token".utf8)])
+    XCTAssertEqual(newKeychain.items["Voyager Sync Key"], ["device-1": Data(repeating: 1, count: 32)])
     XCTAssertNil(newKeychain.items["Chrome Safe Storage"])
 
     let prefs = PreferencesDomain(id: newPrefs.path).all()
     XCTAssertEqual(prefs["ACAppIcon"] as? String, "plum")
     XCTAssertNil(prefs[oldDefault("ACAppIcon")])
     XCTAssertEqual(prefs["NSWindow Frame ArdiaSettings"] as? String, "10 10 800 600")
-    XCTAssertEqual(prefs["NSUserKeyEquivalents"] as? [String: String], ["New Little Ardia Window": "@~n", "Quit Ardia": "@q"])
+    XCTAssertEqual(prefs["NSUserKeyEquivalents"] as? [String: String], ["New Little Voyager Window": "@~n", "Quit Voyager": "@q"])
     XCTAssertEqual(prefs["SUAutomaticallyUpdate"] as? Bool, false)
     XCTAssertEqual(prefs["SULastCheckTime"] as? Date, Date(timeIntervalSince1970: 1_800_000_000))
   }
@@ -338,19 +338,19 @@ final class LegacyMigrationTests: XCTestCase {
     oldKeychain.denials[Renamed.syncKey.oldService] = 1
     XCTAssertEqual(run(), .proceed)
     XCTAssertTrue(asked.isEmpty, "only the Safe Storage key stops the launch")
-    XCTAssertEqual(newKeychain.items["Ardia Connected Accounts"], ["google": Data("g-token".utf8)])
-    XCTAssertNil(newKeychain.items["Ardia Sync Key"])
+    XCTAssertEqual(newKeychain.items["Voyager Connected Accounts"], ["google": Data("g-token".utf8)])
+    XCTAssertNil(newKeychain.items["Voyager Sync Key"])
     XCTAssertFalse(LegacyMigrator.Context.isDone(newData))
-    newKeychain.items["Ardia Sync Key"] = ["device-1": Data("entered again".utf8)]
+    newKeychain.items["Voyager Sync Key"] = ["device-1": Data("entered again".utf8)]
 
     let reads = oldKeychain.reads
     XCTAssertEqual(run(), .proceed)
     XCTAssertEqual(oldKeychain.reads, reads + 1, "only what didn't come across, never the Safe Storage key")
-    XCTAssertEqual(newKeychain.items["Ardia Connected Accounts"], ["github": Data("gh-token".utf8), "google": Data("g-token".utf8)])
-    XCTAssertEqual(newKeychain.items["Ardia Sync Key"], ["device-1": Data("entered again".utf8)])
+    XCTAssertEqual(newKeychain.items["Voyager Connected Accounts"], ["github": Data("gh-token".utf8), "google": Data("g-token".utf8)])
+    XCTAssertEqual(newKeychain.items["Voyager Sync Key"], ["device-1": Data("entered again".utf8)])
     let journal = try XCTUnwrap(LegacyMigrator(context()).readJournal())
-    XCTAssertEqual(journal.secrets?["Ardia Connected Accounts/github"], "copied")
-    XCTAssertEqual(journal.secrets?["Ardia Sync Key/device-1"], "present")
+    XCTAssertEqual(journal.secrets?["Voyager Connected Accounts/github"], "copied")
+    XCTAssertEqual(journal.secrets?["Voyager Sync Key/device-1"], "present")
     XCTAssertTrue(LegacyMigrator.Context.isDone(newData))
     XCTAssertEqual(run(), .proceed)
     XCTAssertEqual(oldKeychain.reads, reads + 1)
@@ -361,7 +361,7 @@ final class LegacyMigrationTests: XCTestCase {
     for _ in 0..<5 { XCTAssertEqual(run(), .proceed) }
     XCTAssertEqual(oldKeychain.denials[Renamed.syncKey.oldService], 97, "three launches ask, then no more")
     XCTAssertTrue(LegacyMigrator.Context.isDone(newData))
-    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Ardia Sync Key/device-1"], "denied")
+    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Voyager Sync Key/device-1"], "denied")
   }
 
   func testNeverWritesThroughALinkIntoTheOldData() throws {
@@ -399,15 +399,15 @@ final class LegacyMigrationTests: XCTestCase {
   func testARetryNeverOverwritesWhatItCantSee() throws {
     oldKeychain.denials[Renamed.syncKey.oldService] = 1
     XCTAssertEqual(run(), .proceed)
-    newKeychain.items["Ardia Sync Key"] = ["device-1": Data("entered again".utf8)]
+    newKeychain.items["Voyager Sync Key"] = ["device-1": Data("entered again".utf8)]
     newKeychain.listFails = true
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(newKeychain.items["Ardia Sync Key"], ["device-1": Data("entered again".utf8)])
-    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Ardia Sync Key/device-1"], "denied")
+    XCTAssertEqual(newKeychain.items["Voyager Sync Key"], ["device-1": Data("entered again".utf8)])
+    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Voyager Sync Key/device-1"], "denied")
     newKeychain.listFails = false
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(newKeychain.items["Ardia Sync Key"], ["device-1": Data("entered again".utf8)])
-    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Ardia Sync Key/device-1"], "present")
+    XCTAssertEqual(newKeychain.items["Voyager Sync Key"], ["device-1": Data("entered again".utf8)])
+    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Voyager Sync Key/device-1"], "present")
   }
 
   func testAPermanentGroupFailureLeavesTransientOnesTrying() throws {
@@ -448,9 +448,9 @@ final class LegacyMigrationTests: XCTestCase {
     try FileManager.default.moveItem(at: oldData, to: real)
     try FileManager.default.createSymbolicLink(at: oldData, withDestinationURL: real)
     let physical = real.resolvingSymlinksInPath().path
-    try write(#"{"version":2,"tabs":[],"folder":"PATH/Ardia Sync"}"#.replacingOccurrences(of: "PATH", with: physical), "sync.json")
+    try write(#"{"version":2,"tabs":[],"folder":"PATH/Voyager Sync"}"#.replacingOccurrences(of: "PATH", with: physical), "sync.json")
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(try json("sync.json")["folder"] as? String, newData.appendingPathComponent("Ardia Sync").path)
+    XCTAssertEqual(try json("sync.json")["folder"] as? String, newData.appendingPathComponent("Voyager Sync").path)
   }
 
   func testOldAppOpenedDuringTheKeychainStepIsWaitedForAndCopiedAgain() throws {
@@ -465,7 +465,7 @@ final class LegacyMigrationTests: XCTestCase {
     XCTAssertEqual(run(), .proceed)
     XCTAssertEqual(asked, ["Quit \(LegacyName.appName) to continue"])
     XCTAssertEqual(try json("session.json")["deviceId"] as? String, "device-2")
-    XCTAssertEqual(newKeychain.items["Ardia Sync Key"], ["device-1": Data(repeating: 1, count: 32), "device-2": Data(repeating: 2, count: 32)])
+    XCTAssertEqual(newKeychain.items["Voyager Sync Key"], ["device-1": Data(repeating: 1, count: 32), "device-2": Data(repeating: 2, count: 32)])
     XCTAssertEqual(oldKeychain.reads, 4 + 1, "each item read once; only the new one after the second copy")
     XCTAssertTrue(LegacyMigrator.Context.isDone(newData))
   }
@@ -508,12 +508,12 @@ final class LegacyMigrationTests: XCTestCase {
     XCTAssertEqual(run(), .proceed)
     oldKeychain.listFails = true
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Ardia Connected Accounts/github"], "denied")
+    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Voyager Connected Accounts/github"], "denied")
     XCTAssertFalse(LegacyMigrator.Context.isDone(newData))
     oldKeychain.listFails = false
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(newKeychain.items["Ardia Connected Accounts"]?["github"], Data("gh-token".utf8))
-    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Ardia Connected Accounts/github"], "copied")
+    XCTAssertEqual(newKeychain.items["Voyager Connected Accounts"]?["github"], Data("gh-token".utf8))
+    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Voyager Connected Accounts/github"], "copied")
     XCTAssertTrue(LegacyMigrator.Context.isDone(newData))
   }
 
@@ -522,11 +522,11 @@ final class LegacyMigrationTests: XCTestCase {
     XCTAssertEqual(run(), .proceed)
     oldKeychain.onRead = { [unowned self] service in
       guard service == Renamed.syncKey.oldService else { return }
-      newKeychain.items["Ardia Sync Key", default: [:]]["device-1"] = Data("saved meanwhile".utf8)
+      newKeychain.items["Voyager Sync Key", default: [:]]["device-1"] = Data("saved meanwhile".utf8)
     }
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(newKeychain.items["Ardia Sync Key"], ["device-1": Data("saved meanwhile".utf8)])
-    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Ardia Sync Key/device-1"], "present")
+    XCTAssertEqual(newKeychain.items["Voyager Sync Key"], ["device-1": Data("saved meanwhile".utf8)])
+    XCTAssertEqual(LegacyMigrator(context()).readJournal()?.secrets?["Voyager Sync Key/device-1"], "present")
   }
 
   func testARetryThatCantCheckTheNewKeychainTriesAgain() throws {
@@ -536,12 +536,12 @@ final class LegacyMigrationTests: XCTestCase {
       if service == Renamed.syncKey.oldService { newKeychain.listFails = true }
     }
     XCTAssertEqual(run(), .proceed)
-    XCTAssertNil(newKeychain.items["Ardia Sync Key"])
+    XCTAssertNil(newKeychain.items["Voyager Sync Key"])
     XCTAssertFalse(LegacyMigrator.Context.isDone(newData))
     oldKeychain.onRead = nil
     newKeychain.listFails = false
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(newKeychain.items["Ardia Sync Key"], ["device-1": Data(repeating: 1, count: 32)])
+    XCTAssertEqual(newKeychain.items["Voyager Sync Key"], ["device-1": Data(repeating: 1, count: 32)])
     XCTAssertTrue(LegacyMigrator.Context.isDone(newData))
   }
 
@@ -596,12 +596,12 @@ final class LegacyMigrationTests: XCTestCase {
 
   func testRewriterOnlyTouchesWhatsOurs() {
     let r = DocumentRewriter(oldData: "/old/dir", newData: "/new/dir")
-    XCTAssertEqual(r.string(oldScheme.uppercased() + "Settings/sync"), "ardia://Settings/sync")
-    XCTAssertEqual(r.string("view-source:\(oldScheme)history"), "view-source:ardia://history")
-    XCTAssertEqual(r.string("\(oldGame)#top"), "ardia://game#top")
+    XCTAssertEqual(r.string(oldScheme.uppercased() + "Settings/sync"), "voyager://Settings/sync")
+    XCTAssertEqual(r.string("view-source:\(oldScheme)history"), "view-source:voyager://history")
+    XCTAssertEqual(r.string("\(oldGame)#top"), "voyager://game#top")
     XCTAssertEqual(r.string("\(oldChromeGame)/"), "chrome://game/")
     XCTAssertEqual(r.string("chrome://settings"), "chrome://settings")
-    XCTAssertEqual(r.string("/old/dir/Ardia Sync"), "/new/dir/Ardia Sync")
+    XCTAssertEqual(r.string("/old/dir/Voyager Sync"), "/new/dir/Voyager Sync")
     XCTAssertEqual(r.string("/old/directory"), "/old/directory")
     XCTAssertEqual(r.string("see \(oldScheme)history"), "see \(oldScheme)history")
   }

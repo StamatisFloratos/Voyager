@@ -1,4 +1,4 @@
-import { APP_INGEST_KEY, INGEST_KEY_HEADER } from "@ardia/core";
+import { APP_INGEST_KEY, INGEST_KEY_HEADER } from "@voyager/core";
 import { cancelUploads, fileSize, onReportEvent, removeReportFile, uploadFile } from "../../platform/report";
 import { feedbackURLOverride } from "../../platform/launchConfig";
 import { confirm } from "../../platform/dialogs";
@@ -30,10 +30,10 @@ import { SAVED_DRAFT_DOC, restoredDraft, savedDraftJson, savedDraftOf } from "./
 import { currentReport, initialReportState, patchDraft, patchReport, useReportSheet, type ReportSheetState } from "./store";
 import { isBusy, sendReport, type UploadDeps, type UploadState } from "./upload";
 
-export const FEEDBACK_URL = "https://ardia.dev/api/feedback";
+const ISSUES_URL = "https://github.com/StamatisFloratos/Voyager/issues/new";
 const POST_TIMEOUT_MS = 30_000;
 
-export const feedbackEndpoint = () => feedbackURLOverride() ?? FEEDBACK_URL;
+export const feedbackEndpoint = feedbackURLOverride;
 
 let identity: ReportIdentity | null = null;
 let cancelled = false;
@@ -73,6 +73,10 @@ function restoreDraftOnce(): { recording: boolean } | null {
 
 export function openReport(windowId: string | null, source: "menu" | "check_in" = "menu") {
   if (!windowId) return;
+  if (!feedbackEndpoint()) {
+    openUrls([ISSUES_URL], windowId);
+    return;
+  }
   if (currentReport().recording.phase === "recording") return;
   const restored = restoreDraftOnce();
   if (currentReport().sent) resetReport();
@@ -211,7 +215,9 @@ export async function sendCurrentReport() {
   let resume = failed && failed.errorClass !== "expired" ? failed.created : null;
   const sharing = isSharing();
   const files = reportFiles(s);
-  const endpoint = { url: feedbackEndpoint(), key: APP_INGEST_KEY, keyHeader: INGEST_KEY_HEADER };
+  const url = feedbackEndpoint();
+  if (!url) return;
+  const endpoint = { url, key: APP_INGEST_KEY, keyHeader: INGEST_KEY_HEADER };
   const onState = (upload: UploadState) => !cancelled && patchReport({ upload });
   const attempt = async () => {
     const shown = resume && identity ? identity : reportIdentity(s.draft.watch && !sharing);

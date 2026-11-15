@@ -1,4 +1,4 @@
-import { nativeModule, type ControlRequest, type ControlSocketStatus } from "@ardia/shell";
+import { nativeModule, type ControlRequest, type ControlSocketStatus } from "@voyager/shell";
 
 export type { ControlRequest, ControlSocketStatus };
 

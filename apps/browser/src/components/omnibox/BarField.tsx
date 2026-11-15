@@ -1,4 +1,4 @@
-import type { SearchScope } from "@ardia/core";
+import type { SearchScope } from "@voyager/core";
 import type { ComponentProps, RefObject } from "react";
 import { TextInput } from "react-native";
 import { useTheme } from "../ui";

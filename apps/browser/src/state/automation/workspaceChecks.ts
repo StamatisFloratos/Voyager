@@ -33,7 +33,7 @@ export function closedGroupFor(s: BrowserState, g: TabGroup): TabGroup {
 
 export function withPanes(s: BrowserState, ids: string[]): string[] {
   const all = withSplitRows(s, ids);
-  for (const id of all) if (!isEligibleTab(s, id)) throw new OpError("no_window", `Tab ${id}, in a split with the tabs named, isn't one the ardia command can use.`);
+  for (const id of all) if (!isEligibleTab(s, id)) throw new OpError("no_window", `Tab ${id}, in a split with the tabs named, isn't one the voyager command can use.`);
   return all;
 }
 
@@ -79,7 +79,7 @@ export function groupSection(s: BrowserState, dest: Destination | undefined, fal
 }
 
 export function organizable(s: BrowserState, ids: string[]) {
-  for (const id of ids) if (eligibleKind(s, s.tabs[id]!.windowId) !== "normal") throw new OpError("bad_request", `Tab ${id} is in Little Ardia, which holds one tab.`);
+  for (const id of ids) if (eligibleKind(s, s.tabs[id]!.windowId) !== "normal") throw new OpError("bad_request", `Tab ${id} is in Little Voyager, which holds one tab.`);
 }
 
 export function profileMovable(s: BrowserState, ids: string[], profileId: string) {
@@ -92,7 +92,7 @@ export function leavingTabs(s: BrowserState, ids: string[], where: Space, placed
 }
 
 const fail = (message: string): never => {
-  throw new OpError("failed", `Ardia didn't do that: ${message}`);
+  throw new OpError("failed", `Voyager didn't do that: ${message}`);
 };
 
 const indexIn = (s: BrowserState, id: string) => s.windows[s.tabs[id]?.windowId ?? ""]?.tabIds.indexOf(id) ?? -1;

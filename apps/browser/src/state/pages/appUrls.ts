@@ -1,4 +1,4 @@
-import { appUrlRoute } from "@ardia/core";
+import { appUrlRoute } from "@voyager/core";
 import { SETTINGS_PANES, type SettingsPane } from "../settings/settingsWindows";
 
 const PANE_ALIASES: Record<string, SettingsPane> = {

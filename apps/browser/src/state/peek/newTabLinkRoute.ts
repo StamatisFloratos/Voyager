@@ -1,4 +1,4 @@
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import type { BrowserState } from "../browser/store";
 import type { Settings } from "../settings/settings";
 import { linkDestination } from "../../lib/linkWrappers";

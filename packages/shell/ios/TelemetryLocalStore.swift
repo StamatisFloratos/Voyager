@@ -277,7 +277,7 @@ enum TelemetryLocalStore {
         return done(nil)
       }
       try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-      let base = "Ardia data \(utcDay(now))"
+      let base = "Voyager data \(utcDay(now))"
       var url = dir.appendingPathComponent("\(base).jsonl")
       var n = 2
       while FileManager.default.fileExists(atPath: url.path) {

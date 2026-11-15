@@ -1,5 +1,5 @@
 import type { BrowserState } from "../browser/store";
-import type { ThemeBackdropProps } from "@ardia/core";
+import type { ThemeBackdropProps } from "@voyager/core";
 import { spaceLookSource } from "../../lib/profileLook";
 import { profileColorsOf } from "../profiles/looks";
 import { isRegularWindow } from "./small";

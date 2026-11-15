@@ -25,7 +25,7 @@ const section = (id: string, n: number, base = "https://team.example.com/") => (
 const keywordProviders = [{ id: "config:go", title: "Linear", keyword: "go", host: "linear.app", url: "https://linear.app/team/issue/%s" }];
 
 test("provider rows keep only http(s) URLs", () => {
-  const bad = ["javascript:alert(1)", "data:text/html,hi", "file:///etc/passwd", "chrome://settings", "ardia://history", "about:blank", "https://user:pw@evil.com/", "https://good.com@evil.com/", "https:///nohost", "https://a b.com/", "https://x.com/‮evil", " "];
+  const bad = ["javascript:alert(1)", "data:text/html,hi", "file:///etc/passwd", "chrome://settings", "voyager://history", "about:blank", "https://user:pw@evil.com/", "https://good.com@evil.com/", "https:///nohost", "https://a b.com/", "https://x.com/‮evil", " "];
   for (const url of bad) assert.equal(providerUrl(url), null, url);
   for (const url of ["https://linear.app/a?b=1#c", "http://example.com:8080/x", "https://[2001:db8::1]/"]) assert.equal(providerUrl(url), url);
   const rows = safeProviderRows({ id: "p", title: "P" }, [{ title: "evil", url: "javascript:alert(1)" }, { title: "ok", url: "https://ok.com/" }, null, 3, { title: "no url" }]);

@@ -7,7 +7,7 @@ import { freePort, launch as launchInstance, reporter, sleep } from "../../../sc
 
 const [appArg, scratchArg, ...only] = process.argv.slice(2);
 if (!appArg || !scratchArg) {
-  console.error("usage: activation-acceptance.mjs <Ardia.app> <scratch dir> [check…]");
+  console.error("usage: activation-acceptance.mjs <Voyager.app> <scratch dir> [check…]");
   process.exit(64);
 }
 const scratch = resolve(scratchArg);
@@ -428,16 +428,16 @@ try {
   await check("call-app-switch-little-ardia", async () => {
     const before = new Set(await evalApp(`return Object.keys(ac.store.getState().windows)`));
     await evalApp(`ac.runCommand({ command: "newLittleArdia" }); return true`);
-    const small = await until("a Little Ardia window", () => evalApp(`return Object.values(ac.store.getState().windows).find((w) => w.kind === "small" && !${JSON.stringify([...before])}.includes(w.id))?.id ?? null`), 15000);
+    const small = await until("a Little Voyager window", () => evalApp(`return Object.values(ac.store.getState().windows).find((w) => w.kind === "small" && !${JSON.stringify([...before])}.includes(w.id))?.id ?? null`), 15000);
     let tab = null;
     try {
       tab = await until("its tab", () => evalApp(`return ac.store.getState().windows[${JSON.stringify(small)}]?.tabIds[0] ?? null`), 10000);
       const url = `${origin()}/conf`;
       await evalApp(`ac.store.getState().navigate(${JSON.stringify(tab)}, ${JSON.stringify(url)}, { userInitiated: true }); return true`);
       const t = await pageTarget(url);
-      await until("the call page in Little Ardia", async () => (await js(t, "typeof join")) === "function", 10000);
+      await until("the call page in Little Voyager", async () => (await js(t, "typeof join")) === "function", 10000);
       const placed = await evalApp(`return ac.store.getState().tabs[${JSON.stringify(tab)}]?.windowId ?? null`);
-      if (placed !== small) throw new Error(`the call is in ${placed}, not Little Ardia ${small}`);
+      if (placed !== small) throw new Error(`the call is in ${placed}, not Little Voyager ${small}`);
       await js(t, "join(); true");
       const request = await until("the camera prompt", () => prompt(tab), 10000);
       await answer(tab, request.id, "accept");

@@ -5,7 +5,7 @@
 
 "Ours" is every process whose command line mentions this checkout or the agents' scratch folders (/private/tmp/claude-*)
 plus all their descendants: builds (xcodebuild, clang, swift, ld, hermesc), benches, Metro, hidden test instances,
-Codex runs started from here. The owner's apps (/Applications/Ardia.app, Claude, games) are never touched.
+Codex runs started from here. The owner's apps (/Applications/Voyager.app, Claude, games) are never touched.
 
   - Every process of ours is moved to background QoS (taskpolicy -b -p): efficiency cores, lowest I/O. Except
     processes whose command line holds "/perf-gate/" (put a release gate's app copies in such a folder) so its
@@ -15,7 +15,7 @@ Codex runs started from here. The owner's apps (/Applications/Ardia.app, Claude,
   - Memory, the Mac's used share (100 minus macOS's own free percentage from memory_pressure -Q, which leaves
     out what macOS can reclaim; vm_stat's anonymous + wired + compressor read ~20 points higher): while it is over
     --mem-cap, our largest workers (compilers, linkers, siso's python3, ffmpeg, hidden test instances and tools under
-    ~/ardia-scratch or apps/browser/build-*) are paused, 2 a tick, so they stop growing; each gets a turn after
+    ~/voyager-scratch or apps/browser/build-*) are paused, 2 a tick, so they stop growing; each gets a turn after
     --max-pause seconds while memory is under --mem-cap, and they are resumed one per tick under --mem-resume.
     Sizes come from top's memory column (compressed pages included), not ps's resident size. Over 85 % it logs a
     census every 20 s: the most numerous processes and a sample command line, to name a runaway. Over --mem-kill, our largest worker
@@ -37,8 +37,8 @@ background QoS: full speed.
 import argparse, os, re, signal, subprocess, sys, time
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MARKERS = (REPO + "/", REPO + " ", "/private/tmp/claude-", "/tmp/ac-", os.path.expanduser("~/ardia-scratch/"))
-NEVER = ("/Applications/Ardia.app/", "/Applications/Claude.app/", "/Applications/League of Legends.app/",
+MARKERS = (REPO + "/", REPO + " ", "/private/tmp/claude-", "/tmp/ac-", os.path.expanduser("~/voyager-scratch/"))
+NEVER = ("/Applications/Voyager.app/", "/Applications/Ardia.app/", "/Applications/Claude.app/", "/Applications/League of Legends.app/",
          "/System/", "/usr/libexec/", "/sbin/launchd")
 COORD = {"SWBBuildService", "ibtoold", "xcodebuild", "XCBBuildService", "lockf", "siso", "ninja", "autoninja", "gn"}
 TOOLS = COORD | {"bash", "zsh", "sh", "-zsh", "top", "ps", "git", "perl", "lockf", "timeout", "sleep", "python3", "Python",
@@ -134,7 +134,7 @@ def resident(pids):
 
 MEMORY_WORKERS = {"clang", "clang++", "clang-cl", "python3", "python3.11", "Python", "ld", "ld64.lld", "lld", "rustc",
                   "swift-frontend", "swiftc", "hermesc", "ffmpeg", "dsymutil", "llvm-strip"}
-MEMORY_WORKER_PATHS = ("/ardia-scratch/", "/apps/browser/build-", "/private/tmp/ac-")
+MEMORY_WORKER_PATHS = ("/voyager-scratch/", "/apps/browser/build-", "/private/tmp/ac-")
 NEVER_PAUSE = ("claude", "codex", "T3 Code", "/node_modules/.bin/", "cpu-cap")
 
 

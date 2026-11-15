@@ -1,6 +1,6 @@
-import { nativeModule, type CommandEvent, type MenuState } from "@ardia/shell";
+import { nativeModule, type CommandEvent, type MenuState } from "@voyager/shell";
 
-export type { CommandEvent, BrowserCommand, MenuShortcut, ShortcutModifier, MenuState, MenuBookmark } from "@ardia/shell";
+export type { CommandEvent, BrowserCommand, MenuShortcut, ShortcutModifier, MenuState, MenuBookmark } from "@voyager/shell";
 
 const Menus = nativeModule("ArdiaMenus");
 

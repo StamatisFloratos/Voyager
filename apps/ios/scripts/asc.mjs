@@ -28,7 +28,7 @@ text, submits it for Beta App Review and prints the link. add-tester invites an 
 to an external tester group (Public Testers unless --group names another); TestFlight emails
 the invite once the group has an approved build.`;
 
-const BUNDLE_PREFIX = "com.ardia.browser.ios";
+const BUNDLE_PREFIX = "com.stamatisfloratos.voyager.ios";
 const DEVELOPMENT_CERTIFICATES = new Set(["DEVELOPMENT", "IOS_DEVELOPMENT"]);
 const PUBLIC_GROUP = "Public Testers";
 const API = "https://api.appstoreconnect.apple.com";
@@ -127,7 +127,7 @@ async function findApp() {
 }
 
 function ours(text) {
-  return /ardia|netnyahoo/i.test(text ?? "");
+  return /voyager|netnyahoo/i.test(text ?? "");
 }
 
 async function listBuilds(appId, build) {
@@ -190,7 +190,7 @@ async function status() {
     });
     const capabilities = new Map(included.map((row) => [row.id, row.attributes.capabilityType]));
     const rows = all.filter((row) => ours(row.attributes.identifier));
-    console.log(`${all.length} App IDs on the team, ${rows.length} of them Ardia's`);
+    console.log(`${all.length} App IDs on the team, ${rows.length} of them Voyager's`);
     for (const row of rows) {
       const types = (row.relationships?.bundleIdCapabilities?.data ?? []).map((link) => capabilities.get(link.id) ?? "?");
       console.log(`${row.attributes.identifier} ${row.attributes.platform} [${types.sort().join(", ")}]`);

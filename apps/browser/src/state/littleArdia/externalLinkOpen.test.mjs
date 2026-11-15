@@ -15,7 +15,7 @@ test("off, every link from another app opens as a tab", () => {
     assert.equal(externalLinkOpen(false, urls), "tab", urls.join(" "));
 });
 
-test("on, one web page opens in Little Ardia and anything else as tabs", () => {
+test("on, one web page opens in Little Voyager and anything else as tabs", () => {
   assert.equal(externalLinkOpen(true, ["https://a.example/"]), "littleArdia");
   assert.equal(externalLinkOpen(true, ["file:///tmp/a.html"]), "littleArdia");
   assert.equal(externalLinkOpen(true, ["https://a.example/", "https://b.example/"]), "tab");
@@ -46,7 +46,7 @@ async function open(url) {
 const STATES = {
   "a main window": () => S().createWindow({ url: "https://home.example/" }),
   "no window": () => null,
-  "Little Ardia in front": () => {
+  "Little Voyager in front": () => {
     const main = S().createWindow({ url: "https://home.example/" });
     S().createWindow({ kind: "small", url: "https://little.example/" });
     return main;

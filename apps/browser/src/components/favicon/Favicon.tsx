@@ -1,4 +1,4 @@
-import { displayHost, hostOf } from "@ardia/core";
+import { displayHost, hostOf } from "@voyager/core";
 import { memo, useState } from "react";
 import { Image, Text, View } from "react-native";
 import { faviconFailed, useAppearanceDark, useFavicon, useFaviconTheme } from "../../state/favicons/favicons";

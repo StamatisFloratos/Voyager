@@ -492,7 +492,7 @@ test("the incoming-link hold follows whether an active tab.opening or link.openi
   assert.equal(stub.systemSignals.holdsIncomingLinks, false);
 });
 
-test("a tab target in Little Ardia runs there, with or without a main window, and unsupported commands are refused", async () => {
+test("a tab target in Little Voyager runs there, with or without a main window, and unsupported commands are refused", async () => {
   fresh();
   await controlOn();
   S().updateSettings({ warnBeforeClosingLastTab: false });

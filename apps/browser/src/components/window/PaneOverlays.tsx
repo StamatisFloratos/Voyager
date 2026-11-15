@@ -1,4 +1,4 @@
-import { toAppUrl, urlForDisplay } from "@ardia/core";
+import { toAppUrl, urlForDisplay } from "@voyager/core";
 import { Animated, StyleSheet, View } from "react-native";
 import { useTheme } from "../ui/theme";
 import { webviews } from "../../state/tabs/webviewHandles";

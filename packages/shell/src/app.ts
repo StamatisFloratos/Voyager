@@ -10,6 +10,7 @@ export type LaunchConfig = {
   switches: Record<string, boolean>;
   trace: string[];
   test: Record<string, string>;
+  telemetryURL?: string;
   feedbackURL?: string | null;
 };
 
@@ -25,6 +26,7 @@ export type SystemInfo = {
   model: string;
   memoryGB: number;
   locale: string;
+  telemetryURL?: string;
   feedbackURL?: string | null;
   feedbackEmail?: string | null;
   videoTourURL?: string | null;

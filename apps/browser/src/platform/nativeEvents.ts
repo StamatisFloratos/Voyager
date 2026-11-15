@@ -1,4 +1,4 @@
-import type { PageEventName } from "@ardia/ardiacore";
+import type { PageEventName } from "@voyager/ardiacore";
 
 export type Bridge = {
   __callFunction(module: string, method: string, args: unknown[]): void;

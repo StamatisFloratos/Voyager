@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
+import { telemetryAvailable } from "../../../state/telemetry/transport";
 import { setSharing, useTelemetry } from "../../../state/telemetry/client";
 import { IDENTITY_COPY, LOCAL_COPY, SHARING_COPY, WATCH_COPY, WHATS_SENT } from "../../../state/telemetry/copy";
 import { identityFor, resetAnonymousId, shortInstallId, stopWatch, useInstallId, useWatchReport, useWatchTurnedSharingOn, useWatchUntil, viewMyData } from "../../../state/telemetry/privacy";
@@ -15,6 +16,7 @@ const longDate = (ms: number) => new Date(ms).toLocaleDateString(UI_LOCALE, { mo
 
 export function ShareDiagnosticsSection() {
   const sharing = useTelemetry((s) => s.sharing);
+  if (!telemetryAvailable()) return <KeptOnThisMac />;
   return (
     <>
       <SectionHeader title="Crash reports and usage" description={SHARING_COPY.dailyCountShort} />

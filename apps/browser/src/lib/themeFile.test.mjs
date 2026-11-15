@@ -43,7 +43,7 @@ test("a theme file that doesn't parse gives no roles, so the caller keeps the la
   assert.deepEqual(parse({ dark: "#000" }).problems, ["themes/nord.json: dark must be an object of colour roles"]);
 });
 
-test("the theme's roles replace Ardia's in the base palettes, and a role left out keeps Ardia's", () => {
+test("the theme's roles replace Voyager's in the base palettes, and a role left out keeps Voyager's", () => {
   const merged = mergedPalettes(colorRoles, { dark: { accent: "#88C0D0" }, light: {} }, 3);
   assert.equal(merged.revision, 3);
   assert.equal(merged.dark.accent, "#88C0D0");

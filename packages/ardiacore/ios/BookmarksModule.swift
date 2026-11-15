@@ -13,7 +13,7 @@ public class BookmarksModule: Module {
 
   static func exportHtml(_ args: CallArgs, _ reply: CallReply) {
     let panel = NSSavePanel()
-    panel.nameFieldStringValue = "Ardia Bookmarks.html"
+    panel.nameFieldStringValue = "Voyager Bookmarks.html"
     panel.allowedContentTypes = [.html]
     panel.canCreateDirectories = true
     panel.begin { response in

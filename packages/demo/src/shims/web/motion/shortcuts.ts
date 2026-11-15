@@ -1,5 +1,5 @@
-import type { BrowserCommand } from "@ardia-real/shell";
-import { emitAppEvent, emitCommand } from "@ardia/shell";
+import type { BrowserCommand } from "@voyager-real/shell";
+import { emitAppEvent, emitCommand } from "@voyager/shell";
 import { useBrowser } from "../../../../../../apps/browser/src/state/browser/store";
 import { provideNativeModule } from "../../expo-modules-core";
 

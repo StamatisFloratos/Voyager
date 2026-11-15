@@ -1,12 +1,12 @@
 #if DEBUG
-  import ArdiaDesign
+  import VoyagerDesign
   import OSLog
   import SwiftUI
   import UIKit
 
   @MainActor
   enum SystemDebugHooks {
-    static let log = Logger(subsystem: "com.ardia.browser.ios", category: "system")
+    static let log = Logger(subsystem: "com.stamatisfloratos.voyager.ios", category: "system")
 
     static func run(app: AppModel, open: (URL) -> Void) async {
       let arguments = ProcessInfo.processInfo.arguments

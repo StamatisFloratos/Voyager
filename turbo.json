@@ -10,7 +10,7 @@
         "dist/**"
       ]
     },
-    "@ardia/browser#build": {
+    "@voyager/browser#build": {
       "dependsOn": [
         "^build"
       ],

@@ -48,7 +48,7 @@ globalThis.acTestNativeModules = {
 
 const shell = await import("../../test-native/index.ts");
 const { useBrowser } = await import("../browser/store.ts");
-const { canonical } = await import("@ardia/sync");
+const { canonical } = await import("@voyager/sync");
 const quit = await import("../app/quit.ts");
 const S = () => useBrowser.getState();
 const realNow = Date.now;

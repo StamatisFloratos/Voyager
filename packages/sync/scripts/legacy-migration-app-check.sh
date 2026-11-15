@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-app="${1:?usage: legacy-migration-app-check.sh <Ardia.app> [scratch dir]}"
+app="${1:?usage: legacy-migration-app-check.sh <Voyager.app> [scratch dir]}"
 here="$(cd "$(dirname "$0")" && pwd -P)"
 repo="$(cd "$here/../../.." && pwd -P)"
 ac="$repo/scripts/agent/ac"
@@ -35,10 +35,10 @@ echo "==> today's build makes data"
   const s = ac.store.getState();
   const w = Object.keys(s.windows)[0];
   s.updateSettings({ openLinksInLittleArdia: false, littleArdiaSize: [810, 610], shortcuts: { ...s.settings.shortcuts, newLittleArdia: ["cmd+opt+y"] } });
-  const history = s.newTab(w, { url: "ardia://history" });
+  const history = s.newTab(w, { url: "voyager://history" });
   const example = s.newTab(w, { url: "https://example.com/" });
   ac.store.getState().pinTabs([example], true);
-  ac.store.getState().addBookmark({ profileId: "default", url: "ardia://downloads", title: "Migration Bookmark" });
+  ac.store.getState().addBookmark({ profileId: "default", url: "voyager://downloads", title: "Migration Bookmark" });
   return [history, example];' >/dev/null
 sleep 4
 "$ac" page "$made" example.com 'document.cookie = "migration=kept; max-age=999999; path=/"; document.cookie' >/dev/null
@@ -54,16 +54,16 @@ legacy_app="$(sed -n 's/^ *public static let appFileName = "\(.*\)"$/\1/p' "$rep
 binary="$(plutil -extract CFBundleExecutable raw "$app/Contents/Info.plist")"
 mkdir -p "$apps" && { cp -Rc "$app" "$apps/$legacy_app" 2>/dev/null || ditto "$app" "$apps/$legacy_app"; }
 echo "    (from $apps)"
-launched="$("$ac" launch "$apps/$legacy_app" --runs-from "$apps/Ardia.app" --data "$migrated" --onboarded ${release[@]+"${release[@]}"} \
+launched="$("$ac" launch "$apps/$legacy_app" --runs-from "$apps/Voyager.app" --data "$migrated" --onboarded ${release[@]+"${release[@]}"} \
   --test "legacySource=$home")"
 pid="$(sed -n 's/^pid \([0-9]*\) .*/\1/p' <<<"$launched")"
-check "it renamed itself to Ardia.app" "$([ -d "$apps/Ardia.app" ] && [ ! -e "$apps/$legacy_app" ] && echo 1 || echo 0)" "$(ls "$apps")"
+check "it renamed itself to Voyager.app" "$([ -d "$apps/Voyager.app" ] && [ ! -e "$apps/$legacy_app" ] && echo 1 || echo 0)" "$(ls "$apps")"
 command="$(ps -ww -o command= -p "$pid" 2>/dev/null || true)"
-check "it runs from Ardia.app" "$([ "$command" = "$apps/Ardia.app/Contents/MacOS/$binary" ] && echo 1 || echo 0)" "$command"
-helpers="$(ps -ww -ax -o ppid= -o command= | awk -v p="$pid" '$1 == p' | grep -c "$apps/Ardia.app/Contents/Frameworks/" || true)"
+check "it runs from Voyager.app" "$([ "$command" = "$apps/Voyager.app/Contents/MacOS/$binary" ] && echo 1 || echo 0)" "$command"
+helpers="$(ps -ww -ax -o ppid= -o command= | awk -v p="$pid" '$1 == p' | grep -c "$apps/Voyager.app/Contents/Frameworks/" || true)"
 lsinfo="$(lsappinfo info -app "$pid" 2>/dev/null || true)"
-check "LaunchServices has it at Ardia.app" "$([[ "$lsinfo" == *"bundle path=\"$apps/Ardia.app\""* ]] && echo 1 || echo 0)" "$(grep "bundle path" <<<"$lsinfo")"
-check "its helpers start from Ardia.app" "$([ "${helpers:-0}" -gt 0 ] && echo 1 || echo 0)" "$helpers"
+check "LaunchServices has it at Voyager.app" "$([[ "$lsinfo" == *"bundle path=\"$apps/Voyager.app\""* ]] && echo 1 || echo 0)" "$(grep "bundle path" <<<"$lsinfo")"
+check "its helpers start from Voyager.app" "$([ "${helpers:-0}" -gt 0 ] && echo 1 || echo 0)" "$helpers"
 loads() {
   "$ac" eval "$1" 'ac.actions.openUrls(["data:text/html,<title>engine-ok</title>"]); return true' >/dev/null
   sleep 3
@@ -81,11 +81,11 @@ state="$("$ac" eval "$migrated" '
     little: s.settings.openLinksInLittleArdia,
     size: s.settings.littleArdiaSize,
     shortcut: s.settings.shortcuts?.newLittleArdia ?? null,
-    bookmark: JSON.stringify(s.bookmarks).includes("Migration Bookmark") && JSON.stringify(s.bookmarks).includes("ardia://downloads"),
+    bookmark: JSON.stringify(s.bookmarks).includes("Migration Bookmark") && JSON.stringify(s.bookmarks).includes("voyager://downloads"),
   });')"
 echo "$state"
 has() { node -e 'const s = JSON.parse(process.argv[1]); process.exit(eval(process.argv[2]) ? 0 : 1)' "$state" "$1" && echo 1 || echo 0; }
-check "tabs, with app URLs in today's scheme" "$(has 's.urls.includes("ardia://history") && s.urls.some((u) => u.startsWith("https://example.com"))')"
+check "tabs, with app URLs in today's scheme" "$(has 's.urls.includes("voyager://history") && s.urls.some((u) => u.startsWith("https://example.com"))')"
 check "the pinned tab" "$(has 's.pinned.some((u) => u.startsWith("https://example.com"))')"
 check "settings" "$(has 's.little === false && s.size[0] === 810')"
 check "the custom shortcut" "$(has 'JSON.stringify(s.shortcut) === JSON.stringify(["cmd+opt+y"])')"
@@ -100,8 +100,8 @@ lsinfo="$(lsappinfo info -app "$pid" 2>/dev/null || true)"
 check "still hidden after the exec" "$([[ "$lsinfo" == *'type="BackgroundOnly"'* ]] && ! lsappinfo info -app "$(lsappinfo front)" | grep -q "pid = $pid " && echo 1 || echo 0)" "$(grep -o 'type="[^"]*"' <<<"$lsinfo")"
 "$ac" quit "$migrated" >/dev/null
 
-echo "==> a copy beside an existing Ardia.app stays where it is"
-mkdir -p "$clash/apps" && cp -Rc "$app" "$clash/apps/$legacy_app" && cp -Rc "$app" "$clash/apps/Ardia.app"
+echo "==> a copy beside an existing Voyager.app stays where it is"
+mkdir -p "$clash/apps" && cp -Rc "$app" "$clash/apps/$legacy_app" && cp -Rc "$app" "$clash/apps/Voyager.app"
 launched="$("$ac" launch "$clash/apps/$legacy_app" --data "$clash/data" --onboarded ${release[@]+"${release[@]}"})"
 pid="$(sed -n 's/^pid \([0-9]*\) .*/\1/p' <<<"$launched")"
 command="$(ps -ww -o command= -p "$pid" 2>/dev/null || true)"

@@ -31,7 +31,7 @@ export function PinnedTabsStep() {
   return (
     <StepLayout
       title="Keep your favorite apps handy"
-      subtitle="Pin the apps you use most. They stay put when you open Ardia."
+      subtitle="Pin the apps you use most. They stay put when you open Voyager."
       actions={
         <StepActions
           continueTitle={selected.length ? `Pin ${selected.length} ${selected.length === 1 ? "Tab" : "Tabs"}` : "Continue"}

@@ -52,9 +52,11 @@ dist/
 scripts/.notary.env
 *.p8
 
-apps/ios/Ardia.xcodeproj/xcuserdata/
-apps/ios/Ardia.xcodeproj/project.xcworkspace/xcuserdata/
-apps/ios/Packages/ArdiaKit/.build/
-apps/ios/Packages/ArdiaKit/.swiftpm/
-apps/cli/ardia_cli/vendor/
+apps/ios/Voyager.xcodeproj/xcuserdata/
+apps/ios/Voyager.xcodeproj/project.xcworkspace/xcuserdata/
+apps/ios/Packages/VoyagerKit/.build/
+apps/ios/Packages/VoyagerKit/.swiftpm/
+apps/cli/voyager_cli/vendor/
 __pycache__/
+
+apps/cli/.venv/

@@ -48,7 +48,7 @@ export const CleanUpUpsell = memo(function CleanUpUpsell({ windowId, shift }: { 
         </Text>
       </View>
       <Text size="small" tone="textSecondary">
-        Ardia can tidy up for you. You can always reopen closed tabs from the ⌄ menu.
+        Voyager can tidy up for you. You can always reopen closed tabs from the ⌄ menu.
       </Text>
       <View style={{ gap: space.s }}>
         {button("Clean Up Once", () => {

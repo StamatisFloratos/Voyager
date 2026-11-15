@@ -1,4 +1,4 @@
-import { nativeModule, type TelemetryLocalExport, type TelemetryLocalStats } from "@ardia/shell";
+import { nativeModule, type TelemetryLocalExport, type TelemetryLocalStats } from "@voyager/shell";
 
 const Local = nativeModule("ArdiaTelemetryLocal");
 

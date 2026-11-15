@@ -7,8 +7,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import caller
-from ardia_cli.caller import Caller, Process
+from voyager_cli import caller
+from voyager_cli.caller import Caller, Process
 
 T3 = "/Applications/T3 Code (Nightly).app/Contents/MacOS/T3 Code (Nightly)"
 
@@ -59,7 +59,7 @@ class Naming(unittest.TestCase):
 
     def test_an_interpreter_running_something_else_is_not_an_agent(self):
         found = caller.from_chain([Process(5, 1, "/usr/bin/python3", ("python3", "-c", "claude"))])
-        self.assertEqual(found, Caller("ardia"))
+        self.assertEqual(found, Caller("voyager"))
 
     def test_the_outermost_app_bundle_names_the_caller(self):
         app = self.bundle("Visual Studio Code.app", CFBundleName="Code")
@@ -81,10 +81,10 @@ class Naming(unittest.TestCase):
         found = caller.from_chain([Process(5, 1, str(app / "Contents" / "MacOS" / "Odd"), ())])
         self.assertEqual(found.name, ("Evil App " + "x" * 80)[: caller.MAX_NAME])
 
-    def test_no_agent_and_no_app_falls_back_to_ardia(self):
+    def test_no_agent_and_no_app_falls_back_to_voyager(self):
         found = caller.from_chain(chain(("/bin/sh", ["/bin/sh", "-c"]), ("/usr/sbin/sshd", ["sshd-session"])))
-        self.assertEqual(found, Caller("ardia"))
-        self.assertEqual(caller.from_chain([]), Caller("ardia"))
+        self.assertEqual(found, Caller("voyager"))
+        self.assertEqual(caller.from_chain([]), Caller("voyager"))
 
     def test_the_walk_stops_at_launchd_on_a_cycle_and_on_a_gone_process(self):
         reader = FakeReader({10: Process(10, 11, "/bin/zsh"), 11: Process(11, 1, T3)})
@@ -95,7 +95,7 @@ class Naming(unittest.TestCase):
 
     def test_a_reparented_process_names_nothing(self):
         reader = FakeReader({10: Process(10, 1, "/bin/sh", ("/bin/sh", "-c"))})
-        self.assertEqual(caller.from_chain(caller.ancestry(10, reader)), Caller("ardia"))
+        self.assertEqual(caller.from_chain(caller.ancestry(10, reader)), Caller("voyager"))
 
     def test_the_live_ancestry_reads_this_process(self):
         chain_now = caller.ancestry(os.getpid())

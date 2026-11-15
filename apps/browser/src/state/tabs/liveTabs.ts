@@ -1,4 +1,4 @@
-import { TAB_GROUP_COLORS } from "@ardia/core";
+import { TAB_GROUP_COLORS } from "@voyager/core";
 import type { StripGroup, StripState, StripTab } from "../../platform/tabs";
 import type { BrowserState } from "../browser/store";
 import type { TabGroup } from "../browser/types";

@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import type { NavigationState, WebViewHandle, WebViewProps } from "@ardia-real/ardiacore";
+import type { NavigationState, WebViewHandle, WebViewProps } from "@voyager-real/ardiacore";
 import { hostOf, isFrameable } from "../../frameable";
 import { faviconFor, PAGE_THEMES, pageTitle } from "../../pages";
 import { useBrowser } from "../../../../../apps/browser/src/state/browser/store";

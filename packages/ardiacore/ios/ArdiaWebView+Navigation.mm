@@ -9,7 +9,7 @@ namespace {
 
 bool IsRendererDebugURL(NSString *url) {
   NSURLComponents *c = [NSURLComponents componentsWithString:url];
-  if (![@[ @"chrome", @"ardia" ] containsObject:c.scheme.lowercaseString ?: @""]) return false;
+  if (![@[ @"chrome", @"voyager", @"ardia" ] containsObject:c.scheme.lowercaseString ?: @""]) return false;
   static NSSet *hosts = [NSSet setWithArray:@[
     @"badcastcrash", @"crash", @"crashdump", @"kill", @"hang", @"shorthang", @"memory-exhaust", @"memory-pressure-critical",
     @"memory-pressure-moderate", @"gpuclean", @"gpucrash", @"gpuhang", @"inducebrowsercrashforrealz",

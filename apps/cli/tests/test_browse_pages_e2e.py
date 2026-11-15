@@ -14,9 +14,9 @@ from test_browse_e2e import CLI, DIRECT, FIXTURES, REPO, SERVE, SESSION_JS, free
 
 sys.path.insert(0, str(CLI))
 
-APP = os.environ.get("ARDIA_BROWSE_E2E_APP")
-SCRATCH = Path(os.environ.get("ARDIA_BROWSE_PAGES_E2E_DIR", str(Path.home() / "ardia-scratch" / "browse-pages" / "e2e")))
-PORT = int(os.environ.get("ARDIA_BROWSE_PAGES_E2E_PORT") or 0)
+APP = os.environ.get("VOYAGER_BROWSE_E2E_APP")
+SCRATCH = Path(os.environ.get("VOYAGER_BROWSE_PAGES_E2E_DIR", str(Path.home() / "voyager-scratch" / "browse-pages" / "e2e")))
+PORT = int(os.environ.get("VOYAGER_BROWSE_PAGES_E2E_PORT") or 0)
 
 
 def fetch_ok(url):
@@ -28,7 +28,7 @@ def fetch_ok(url):
 
 
 def cdp(ws: str, method: str, params: dict | None = None) -> dict:
-    from ardia_cli import guard
+    from voyager_cli import guard
 
     async def ask():
         connection = await guard.direct_connect(ws, max_size=1 << 24)
@@ -58,14 +58,14 @@ class PagesChecks:
 
     @classmethod
     def browse_argv(cls, args, session):
-        return [sys.executable, "-m", "ardia_cli", "browse", *cls.endpoint_args, "--data-dir", str(cls.data), "--session", session, *args]
+        return [sys.executable, "-m", "voyager_cli", "browse", *cls.endpoint_args, "--data-dir", str(cls.data), "--session", session, *args]
 
     @classmethod
     def browse(cls, *args, session="pages", check=True, timeout=120, stdin=None):
         env = dict(os.environ, PYTHONPATH=str(CLI))
         done = subprocess.run(cls.browse_argv(args, session), capture_output=True, text=True, timeout=timeout, env=env, input=stdin)
         if check and done.returncode:
-            raise AssertionError(f"ardia browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
+            raise AssertionError(f"voyager browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
         return done
 
     @classmethod
@@ -229,14 +229,14 @@ return names;
         self.assertLessEqual(len(set(self.targets()) - before), 1)
 
     def test_a_dead_sessions_tab_is_closed_by_its_id_and_a_lookalike_user_tab_is_not(self):
-        from ardia_cli.browse import paths
-        from ardia_cli.browse.tabs import Registry
+        from voyager_cli.browse import paths
+        from voyager_cli.browse.tabs import Registry
 
         session = "orphan-sweeper"
         self.browse("read", self.url("item.html?n=1"), session=session)
         files = [json.loads(path.read_text()) for path in (self.data / "Browse").glob("tabs-*.json")]
         instance = next(data["instance"] for data in files if data.get("version") == 3)
-        user = cdp(self.browser_ws(), "Target.createTarget", {"url": self.url("item.html?n=3#ardia-temp-0123456789abcdef"), "background": True})["targetId"]
+        user = cdp(self.browser_ws(), "Target.createTarget", {"url": self.url("item.html?n=3#voyager-temp-0123456789abcdef"), "background": True})["targetId"]
         orphan = cdp(self.browser_ws(), "Target.createTarget", {"url": "about:blank", "background": True})["targetId"]
         fd = paths.browse_dir(self.data)
         try:
@@ -264,7 +264,7 @@ return names;
         self.assertEqual(self.browse("get", "title", session=session).stdout, "Dock 1 | Fixture Shop\n")
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built Ardia.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set VOYAGER_BROWSE_E2E_APP to a built Voyager.app (never /Applications) to run the end-to-end test")
 class ReadAndScriptOverPort(PagesChecks, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -303,7 +303,7 @@ class ReadAndScriptOverPort(PagesChecks, unittest.TestCase):
             return json.loads(response.read())["webSocketDebuggerUrl"]
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built Ardia.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set VOYAGER_BROWSE_E2E_APP to a built Voyager.app (never /Applications) to run the end-to-end test")
 class ReadAndScriptOverToken(PagesChecks, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -316,7 +316,7 @@ class ReadAndScriptOverToken(PagesChecks, unittest.TestCase):
         subprocess.run(["node", "-e", SESSION_JS, str(cls.data)], cwd=REPO, check=True, timeout=30)
         cls.serve_fixtures()
         log = str(cls.data / "app.out.log")
-        subprocess.run(["open", "-g", "-n", "--env", "ARDIA_BACKGROUND=1", "--env", f"ARDIA_DATA_DIR={cls.data}", "--stdout", log, "--stderr", log, APP],
+        subprocess.run(["open", "-g", "-n", "--env", "VOYAGER_BACKGROUND=1", "--env", f"VOYAGER_DATA_DIR={cls.data}", "--stdout", log, "--stderr", log, APP],
                        check=True, timeout=30)
         control = cls.data / "Chromium" / "ArdiaControl.json"
         cls.pid = None
@@ -345,7 +345,7 @@ class ReadAndScriptOverToken(PagesChecks, unittest.TestCase):
             cls.server.wait(10)
 
     def browser_ws(self):
-        from ardia_cli import endpoint
+        from voyager_cli import endpoint
 
         return endpoint.resolve(data_dir=str(self.data)).ws
 

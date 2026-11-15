@@ -11,7 +11,7 @@ import { Favicon } from "../favicon/Favicon";
 import { useArtwork } from "../../state/media/artwork";
 import { useMarqueeGroup, Marquee } from "./Marquee";
 import { formatTime, hasTrackControls, isPlaying, mediaCommand, positionOf, seekTo, skipOrTrack, transportIcons, useSession, useTicker, type Session } from "../../state/media/media";
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import { ART_HOVER_SCRIM, useMediaTokens, type MediaTokens } from "./tokens";
 
 export const MINI_PLAYER_WIDTH = 320;

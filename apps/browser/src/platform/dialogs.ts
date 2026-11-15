@@ -1,4 +1,4 @@
-import { nativeModule, type ConfirmOptions, type PromptOptions } from "@ardia/shell";
+import { nativeModule, type ConfirmOptions, type PromptOptions } from "@voyager/shell";
 
 const Dialogs = nativeModule("ArdiaDialogs");
 

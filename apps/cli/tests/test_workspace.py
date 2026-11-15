@@ -7,7 +7,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import telemetry, workspace_cli
+from voyager_cli import telemetry, workspace_cli
 from tests.test_automation import Base
 
 TREE = {
@@ -93,7 +93,7 @@ class Workspace(Base):
         self.assertEqual((status, out), (1, ""))
         self.assertIn("no tab runs in process 4", err)
 
-    def test_an_ardia_without_process_ids_still_shows_usage_and_says_so_for_pid(self):
+    def test_an_voyager_without_process_ids_still_shows_usage_and_says_so_for_pid(self):
         self.serve_usage({"tab-1": (None, 3.2, 90_000_000)})
         status, out, _ = self.run_cli("tabs", "--usage")
         self.assertEqual(status, 0)
@@ -103,12 +103,12 @@ class Workspace(Base):
         self.assertEqual(status, 1)
         self.assertIn("doesn't report tab process ids yet", err)
 
-    def test_an_older_ardia_says_to_update_for_usage(self):
+    def test_an_older_voyager_says_to_update_for_usage(self):
         server = self.serve()
         server.replies["workspace"] = lambda params: {"error": {"code": "bad_request", "message": "workspace takes window and profile, not usage."}}
         status, _, err = self.run_cli("tabs", "--usage")
         self.assertEqual(status, 1)
-        self.assertIn("doesn't know --usage and --pid yet; update Ardia", err)
+        self.assertIn("doesn't know --usage and --pid yet; update Voyager", err)
 
     def test_tree_flat_and_groups(self):
         server = self.serve_ops()
@@ -174,7 +174,7 @@ class Workspace(Base):
         for argv in (["groups", "update", "g-1"], ["groups", "move", "g-1"], ["tabs", "pin", "t", "--row", "--tile"], ["groups", "update", "g-1", "--icon", "🚀", "--reset-icon"]):
             status, _, err = self.run_cli(*argv)
             self.assertEqual(status, 1, argv)
-            self.assertTrue(err.startswith("ardia "), err)
+            self.assertTrue(err.startswith("voyager "), err)
         status, _, _ = self.run_cli("tabs", "move", "t", "--top", "--group", "g")
         self.assertEqual(status, 2)
         self.assertEqual(self.sent(server), [])
@@ -197,7 +197,7 @@ class Workspace(Base):
         self.assertEqual(len(self.sent(server)), sent)
 
     def test_failures_and_partial_batches_exit_1(self):
-        partial = {"result": {"ok": False, "applied": 1, "results": [{"op": "tab.mute", "tabs": ["tab-1"]}], "error": {"index": 1, "code": "no_window", "message": "Operation 1 (tab.move): There's no tab x the ardia command can use."}, "tabs": [], "groups": [], "windows": []}}
+        partial = {"result": {"ok": False, "applied": 1, "results": [{"op": "tab.mute", "tabs": ["tab-1"]}], "error": {"index": 1, "code": "no_window", "message": "Operation 1 (tab.move): There's no tab x the voyager command can use."}, "tabs": [], "groups": [], "windows": []}}
         self.serve_ops(lambda params: partial)
         with mock.patch.object(sys, "stdin", io.StringIO(json.dumps({"ops": [{"op": "tab.mute", "tabs": ["tab-1"]}, {"op": "tab.move", "tabs": ["x"], "group": None}]}))):
             status, out, err = self.run_cli("apply")
@@ -207,14 +207,14 @@ class Workspace(Base):
         self.assertIn("1 of 2 operations ran", err)
 
     def test_method_errors_and_old_apps(self):
-        server = self.serve_ops(lambda params: {"error": {"code": "refused", "message": "Operation 0: javascript: isn't a URL Ardia opens."}})
+        server = self.serve_ops(lambda params: {"error": {"code": "refused", "message": "Operation 0: javascript: isn't a URL Voyager opens."}})
         status, _, err = self.run_cli("tabs", "open", "javascript:alert(1)")
         self.assertEqual(status, 1)
-        self.assertIn("isn't a URL Ardia opens", err)
+        self.assertIn("isn't a URL Voyager opens", err)
         server.replies.pop("workspace")
         status, _, err = self.run_cli("tabs")
         self.assertEqual(status, 1)
-        self.assertIn("update Ardia", err)
+        self.assertIn("update Voyager", err)
 
     def test_dropped_after_send_may_have_run(self):
         self.serve_ops(lambda params: None)
@@ -249,7 +249,7 @@ class Workspace(Base):
         self.assertEqual(call.error_code, "no_window")
 
     def run_cli_inner(self, *argv):
-        from ardia_cli import cli
+        from voyager_cli import cli
         import contextlib
 
         out, err = io.StringIO(), io.StringIO()
@@ -287,7 +287,7 @@ class TerminalEscapes(Base):
         self.assertEqual(json.loads(out), tree)
 
     def test_events_pinned_and_history_rows_are_escaped(self):
-        from ardia_cli import automation_cli, browsing_cli
+        from voyager_cli import automation_cli, browsing_cli
 
         self.assert_inert(automation_cli.describe_event({"event": "tab.navigated", "time": 1, "data": {"tabId": "t", "url": EVIL, "title": EVIL}}))
         self.assert_inert(browsing_cli.describe_pin({"kind": "pinned", "title": EVIL, "url": EVIL, "folder": EVIL, "profile": EVIL}))
@@ -300,8 +300,8 @@ PAGE = "Héllo 世界 مرحبا 👋🏽\tcol\nline2 \x1b]52;c;ZXZpbA==\x07 \x9
 
 class EveryOutputIsInert(Base):
     def test_browse_text_escapes_controls_but_keeps_lines_tabs_and_unicode(self):
-        from ardia_cli.browse.commands import Result
-        from ardia_cli.browse.daemon import render
+        from voyager_cli.browse.commands import Result
+        from voyager_cli.browse.daemon import render
 
         result = Result(data={"title": PAGE}, text=PAGE, page_content=True)
         _, out, _ = render({"json": False}, result=result, name="get")
@@ -311,13 +311,13 @@ class EveryOutputIsInert(Base):
         _, raw, _ = render({"json": True}, result=result, name="get")
         self.assertEqual(json.loads(raw)["data"]["title"], PAGE)
         self.assertNotIn("\x9b", raw)
-        from ardia_cli.browse.errors import BrowseError
+        from voyager_cli.browse.errors import BrowseError
 
         _, _, err = render({"json": False}, error=BrowseError(f"bad {PAGE}"))
         self.assertNotIn("\x1b", err)
 
     def test_one_writer_guards_every_command_but_json_mode(self):
-        from ardia_cli import automation_cli
+        from voyager_cli import automation_cli
 
         def noisy(args):
             sys.stdout.write("hook \x1b]52;c;ZXZpbA==\x07 name\tok\n")
@@ -344,8 +344,8 @@ class JsonStaysInert(Base):
             self.assertNotIn(char, text)
 
     def test_browse_json_escapes_c1_and_decodes_to_the_same_value(self):
-        from ardia_cli.browse.commands import Result
-        from ardia_cli.browse.daemon import render
+        from voyager_cli.browse.commands import Result
+        from voyager_cli.browse.daemon import render
 
         _, out, _ = render({"json": True}, result=Result(data={"title": C1_TITLE}, text=C1_TITLE))
         self.assert_no_c1(out)
@@ -360,7 +360,7 @@ class JsonStaysInert(Base):
         self.assertEqual(status, 0)
         self.assert_no_c1(out)
         self.assertEqual(json.loads(out), windows)
-        from ardia_cli import printable
+        from voyager_cli import printable
 
         text = json.dumps({"t": C1_TITLE}, ensure_ascii=False)
         self.assertEqual(json.loads(printable.json_safe(text)), {"t": C1_TITLE})

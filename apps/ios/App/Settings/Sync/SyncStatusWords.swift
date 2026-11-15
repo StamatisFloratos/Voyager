@@ -1,4 +1,4 @@
-import ArdiaSync
+import VoyagerSync
 import SwiftUI
 
 struct SyncStatusWords {

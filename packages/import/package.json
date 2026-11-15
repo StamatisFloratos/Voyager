@@ -1,5 +1,5 @@
 {
-  "name": "@ardia/import",
+  "name": "@voyager/import",
   "version": "0.0.0",
   "private": true,
   "description": "Import bookmarks, history, tabs, passwords and Arc spaces from other browsers",
@@ -12,7 +12,7 @@
     "fixtures": "python3 fixtures/generate.py"
   },
   "dependencies": {
-    "@ardia/core": "workspace:*"
+    "@voyager/core": "workspace:*"
   },
   "peerDependencies": {
     "expo": "*",

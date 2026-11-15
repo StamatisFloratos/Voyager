@@ -109,7 +109,7 @@ enum UpdatePrewarm {
       pid = 0
       let ms = Int(Date().timeIntervalSince(began) * 1000)
       UpdatePrewarm.save(version: version, status: status, ms: ms)
-      NSLog("Ardia: prewarmed update \(version) in \(ms) ms (status \(status))")
+      NSLog("Voyager: prewarmed update \(version) in \(ms) ms (status \(status))")
     }
   }
 
@@ -128,11 +128,11 @@ enum UpdatePrewarm {
     attempt = tried
     runningVersion = version
     var env = LaunchConfig.shared.environmentForChildProcesses.filter { !$0.key.hasPrefix("DYLD_") }
-    env["ARDIA_PREWARM"] = "1"
+    env["VOYAGER_PREWARM"] = "1"
     DispatchQueue.global(qos: .utility).async {
       guard signedLikeThisApp(bundle) else {
         tried.record(status: statusRejected)
-        NSLog("Ardia: not prewarming \(bundle.path): its signature isn't this app's")
+        NSLog("Voyager: not prewarming \(bundle.path): its signature isn't this app's")
         return DispatchQueue.main.async { finish(current) }
       }
       let task = Process()
@@ -150,12 +150,12 @@ enum UpdatePrewarm {
         guard try tried.spawn(task) else { return }
       } catch {
         tried.record(status: statusSpawnFailed)
-        NSLog("Ardia: couldn't prewarm update \(version): \(error.localizedDescription)")
+        NSLog("Voyager: couldn't prewarm update \(version): \(error.localizedDescription)")
         return DispatchQueue.main.async { finish(current) }
       }
       DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
         guard attempt === tried, task.isRunning else { return }
-        NSLog("Ardia: update prewarm still running after \(Int(timeout)) s; stopping it")
+        NSLog("Voyager: update prewarm still running after \(Int(timeout)) s; stopping it")
         stop()
       }
     }

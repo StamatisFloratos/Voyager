@@ -47,7 +47,7 @@ globalThis.acTestNativeModules = {
 const shell = await import("../../test-native/index.ts");
 const { useBrowser } = await import("../browser/store.ts");
 const { engineProfile } = await import("../browser/model.ts");
-const { emptyScope, canonical } = await import("@ardia/sync");
+const { emptyScope, canonical } = await import("@voyager/sync");
 const S = () => useBrowser.getState();
 const reset = () => {
   shell.docs.clear();

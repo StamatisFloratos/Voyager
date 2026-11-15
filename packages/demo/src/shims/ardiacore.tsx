@@ -1,8 +1,8 @@
-import type { FaviconImage } from "@ardia-real/ardiacore";
+import type { FaviconImage } from "@voyager-real/ardiacore";
 import { faviconFor } from "../pages";
 import { provideNativeModule } from "./expo-modules-core";
 
-export * from "@ardia-real/ardiacore";
+export * from "@voyager-real/ardiacore";
 export { devPagerState, pagerState, selectPager, stepPager, SwipeArea, switchPager } from "./web/Pager";
 export { WebView } from "./web/WebView";
 
@@ -17,7 +17,7 @@ const ENGINE_ONLY: Record<string, string[]> = {
 };
 const ANSWERS: Record<string, Record<string, unknown>> = {
   ArdiaTabs: { strips: { rev: 0, cmd: null, strips: [] } },
-  ArdiaExtensions: { list: { extensions: [] } },
+  ArdiaExtensions: { list: { extensions: [] }, loadHealth: { dropped: 0, enabled: 0, disabled: {} } },
   ArdiaSearch: { engines: { list: { engines: [] } } },
 };
 for (const module of new Set([...Object.keys(ENGINE_ONLY), ...Object.keys(ANSWERS)]))

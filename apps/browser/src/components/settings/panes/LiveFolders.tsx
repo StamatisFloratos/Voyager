@@ -47,7 +47,7 @@ export function LiveFoldersPane() {
       </Group>
       {isMocked ? (
         <Text size="caption" tone="warning" style={NOTE_TOP}>
-          Development build: services are served by ARDIA_TEST liveMock.
+          Development build: services are served by VOYAGER_TEST liveMock.
         </Text>
       ) : null}
     </View>
@@ -189,7 +189,7 @@ function GithubConnect({ busy, run }: ConnectProps) {
   if (flow) {
     return (
       <View>
-        <Help>Enter this code on GitHub (it's on your clipboard), then approve Ardia. This sheet closes when you're signed in.</Help>
+        <Help>Enter this code on GitHub (it's on your clipboard), then approve Voyager. This sheet closes when you're signed in.</Help>
         <Text selectable weight="semibold" style={CODE}>
           {flow.userCode}
         </Text>
@@ -301,7 +301,7 @@ function GoogleConnect({ busy, run }: ConnectProps) {
   return (
     <View>
       <Help>
-        In Google Cloud Console, enable the Drive API and create an OAuth client of type "Desktop app" (add yourself as a test user). Ardia opens Google's consent page in a tab and reads the result from its redirect; it asks only to see your files' names and dates.
+        In Google Cloud Console, enable the Drive API and create an OAuth client of type "Desktop app" (add yourself as a test user). Voyager opens Google's consent page in a tab and reads the result from its redirect; it asks only to see your files' names and dates.
       </Help>
       <FormField label="Client ID">
         <TextField value={clientId} onChangeText={setClientId} placeholder="…apps.googleusercontent.com" />

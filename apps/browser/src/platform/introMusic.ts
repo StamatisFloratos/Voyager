@@ -1,4 +1,4 @@
-import { nativeModule, type IntroMusicCues } from "@ardia/shell";
+import { nativeModule, type IntroMusicCues } from "@voyager/shell";
 
 export type { IntroMusicCues };
 

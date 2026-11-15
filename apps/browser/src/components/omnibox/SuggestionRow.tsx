@@ -1,4 +1,4 @@
-import { displayHost, displayUrl, hostOf, type Suggestion } from "@ardia/core";
+import { displayHost, displayUrl, hostOf, type Suggestion } from "@voyager/core";
 import { memo } from "react";
 import { Image, Pressable, Text as NativeText, View } from "react-native";
 import { Button, Symbol, Text, useHover, useTheme, withAlpha, type Theme } from "../ui";

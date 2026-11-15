@@ -46,7 +46,7 @@ globalThis.acTestNativeModules = {
     removeDocument: (name) => void (pending.delete(name), landed.delete(name)),
   },
   ArdiaSharedFolders: {
-    location: () => ({ path: "/scratch/Ardia Shared", iCloudAvailable: true, iCloudPath: "/scratch" }),
+    location: () => ({ path: "/scratch/Voyager Shared", iCloudAvailable: true, iCloudPath: "/scratch" }),
     read: async (path) => {
       events.push(`read ${path}`);
       const now = byPath.get(path) ?? listing;
@@ -105,7 +105,7 @@ function setup() {
   const g = S().groupTabs([t], { pinned: true, name: "Team" });
   const profileId = S().groups[g].profileId;
   const key = pinKeyOf(S().groups[g]);
-  bindFolder(profileId, key, "/scratch/Ardia Shared/Team");
+  bindFolder(profileId, key, "/scratch/Voyager Shared/Team");
   return { profileId, key };
 }
 
@@ -141,7 +141,7 @@ test("a session snapshot that never got staged stops the round too, and is stage
   const g = S().groupTabs([t], { pinned: true, name: "Second" });
   const profileId = S().groups[g].profileId;
   const key = pinKeyOf(S().groups[g]);
-  bindFolder(profileId, key, "/scratch/Ardia Shared/Second");
+  bindFolder(profileId, key, "/scratch/Voyager Shared/Second");
   await wait(900);
   listing = { exists: true, root: { entries: [{ kind: "link", file: "Staged.webloc", text: webloc("https://staged.example/") }], manifest: null, manifestPending: false } };
   unstageable.add("session.json");
@@ -160,18 +160,18 @@ test("a session snapshot that never got staged stops the round too, and is stage
 test("a folder unbound and bound again while its round reads changes neither binding", async () => {
   const { profileId, key } = setup();
   await wait(900);
-  const oldPath = "/scratch/Ardia Shared/Team";
+  const oldPath = "/scratch/Voyager Shared/Team";
   byPath.set(oldPath, { exists: true, root: { entries: [{ kind: "link", file: "Old.webloc", text: webloc("https://old-folder.example/") }], manifest: null, manifestPending: false } });
   duringRead = async () => {
     duringRead = async () => {};
     unbindFolder(profileId, key);
-    bindFolder(profileId, key, "/scratch/Ardia Shared/Elsewhere");
+    bindFolder(profileId, key, "/scratch/Voyager Shared/Elsewhere");
   };
   await settled(syncFolderNow(profileId, key));
   await wait(400);
   await settled(syncFolderNow(profileId, key));
   assert.deepEqual(events.filter((e) => e.startsWith(`apply ${oldPath} `)), [], "nothing is written for the old binding");
-  assert.equal(sharedFolderOf(profileId, key).path, "/scratch/Ardia Shared/Elsewhere");
+  assert.equal(sharedFolderOf(profileId, key).path, "/scratch/Voyager Shared/Elsewhere");
   assert.ok(!sharedFolderOf(profileId, key).base.some((b) => b.url === "https://old-folder.example/"), "the new binding never takes the old folder's links");
   assert.ok(!Object.values(S().tabs).some((t) => t.pinnedUrl === "https://old-folder.example/"), "the old folder's links aren't imported");
 });
@@ -182,7 +182,7 @@ test("a read that fails after the folder was bound again doesn't mark the new bi
   duringRead = async () => {
     duringRead = async () => {};
     unbindFolder(profileId, key);
-    bindFolder(profileId, key, "/scratch/Ardia Shared/Fresh");
+    bindFolder(profileId, key, "/scratch/Voyager Shared/Fresh");
     throw new Error("the old disk went away");
   };
   await settled(syncFolderNow(profileId, key));
@@ -210,7 +210,7 @@ test("Share Folder doesn't open the share sheet when the folder's first sync fai
 test("unbinding and binding the same path again during a read still counts as a new binding", async () => {
   const { profileId, key } = setup();
   await wait(900);
-  const path = "/scratch/Ardia Shared/Team";
+  const path = "/scratch/Voyager Shared/Team";
   listing = { exists: true, root: { entries: [{ kind: "link", file: "Before.webloc", text: webloc("https://before-rebind.example/") }], manifest: null, manifestPending: false } };
   let replaced;
   duringRead = async () => {
@@ -233,7 +233,7 @@ test("Share Folder waits for a round that starts after it, not one already runni
   const g = S().groupTabs([t], { pinned: true, name: "Fourth" });
   const profileId = S().groups[g].profileId;
   const key = pinKeyOf(S().groups[g]);
-  bindFolder(profileId, key, "/scratch/Ardia Shared/Fourth");
+  bindFolder(profileId, key, "/scratch/Voyager Shared/Fourth");
   await wait(900);
   await settled(syncFolderNow(profileId, key));
   let release;

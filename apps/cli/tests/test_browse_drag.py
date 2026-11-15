@@ -9,9 +9,9 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli.browse import actions, commands, inputs, js
-from ardia_cli.browse.errors import BrowseError, CdpError, Gated, OutcomeUnknown
-from ardia_cli.browse.page import Element
+from voyager_cli.browse import actions, commands, inputs, js
+from voyager_cli.browse.errors import BrowseError, CdpError, Gated, OutcomeUnknown
+from voyager_cli.browse.page import Element
 
 QUADS = {1: [10, 10, 110, 10, 110, 40, 10, 40], 2: [10, 200, 110, 200, 110, 230, 10, 230]}
 
@@ -48,12 +48,12 @@ class FakeRenderer:
             return dict(self.counts, activeFrame=False)
         if "draggable" in function:
             return self.draggable
-        if "ardiaBrowse.info" in function:
+        if "voyagerBrowse.info" in function:
             return {"connected": True}
-        if "ardiaBrowse.rect" in function:
+        if "voyagerBrowse.rect" in function:
             quad = QUADS[args[0].backend_id]
             return {"x": quad[0], "y": quad[1], "width": quad[2] - quad[0], "height": quad[5] - quad[1]}
-        if "ardiaBrowse.viewport" in function:
+        if "voyagerBrowse.viewport" in function:
             return {"width": 1280, "height": 800, "scrollX": 0, "scrollY": 0, "docWidth": 1280, "docHeight": 800}
         return None
 
@@ -261,7 +261,7 @@ const context = { addEventListener: (type, listener) => (listeners[type] = liste
 context.globalThis = context;
 vm.createContext(context);
 vm.runInContext(process.argv[1], context);
-const watch = () => vm.runInContext("ardiaBrowse.inputWatch().dragstart", context);
+const watch = () => vm.runInContext("voyagerBrowse.inputWatch().dragstart", context);
 const start = (prevented) => {
   const event = { isTrusted: true, defaultPrevented: false };
   listeners.dragstart.forEach((listener) => listener(event));
@@ -283,7 +283,7 @@ class DragStartCountTest(unittest.TestCase):
 
 class BackgroundTabTest(unittest.TestCase):
     def make_page(self, flips_after=None):
-        from ardia_cli.browse.page import Page
+        from voyager_cli.browse.page import Page
 
         state = type("S", (), {"background_live": None, "tab_ids": {}, "sessions": {}})()
         state.tab_id = lambda target: "t3"
@@ -305,17 +305,17 @@ class BackgroundTabTest(unittest.TestCase):
 
     def test_old_engine_refuses_with_the_exact_hint(self):
         page, state = self.make_page()
-        with mock.patch("ardia_cli.browse.page.LIVE_WAIT", 0.15):
+        with mock.patch("voyager_cli.browse.page.LIVE_WAIT", 0.15):
             with self.assertRaises(BrowseError) as caught:
                 asyncio.run(page.require_visible())
         self.assertFalse(state.background_live)
         self.assertEqual(caught.exception.code, "tab_hidden")
-        self.assertIn("use: ardia browse tab t3 --show (or open <url> --show)", caught.exception.message)
-        self.assertEqual(caught.exception.data["use"], "ardia browse tab t3 --show")
+        self.assertIn("use: voyager browse tab t3 --show (or open <url> --show)", caught.exception.message)
+        self.assertEqual(caught.exception.data["use"], "voyager browse tab t3 --show")
 
     def test_one_tab_that_stayed_hidden_does_not_refuse_the_next_one_at_once(self):
         page, state = self.make_page()
-        with mock.patch("ardia_cli.browse.page.LIVE_WAIT", 0.15):
+        with mock.patch("voyager_cli.browse.page.LIVE_WAIT", 0.15):
             self.assertFalse(asyncio.run(page.takes_input()))
         later, _ = self.make_page(flips_after=2)
         later.state = state

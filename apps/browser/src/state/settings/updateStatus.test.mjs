@@ -28,18 +28,18 @@ test("a switch stays followed until its check settles", () => {
 });
 
 test("Settings says what the switch's check found", () => {
-  assert.equal(switchCheckLine(state({ phase: "checking", channel: "nightly" }), "Ardia"), "Checking Nightly…");
-  assert.equal(switchCheckLine(state({ phase: "waiting", channel: "stable" }), "Ardia"), "Checking Stable once the current update finishes…");
-  assert.equal(switchCheckLine(state({ phase: "found", channel: "nightly", version: "0.2.47 Nightly 1" }), "Ardia"), "Ardia 0.2.47 Nightly 1 is available on Nightly.");
-  assert.equal(switchCheckLine(state({ phase: "upToDate", channel: "stable" }), "Ardia"), "You're up to date on Stable.");
-  assert.equal(switchCheckLine(state({ phase: "failed", channel: "nightly" }), "Ardia"), "Couldn't check Nightly. Try Check Now.");
-  assert.equal(switchCheckLine(state(null), "Ardia"), null);
+  assert.equal(switchCheckLine(state({ phase: "checking", channel: "nightly" }), "Voyager"), "Checking Nightly…");
+  assert.equal(switchCheckLine(state({ phase: "waiting", channel: "stable" }), "Voyager"), "Checking Stable once the current update finishes…");
+  assert.equal(switchCheckLine(state({ phase: "found", channel: "nightly", version: "0.2.47 Nightly 1" }), "Voyager"), "Voyager 0.2.47 Nightly 1 is available on Nightly.");
+  assert.equal(switchCheckLine(state({ phase: "upToDate", channel: "stable" }), "Voyager"), "You're up to date on Stable.");
+  assert.equal(switchCheckLine(state({ phase: "failed", channel: "nightly" }), "Voyager"), "Couldn't check Nightly. Try Check Now.");
+  assert.equal(switchCheckLine(state(null), "Voyager"), null);
 });
 
 test("going back to Stable from a newer nightly never reads as a downgrade", () => {
   assert.equal(
-    switchCheckLine(state({ phase: "newerThanLatest", channel: "stable" }), "Ardia"),
-    "0.2.46 Nightly 5 is newer than the latest Stable, so Ardia stays on it until a newer Stable ships.",
+    switchCheckLine(state({ phase: "newerThanLatest", channel: "stable" }), "Voyager"),
+    "0.2.46 Nightly 5 is newer than the latest Stable, so Voyager stays on it until a newer Stable ships.",
   );
 });
 

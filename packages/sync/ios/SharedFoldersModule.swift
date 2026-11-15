@@ -45,7 +45,7 @@ public class SharedFoldersModule: Module {
 
   static var defaultParent: URL {
     if let testParent { return testParent }
-    if let dataDirectory { return dataDirectory.appendingPathComponent("Ardia Shared", isDirectory: true) }
-    return SyncFolder.iCloudDrive.appendingPathComponent("Ardia Shared", isDirectory: true)
+    if let dataDirectory { return dataDirectory.appendingPathComponent("Voyager Shared", isDirectory: true) }
+    return SyncFolder.iCloudDrive.appendingPathComponent("Voyager Shared", isDirectory: true)
   }
 }

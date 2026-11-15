@@ -142,6 +142,6 @@ def build(results_dir):
             "method_labels": "runs per write method the checker saw (ui, ui_scripted, no_event, public_api, mixed, none); null when no run's check reports it",
             "rejected_writes": "writes the task server rejected (bad session, CSRF, nonce or signature), summed over runs",
             "invariant_failures": "runs per invariant that came back false; {} when every reported invariant held",
-            "median_commands": "median shell commands (Ardia side), browse MCP calls plus shell commands (OpenCode side), or agent steps (Aside)",
+            "median_commands": "median shell commands (Voyager side), browse MCP calls plus shell commands (OpenCode side), or agent steps (Aside)",
         },
     }

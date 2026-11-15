@@ -7,11 +7,11 @@ import sys
 from pathlib import Path
 
 UNTIL = "d2963fca5"
-SKILL = "apps/cli/ardia_cli/skill"
-OUT = Path(__file__).resolve().parents[1] / "ardia_cli" / "skill_hashes.json"
+SKILL = "apps/cli/voyager_cli/skill"
+OUT = Path(__file__).resolve().parents[1] / "voyager_cli" / "skill_hashes.json"
 DESCRIPTION = (
-    "Writes ardia_cli/skill_hashes.json: the SHA-256 of every file in each version of the ardia agent skill that "
-    f"installed without a .ardia-skill marker (every commit up to {UNTIL}). ardia skills install adopts an unmarked "
+    "Writes voyager_cli/skill_hashes.json: the SHA-256 of every file in each version of the voyager agent skill that "
+    f"installed without a .voyager-skill marker (every commit up to {UNTIL}). voyager skills install adopts an unmarked "
     "copy only when its files match one of these versions exactly. The list is frozen: later installs write the "
     "marker. --check exits 1 when the checked-in file differs from what git history gives."
 )

@@ -11,8 +11,8 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import cli, config_cli, config_files, endpoint
-from ardia_cli.schema_check import validate
+from voyager_cli import cli, config_cli, config_files, endpoint
+from voyager_cli.schema_check import validate
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 CONFIG_SCHEMA = json.loads((FIXTURES / "config.schema.json").read_text())
@@ -21,14 +21,14 @@ THEME_SCHEMA = json.loads((FIXTURES / "theme.schema.json").read_text())
 
 class Sandbox(unittest.TestCase):
     def setUp(self):
-        self.temp = Path(tempfile.mkdtemp(prefix="ardia-config-test-")).resolve()
+        self.temp = Path(tempfile.mkdtemp(prefix="voyager-config-test-")).resolve()
         self.home = self.temp / "home"
         self.data = self.temp / "data"
         self.installed = self.temp / "installed"
         for folder in (self.home, self.data, self.installed):
             folder.mkdir()
         patches = [
-            mock.patch.dict(os.environ, {"HOME": str(self.home), "ARDIA_DATA_DIR": str(self.data)}),
+            mock.patch.dict(os.environ, {"HOME": str(self.home), "VOYAGER_DATA_DIR": str(self.data)}),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.installed),
         ]
         for name in ("VISUAL", "EDITOR"):
@@ -83,18 +83,18 @@ class Paths(Sandbox):
         self.assertEqual(out.strip(), str(other / "config"))
 
     def test_default_is_home_config(self):
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": ""}):
+        with mock.patch.dict(os.environ, {"VOYAGER_DATA_DIR": ""}):
             out, _ = self.ok("config", "path")
-        self.assertEqual(out.strip(), str(self.home / ".config" / "ardia"))
+        self.assertEqual(out.strip(), str(self.home / ".config" / "voyager"))
 
     def test_xdg_config_home_is_ignored(self):
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": "", "XDG_CONFIG_HOME": str(self.temp / "xdg")}):
+        with mock.patch.dict(os.environ, {"VOYAGER_DATA_DIR": "", "XDG_CONFIG_HOME": str(self.temp / "xdg")}):
             out, _ = self.ok("config", "path")
-        self.assertEqual(out.strip(), str(self.home / ".config" / "ardia"))
+        self.assertEqual(out.strip(), str(self.home / ".config" / "voyager"))
 
     def test_schema_from_installed_app_without_data_dir(self):
         self.install_schemas(self.installed / "config-schema")
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": ""}):
+        with mock.patch.dict(os.environ, {"VOYAGER_DATA_DIR": ""}):
             where = config_files.places()
             self.assertEqual(config_files.find_schema(where, "config.schema.json").path, self.installed / "config-schema" / "config.schema.json")
 
@@ -232,14 +232,14 @@ class SetGetUnset(Sandbox):
     def test_symlinked_config_written_through(self):
         dotfiles = self.temp / "dotfiles"
         dotfiles.mkdir()
-        real = dotfiles / "ardia.json"
+        real = dotfiles / "voyager.json"
         real.write_text('{"settings": {}}\n')
         self.folder.mkdir(parents=True)
         os.symlink(real, self.folder / "config.json")
         self.ok("config", "set", "tabLayout", "top")
         self.assertTrue((self.folder / "config.json").is_symlink())
         self.assertEqual(json.loads(real.read_text())["settings"], {"tabLayout": "top"})
-        self.assertEqual([p.name for p in dotfiles.iterdir()], ["ardia.json"])
+        self.assertEqual([p.name for p in dotfiles.iterdir()], ["voyager.json"])
         self.assertEqual([p.name for p in self.folder.iterdir()], ["config.json"])
 
     def test_huge_numbers_are_strings_or_refused(self):
@@ -376,7 +376,7 @@ class Validation(unittest.TestCase):
             self.assertIsNone(config_files.shortcut_problem(value), value)
 
     def test_unknown_keywords_ignored(self):
-        self.assertFalse(validate("x", {"type": "string", "format": "uri", "x-ardia": True, "$ref": "#/nowhere"}))
+        self.assertFalse(validate("x", {"type": "string", "format": "uri", "x-voyager": True, "$ref": "#/nowhere"}))
 
     def test_theme_values(self):
         colour = "must be a colour (#RGB, #RRGGBB, #RRGGBBAA, or rgb or rgba with r, g, b from 0 to 255 and a from 0 to 1)"
@@ -566,7 +566,7 @@ class NoConnection(Sandbox):
         for argv in (["config", "--help"], ["theme", "--help"], ["config", "set", "--help"], ["theme", "new", "--help"]):
             status, out, _ = self.run_cli(*argv)
             self.assertEqual(status, 0)
-            self.assertIn("usage: ardia", out)
+            self.assertIn("usage: voyager", out)
 
 
 if __name__ == "__main__":

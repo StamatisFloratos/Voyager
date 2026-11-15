@@ -77,7 +77,7 @@ enum SharePicker {
     match.perform(withItems: [link])
   }
 
-  static func services(for items: [Any] = [NSURL(string: "https://ardia.dev")!]) -> [NSSharingService] {
+  static func services(for items: [Any] = [NSURL(string: "https://github.com/StamatisFloratos/Voyager")!]) -> [NSSharingService] {
     let listed = (NSSharingService.self as AnyObject).perform(NSSelectorFromString("sharingServicesForItems:"), with: items)
     let all = listed?.takeUnretainedValue() as? [NSSharingService] ?? []
     let skipped = Set([NSSharingService.Name.composeEmail, .addToSafariReadingList].compactMap { NSSharingService(named: $0)?.title })

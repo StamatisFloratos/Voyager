@@ -13,9 +13,9 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import cli, computer, skills
+from voyager_cli import cli, computer, skills
 
-SCRATCH = Path.home() / "ardia-scratch"
+SCRATCH = Path.home() / "voyager-scratch"
 OLD_LAYOUT = ("SKILL.md", "references/automation.md", "references/browse.md", "references/config.md",
               "references/daily-reports.md", "references/userscripts.md")
 
@@ -37,7 +37,7 @@ class Refresh(unittest.TestCase):
         for folder in (self.home, self.project):
             folder.mkdir()
         patches = [
-            mock.patch.dict(os.environ, {"HOME": str(self.home), "ARDIA_CLI_HOME": str(self.cli_home), "DO_NOT_TRACK": "1"}),
+            mock.patch.dict(os.environ, {"HOME": str(self.home), "VOYAGER_CLI_HOME": str(self.cli_home), "DO_NOT_TRACK": "1"}),
             mock.patch.object(Path, "home", classmethod(lambda cls: self.home)),
             mock.patch.object(Path, "cwd", classmethod(lambda cls: self.project)),
             mock.patch.object(computer, "skill_pack", lambda env=None: {"SKILL.md": b"---\nname: cua-driver\n---\n"}),
@@ -50,46 +50,46 @@ class Refresh(unittest.TestCase):
         return (skills.skill_source() / "SKILL.md").read_text(encoding="utf-8")
 
     def make_stale(self, folder: Path) -> None:
-        (folder / "SKILL.md").write_text("---\nname: ardia\ndescription: old\n---\nold body\n", encoding="utf-8")
+        (folder / "SKILL.md").write_text("---\nname: voyager\ndescription: old\n---\nold body\n", encoding="utf-8")
         (folder / "references" / "gone.md").write_text("old\n", encoding="utf-8")
         marker = folder / skills.MARKER
         data = json.loads(marker.read_text(encoding="utf-8"))
         data["files"].append("references/gone.md")
         marker.write_text(json.dumps(data), encoding="utf-8")
 
-    def foreign_ardia(self, folder: Path) -> None:
+    def foreign_voyager(self, folder: Path) -> None:
         folder.mkdir(parents=True)
-        (folder / "SKILL.md").write_text("---\nname: ardia\ndescription: someone else's\n---\nmine\n", encoding="utf-8")
+        (folder / "SKILL.md").write_text("---\nname: voyager\ndescription: someone else's\n---\nmine\n", encoding="utf-8")
         (folder / "sentinel.txt").write_text("keep me\n", encoding="utf-8")
 
     def old_layout(self, folder: Path, extra: str | None = None) -> None:
         for name in OLD_LAYOUT + ((extra,) if extra else ()):
             (folder / name).parent.mkdir(parents=True, exist_ok=True)
-            (folder / name).write_text("---\nname: ardia\n---\nold\n" if name == "SKILL.md" else "old\n", encoding="utf-8")
+            (folder / name).write_text("---\nname: voyager\n---\nold\n" if name == "SKILL.md" else "old\n", encoding="utf-8")
 
     def test_auto_installs_for_each_agent_found_and_general_when_none_is(self):
         status, _ = quiet(skills.install_detected)
         self.assertEqual(status, 0)
-        self.assertTrue((self.home / ".agents/skills/ardia/SKILL.md").is_file())
+        self.assertTrue((self.home / ".agents/skills/voyager/SKILL.md").is_file())
         (self.home / ".claude").mkdir()
         (self.home / ".cursor").mkdir()
         status, _ = quiet(skills.install_detected)
         self.assertEqual(status, 0)
-        self.assertTrue((self.home / ".claude/skills/ardia/SKILL.md").is_file())
-        self.assertTrue((self.home / ".cursor/skills/ardia/SKILL.md").is_file())
-        self.assertFalse((self.home / ".config/opencode/skills/ardia").exists())
+        self.assertTrue((self.home / ".claude/skills/voyager/SKILL.md").is_file())
+        self.assertTrue((self.home / ".cursor/skills/voyager/SKILL.md").is_file())
+        self.assertFalse((self.home / ".config/opencode/skills/voyager").exists())
 
     def test_auto_leaves_a_foreign_folder_and_a_copy_the_user_removed(self):
         (self.home / ".claude").mkdir()
         (self.home / ".codex").mkdir()
-        foreign = self.home / ".agents/skills/ardia"
+        foreign = self.home / ".agents/skills/voyager"
         foreign.mkdir(parents=True)
-        (foreign / "SKILL.md").write_text("---\nname: ardia\ndescription: mine\n---\nmine\n", encoding="utf-8")
+        (foreign / "SKILL.md").write_text("---\nname: voyager\ndescription: mine\n---\nmine\n", encoding="utf-8")
         status, out = quiet(skills.install_detected)
         self.assertEqual(status, 0)
-        self.assertIn("not installed by ardia", out)
-        self.assertEqual((foreign / "SKILL.md").read_text(encoding="utf-8"), "---\nname: ardia\ndescription: mine\n---\nmine\n")
-        claude = self.home / ".claude/skills/ardia"
+        self.assertIn("not installed by voyager", out)
+        self.assertEqual((foreign / "SKILL.md").read_text(encoding="utf-8"), "---\nname: voyager\ndescription: mine\n---\nmine\n")
+        claude = self.home / ".claude/skills/voyager"
         self.assertTrue((claude / "SKILL.md").is_file())
         shutil.rmtree(claude)
         status, out = quiet(skills.install_detected)
@@ -102,18 +102,18 @@ class Refresh(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             status = cli.main(["skills", "install", "--auto", "--no-cua"])
         self.assertEqual(status, 0)
-        self.assertTrue((self.home / ".claude/skills/ardia/SKILL.md").is_file())
+        self.assertTrue((self.home / ".claude/skills/voyager/SKILL.md").is_file())
         self.assertFalse((self.home / ".claude/skills/cua-driver").exists())
 
     def test_install_remembers_project_and_user_folders(self):
         self.assertEqual(quiet(skills.install, ["claude-code"], True)[0], 0)
         self.assertEqual(quiet(skills.install, ["codex", "general"], False)[0], 0)
         recorded = json.loads((self.cli_home / "skills.json").read_text())["folders"]
-        self.assertEqual(recorded, [str(self.project / ".claude/skills/ardia"), str(self.home / ".agents/skills/ardia")])
+        self.assertEqual(recorded, [str(self.project / ".claude/skills/voyager"), str(self.home / ".agents/skills/voyager")])
 
     def test_install_writes_a_marker_listing_the_shipped_files(self):
         quiet(skills.install, ["claude-code"], False)
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         marker = json.loads((folder / skills.MARKER).read_text(encoding="utf-8"))
         self.assertEqual(marker["files"], skills.shipped_files())
         self.assertIn("SKILL.md", marker["files"])
@@ -121,7 +121,7 @@ class Refresh(unittest.TestCase):
     def test_refresh_rewrites_marked_copies_and_removes_only_files_it_shipped(self):
         quiet(skills.install, ["claude-code"], True)
         quiet(skills.install, ["cursor"], False)
-        copies = [self.project / ".claude/skills/ardia", self.home / ".cursor/skills/ardia"]
+        copies = [self.project / ".claude/skills/voyager", self.home / ".cursor/skills/voyager"]
         for folder in copies:
             self.make_stale(folder)
             (folder / "my-notes.md").write_text("mine\n", encoding="utf-8")
@@ -137,9 +137,9 @@ class Refresh(unittest.TestCase):
         recorded = json.loads((self.cli_home / "skills.json").read_text())["folders"]
         self.assertEqual(set(recorded), {str(folder) for folder in copies})
 
-    def test_refresh_never_touches_a_foreign_skill_named_ardia(self):
-        folder = self.home / ".claude/skills/ardia"
-        self.foreign_ardia(folder)
+    def test_refresh_never_touches_a_foreign_skill_named_voyager(self):
+        folder = self.home / ".claude/skills/voyager"
+        self.foreign_voyager(folder)
         status, out = quiet(skills.refresh)
         self.assertEqual(status, 0)
         self.assertIn("someone else's", (folder / "SKILL.md").read_text(encoding="utf-8"))
@@ -147,8 +147,8 @@ class Refresh(unittest.TestCase):
         self.assertIn(f"skipped {folder}", out)
 
     def test_a_marker_that_isnt_ours_doesnt_count(self):
-        folder = self.home / ".claude/skills/ardia"
-        self.foreign_ardia(folder)
+        folder = self.home / ".claude/skills/voyager"
+        self.foreign_voyager(folder)
         for content in ("[]", '{"vendor": "someone", "files": ["sentinel.txt"]}', "not json"):
             (folder / skills.MARKER).write_text(content, encoding="utf-8")
             status, out = quiet(skills.refresh)
@@ -159,7 +159,7 @@ class Refresh(unittest.TestCase):
 
     def test_marker_entries_outside_the_folder_are_never_removed(self):
         quiet(skills.install, ["claude-code"], False)
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         outside = self.home / ".claude/skills/keep.md"
         outside.write_text("keep\n", encoding="utf-8")
         marker = json.loads((folder / skills.MARKER).read_text(encoding="utf-8"))
@@ -169,20 +169,20 @@ class Refresh(unittest.TestCase):
         self.assertTrue(outside.exists())
         self.assertTrue((folder / skills.MARKER).is_file())
 
-    def test_install_refuses_a_foreign_skill_named_ardia(self):
-        folder = self.home / ".claude/skills/ardia"
-        self.foreign_ardia(folder)
+    def test_install_refuses_a_foreign_skill_named_voyager(self):
+        folder = self.home / ".claude/skills/voyager"
+        self.foreign_voyager(folder)
         status, out = quiet(skills.install, ["claude-code"], False)
         self.assertEqual(status, 1)
-        self.assertIn("isn't a copy ardia installed", out)
+        self.assertIn("isn't a copy voyager installed", out)
         self.assertIn("--replace", out)
         self.assertTrue((folder / "sentinel.txt").exists())
         self.assertFalse((folder / skills.MARKER).exists())
 
     def test_unmarked_folder_with_a_symlinked_skill_md_is_skipped(self):
         target = self.root / "elsewhere.md"
-        target.write_text("---\nname: ardia\n---\nlinked\n", encoding="utf-8")
-        folder = self.home / ".cursor/skills/ardia"
+        target.write_text("---\nname: voyager\n---\nlinked\n", encoding="utf-8")
+        folder = self.home / ".cursor/skills/voyager"
         self.old_layout(folder)
         (folder / "SKILL.md").unlink()
         (folder / "SKILL.md").symlink_to(target)
@@ -194,7 +194,7 @@ class Refresh(unittest.TestCase):
 
     def test_marked_folder_with_a_symlinked_skill_md_never_writes_through_the_link(self):
         quiet(skills.install, ["claude-code"], False)
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         target = self.root / "elsewhere.md"
         target.write_text("theirs\n", encoding="utf-8")
         (folder / "SKILL.md").unlink()
@@ -207,12 +207,12 @@ class Refresh(unittest.TestCase):
     def test_symlinked_folders_and_markers_are_skipped(self):
         real = self.root / "real-skill"
         quiet(skills.install, ["claude-code"], False)
-        shutil.copytree(self.home / ".claude/skills/ardia", real)
-        (real / "SKILL.md").write_text("---\nname: ardia\n---\nreal\n", encoding="utf-8")
+        shutil.copytree(self.home / ".claude/skills/voyager", real)
+        (real / "SKILL.md").write_text("---\nname: voyager\n---\nreal\n", encoding="utf-8")
         (self.home / ".agents/skills").mkdir(parents=True)
-        (self.home / ".agents/skills/ardia").symlink_to(real)
-        marked = self.home / ".claude/skills/ardia"
-        (marked / "SKILL.md").write_text("---\nname: ardia\n---\nstale\n", encoding="utf-8")
+        (self.home / ".agents/skills/voyager").symlink_to(real)
+        marked = self.home / ".claude/skills/voyager"
+        (marked / "SKILL.md").write_text("---\nname: voyager\n---\nstale\n", encoding="utf-8")
         (marked / skills.MARKER).unlink()
         (marked / skills.MARKER).symlink_to(real / skills.MARKER)
         status, out = quiet(skills.refresh)
@@ -224,7 +224,7 @@ class Refresh(unittest.TestCase):
 
     def test_symlinked_references_folder_is_refused(self):
         quiet(skills.install, ["claude-code"], False)
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         outside = self.root / "outside"
         shutil.move(str(folder / "references"), outside)
         (folder / "references").symlink_to(outside)
@@ -239,7 +239,7 @@ class Refresh(unittest.TestCase):
         return mock.patch.object(skills, "legacy_versions", lambda: versions)
 
     def test_install_adopts_a_copy_whose_every_file_we_shipped(self):
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         self.old_layout(folder)
         with self.shipped_before(folder):
             status, out = quiet(skills.install, ["claude-code"], False, False)
@@ -249,7 +249,7 @@ class Refresh(unittest.TestCase):
         self.assertTrue((folder / skills.MARKER).is_file())
 
     def test_refresh_never_adopts_an_unmarked_copy(self):
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         self.old_layout(folder)
         with self.shipped_before(folder):
             status, out = quiet(skills.refresh)
@@ -259,9 +259,9 @@ class Refresh(unittest.TestCase):
         self.assertIn(f"skipped {folder}", out)
 
     def test_a_foreign_skill_in_an_old_layout_is_refused_and_kept(self):
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         (folder / "references").mkdir(parents=True)
-        (folder / "SKILL.md").write_text("---\nname: ardia\ndescription: theirs\n---\ntheirs\n", encoding="utf-8")
+        (folder / "SKILL.md").write_text("---\nname: voyager\ndescription: theirs\n---\ntheirs\n", encoding="utf-8")
         (folder / "references/pydoll.md").write_text("their docs\n", encoding="utf-8")
         self.assertIn(f"skipped {folder}", quiet(skills.refresh)[1])
         status, out = quiet(skills.install, ["claude-code"], False, False)
@@ -272,8 +272,8 @@ class Refresh(unittest.TestCase):
         self.assertEqual((folder / "references/pydoll.md").read_text(encoding="utf-8"), "their docs\n")
 
     def test_replace_swaps_only_that_folder(self):
-        folder = self.home / ".claude/skills/ardia"
-        self.foreign_ardia(folder)
+        folder = self.home / ".claude/skills/voyager"
+        self.foreign_voyager(folder)
         sibling = self.home / ".claude/skills/other"
         sibling.mkdir()
         (sibling / "SKILL.md").write_text("other\n", encoding="utf-8")
@@ -285,18 +285,18 @@ class Refresh(unittest.TestCase):
 
     def test_replace_removes_a_linked_folder_without_touching_its_target(self):
         target = self.root / "linked-skill"
-        self.foreign_ardia(target)
+        self.foreign_voyager(target)
         (self.home / ".claude/skills").mkdir(parents=True)
-        (self.home / ".claude/skills/ardia").symlink_to(target)
+        (self.home / ".claude/skills/voyager").symlink_to(target)
         status, out = quiet(cli.main, ["skills", "install", "--target", "claude-code", "--no-cua", "--replace"])
         self.assertEqual(status, 0)
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         self.assertFalse(folder.is_symlink())
         self.assertTrue((folder / skills.MARKER).is_file())
         self.assertTrue((target / "sentinel.txt").exists())
 
     def test_an_old_layout_with_extra_files_is_skipped(self):
-        folder = self.home / ".claude/skills/ardia"
+        folder = self.home / ".claude/skills/voyager"
         self.old_layout(folder, extra="references/mine.md")
         status, out = quiet(skills.refresh)
         self.assertEqual(status, 0)
@@ -319,7 +319,7 @@ class Refresh(unittest.TestCase):
 
     def test_cli_runs_refresh(self):
         quiet(skills.install, ["claude-code"], False)
-        copy = self.home / ".claude/skills/ardia"
+        copy = self.home / ".claude/skills/voyager"
         self.make_stale(copy)
         status, out = quiet(cli.main, ["skills", "refresh"])
         self.assertEqual(status, 0)
@@ -330,7 +330,7 @@ class Contents(unittest.TestCase):
     def test_frontmatter_and_links(self):
         source = skills.skill_source()
         text = (source / "SKILL.md").read_text(encoding="utf-8")
-        self.assertTrue(text.startswith("---\nname: ardia\ndescription: "))
+        self.assertTrue(text.startswith("---\nname: voyager\ndescription: "))
         frontmatter = text.split("\n---\n", 1)[0].splitlines()[1:]
         self.assertEqual([line.split(":", 1)[0] for line in frontmatter], ["name", "description", "allowed-tools"])
         description = frontmatter[1].split(": ", 1)[1]

@@ -66,7 +66,7 @@ namespace ardia_host {
 
 NSString *InstalledDataDirectory() {
   NSString *support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).firstObject;
-  NSString *bundleId = NSBundle.mainBundle.bundleIdentifier ?: @"com.ardia.browser";
+  NSString *bundleId = NSBundle.mainBundle.bundleIdentifier ?: @"com.stamatisfloratos.voyager";
   return [[support stringByAppendingPathComponent:bundleId] stringByAppendingPathComponent:@"Chromium"];
 }
 

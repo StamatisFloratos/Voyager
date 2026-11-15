@@ -13,9 +13,9 @@ from pathlib import Path
 CLI = Path(__file__).resolve().parents[1]
 REPO = CLI.parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "browse"
-APP = os.environ.get("ARDIA_BROWSE_E2E_APP")
-JS_LOCATION = os.environ.get("ARDIA_BROWSE_E2E_JS")
-SCRATCH = Path(os.environ.get("ARDIA_BROWSE_E2E_DIR", str(Path.home() / "ardia-scratch" / "browse-impl" / "e2e")))
+APP = os.environ.get("VOYAGER_BROWSE_E2E_APP")
+JS_LOCATION = os.environ.get("VOYAGER_BROWSE_E2E_JS")
+SCRATCH = Path(os.environ.get("VOYAGER_BROWSE_E2E_DIR", str(Path.home() / "voyager-scratch" / "browse-impl" / "e2e")))
 
 
 def ref_for(snapshot: str, needle: str) -> str:
@@ -52,7 +52,7 @@ def wait_for(check, seconds: float, what: str):
     raise AssertionError(f"timed out waiting for {what}")
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built Ardia.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set VOYAGER_BROWSE_E2E_APP to a built Voyager.app (never /Applications) to run the end-to-end test")
 class BrowseEndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -106,10 +106,10 @@ class BrowseEndToEnd(unittest.TestCase):
     def browse(cls, *args, session="e2e", check=True, timeout=120, extra_env=None, stdin=None):
         env = dict(os.environ, PYTHONPATH=str(CLI), **(extra_env or {}))
         env.pop("AGENT_BROWSER_NO_HUMANIZE", None)
-        done = subprocess.run([sys.executable, "-m", "ardia_cli", "browse", "--port", str(cls.port), "--data-dir", str(cls.data), "--session", session, *args],
+        done = subprocess.run([sys.executable, "-m", "voyager_cli", "browse", "--port", str(cls.port), "--data-dir", str(cls.data), "--session", session, *args],
                               capture_output=True, text=True, timeout=timeout, env=env, input=stdin)
         if check and done.returncode:
-            raise AssertionError(f"ardia browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
+            raise AssertionError(f"voyager browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
         return done
 
     def url(self, name):
@@ -157,7 +157,7 @@ class BrowseEndToEnd(unittest.TestCase):
         snap = self.browse("snapshot", "-i", session=session).stdout
         self.assertIn('button "Press me"', snap)
         self.browse("click", "#target", "--humanize", session=session)
-        text = "Hello Ardia 42"
+        text = "Hello Voyager 42"
         self.browse("fill", "#field", text, "--humanize", session=session)
         self.assertEqual(self.browse("get", "value", "#field", session=session).stdout, text + "\n")
         self.assertEqual(self.browse("get", "title", session=session).stdout, "Probe\n")
@@ -209,8 +209,8 @@ class BrowseEndToEnd(unittest.TestCase):
             self.assertEqual(clicked.returncode, 0, clicked.stderr)
         else:
             self.assertEqual(clicked.returncode, 1)
-            self.assertIn(f"use: ardia browse tab {opened['tabId']} --show (or open <url> --show)", clicked.stderr)
-            self.assertIn("use: ardia browse tab", self.browse("open", self.url("probe.html#again"), session=session + "-2").stdout)
+            self.assertIn(f"use: voyager browse tab {opened['tabId']} --show (or open <url> --show)", clicked.stderr)
+            self.assertIn("use: voyager browse tab", self.browse("open", self.url("probe.html#again"), session=session + "-2").stdout)
         self.browse("scroll", "down", "200", session=session)
 
     def drag_report(self, session):
@@ -250,7 +250,7 @@ class BrowseEndToEnd(unittest.TestCase):
         return keychain
 
     def test_auth_login_types_into_the_saved_origin(self):
-        env = {"ARDIA_BROWSE_KEYCHAIN": self.scratch_keychain()}
+        env = {"VOYAGER_BROWSE_KEYCHAIN": self.scratch_keychain()}
         session = "vault-ok"
         self.browse("auth", "save", "site", "--url", self.url("auth.html"), "--username", "me@example.com", "--password-stdin",
                     session=session, extra_env=env, stdin="s3cret!\n")
@@ -261,7 +261,7 @@ class BrowseEndToEnd(unittest.TestCase):
         self.assertEqual(state, {"leaked": [], "user": "me@example.com", "pw": "s3cret!"})
 
     def test_auth_login_stops_when_focus_moves_into_another_frame(self):
-        env = {"ARDIA_BROWSE_KEYCHAIN": self.scratch_keychain()}
+        env = {"VOYAGER_BROWSE_KEYCHAIN": self.scratch_keychain()}
         session = "vault-race"
         self.browse("auth", "save", "race", "--url", self.url("auth.html"), "--username", "me@example.com", "--password-stdin",
                     session=session, extra_env=env, stdin="s3cret!\n")
@@ -300,7 +300,7 @@ class BrowseEndToEnd(unittest.TestCase):
         self.assertEqual((state["value"], state["otherValue"]), ("", ""))
 
     def test_auth_login_never_follows_a_replaced_field(self):
-        env = {"ARDIA_BROWSE_KEYCHAIN": self.scratch_keychain()}
+        env = {"VOYAGER_BROWSE_KEYCHAIN": self.scratch_keychain()}
         session = "vault-replace"
         self.browse("auth", "save", "swap", "--url", self.url("replace.html"), "--password-selector", "#q", "--password-stdin",
                     session=session, extra_env=env, stdin="s3cret!\n")
@@ -403,7 +403,7 @@ class BrowseEndToEnd(unittest.TestCase):
         self.assertIn(f"Saved the notes for {site}", self.browse("notes", "set", "Use the Continue button", session=session).stdout)
         self.browse("notes", "append", "-", session=session, stdin="Second line\n")
         snap = self.browse("snapshot", "-i", session=session).stdout
-        self.assertTrue(snap.startswith(f"# notes for {site} (ardia notes): Use the Continue button\n# Second line\n- link"), snap)
+        self.assertTrue(snap.startswith(f"# notes for {site} (voyager notes): Use the Continue button\n# Second line\n- link"), snap)
         data = json.loads(self.browse("snapshot", "--json", session=session).stdout)["data"]
         self.assertEqual(data["notes"]["site"], site)
         folder = self.data / "Notes"
@@ -413,7 +413,7 @@ class BrowseEndToEnd(unittest.TestCase):
         refused = self.browse("notes", "set", site, "-", "--json", session=session, stdin="x" * 9000, check=False)
         self.assertEqual((refused.returncode, json.loads(refused.stdout)["code"]), (1, "notes_too_large"))
         self.assertIn(site, self.browse("notes", "list", session=session).stdout)
-        top = subprocess.run([sys.executable, "-m", "ardia_cli", "notes", "get", site, "--data-dir", str(self.data)], capture_output=True, text=True,
+        top = subprocess.run([sys.executable, "-m", "voyager_cli", "notes", "get", site, "--data-dir", str(self.data)], capture_output=True, text=True,
                              timeout=60, env=dict(os.environ, PYTHONPATH=str(CLI)))
         self.assertEqual(top.stdout, "Use the Continue button\nSecond line\n")
         self.assertIn("Removed", self.browse("notes", "rm", session=session).stdout)
@@ -519,7 +519,7 @@ class BrowseEndToEnd(unittest.TestCase):
         session = "typeahead"
         self.browse("open", self.url("picker.html"), "--show", session=session)
         filled = self.browse("fill", "#guest-input", "Priya R", session=session).stdout
-        self.assertIn("→ 1 suggestion showing, none picked. To pick one: ardia browse select #guest-input 'Priya R'", filled)
+        self.assertIn("→ 1 suggestion showing, none picked. To pick one: voyager browse select #guest-input 'Priya R'", filled)
         ambiguous = self.browse("select", "#guest-input", "Pri", "--json", session=session, check=False)
         self.assertEqual(json.loads(ambiguous.stdout)["code"], "ambiguous")
         picked = self.browse("select", "#guest-input", "Priya Raman", "alex.morgan@northwind.dev", "lena.vogt@kontor.io", session=session).stdout
@@ -582,8 +582,8 @@ class BrowseEndToEnd(unittest.TestCase):
 
 FRONT_TAB = """
 import asyncio, sys
-from ardia_cli import endpoint
-from ardia_cli.browse.connection import Browser
+from voyager_cli import endpoint
+from voyager_cli.browse.connection import Browser
 
 
 async def main(data_dir, url):
@@ -600,9 +600,9 @@ asyncio.run(main(sys.argv[1], sys.argv[2]))
 
 REFUSALS = """
 import asyncio, json, sys
-from ardia_cli import endpoint
-from ardia_cli.browse.connection import Browser
-from ardia_cli.browse.errors import Gated
+from voyager_cli import endpoint
+from voyager_cli.browse.connection import Browser
+from voyager_cli.browse.errors import Gated
 
 
 async def refused(browser, method, params):
@@ -645,7 +645,7 @@ SESSION_JS = (
 viewport_over_token = unittest.skip("set viewport is gated over the token connection until a page is proven never to be shown at an emulated size")
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built Ardia.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set VOYAGER_BROWSE_E2E_APP to a built Voyager.app (never /Applications) to run the end-to-end test")
 class BrowseTokenPath(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -659,8 +659,8 @@ class BrowseTokenPath(unittest.TestCase):
         cls.http_port = free_port()
         cls.server = subprocess.Popen([sys.executable, "-I", "-c", SERVE, str(cls.http_port)], cwd=FIXTURES, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log = str(cls.data / "app.out.log")
-        metro = ["--env", f"ARDIA_INSTANCE=jsLocation={JS_LOCATION}"] if JS_LOCATION else []
-        subprocess.run(["open", "-g", "-n", "--env", "ARDIA_BACKGROUND=1", "--env", f"ARDIA_DATA_DIR={cls.data}", *metro,
+        metro = ["--env", f"VOYAGER_INSTANCE=jsLocation={JS_LOCATION}"] if JS_LOCATION else []
+        subprocess.run(["open", "-g", "-n", "--env", "VOYAGER_BACKGROUND=1", "--env", f"VOYAGER_DATA_DIR={cls.data}", *metro,
                         "--stdout", log, "--stderr", log, APP], check=True, timeout=30)
         control = cls.data / "Chromium" / "ArdiaControl.json"
         cls.pid = None
@@ -700,10 +700,10 @@ class BrowseTokenPath(unittest.TestCase):
     def browse(cls, *args, session="token", check=True, timeout=120, stdin=None):
         env = dict(os.environ, PYTHONPATH=str(CLI))
         env.pop("AGENT_BROWSER_NO_HUMANIZE", None)
-        done = subprocess.run([sys.executable, "-m", "ardia_cli", "browse", "--data-dir", str(cls.data), "--session", session, *args],
+        done = subprocess.run([sys.executable, "-m", "voyager_cli", "browse", "--data-dir", str(cls.data), "--session", session, *args],
                               capture_output=True, text=True, timeout=timeout, env=env, input=stdin)
         if check and done.returncode:
-            raise AssertionError(f"ardia browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
+            raise AssertionError(f"voyager browse {' '.join(args)} exited {done.returncode}: {done.stderr}{done.stdout}")
         return done
 
     def url(self, name):
@@ -743,8 +743,8 @@ class BrowseTokenPath(unittest.TestCase):
         said = json.loads(done.stdout)
         self.assertTrue(said["attached"])
         self.assertEqual(said["gone"]["reason"], "to that target")
-        self.assertIn("Ardia allows for the ardia command, but not to that target", said["gone"]["message"])
-        self.assertIn("Target.attachToTarget to that target isn't allowed for the ardia command", said["gone"]["message"])
+        self.assertIn("Voyager allows for the voyager command, but not to that target", said["gone"]["message"])
+        self.assertIn("Target.attachToTarget to that target isn't allowed for the voyager command", said["gone"]["message"])
         self.assertEqual(said["unlisted"]["reason"], "")
         self.assertIn("It works once the engine's token policy allows it", said["unlisted"]["message"])
 
@@ -805,7 +805,7 @@ class BrowseTokenPath(unittest.TestCase):
         if "takes input without being shown" in opened:
             self.assertEqual(clicked.returncode, 0, clicked.stderr)
         else:
-            self.assertIn("use: ardia browse tab", opened)
+            self.assertIn("use: voyager browse tab", opened)
             self.assertEqual(clicked.returncode, 1)
             self.assertIn("--show (or open <url> --show)", clicked.stderr)
 
@@ -821,16 +821,16 @@ class BrowseTokenPath(unittest.TestCase):
         self.browse("fill", "#city", "Lisbon", session="token-behind")
         self.assertEqual(self.browse("get", "value", "#city", session="token-behind").stdout, "Lisbon\n")
 
-    def test_tab_takes_the_id_ardia_windows_prints(self):
+    def test_tab_takes_the_id_voyager_windows_prints(self):
         self.browse("open", self.url("login.html#app-id"), session="token-app-opener")
-        windows = subprocess.run([sys.executable, "-m", "ardia_cli", "windows", "--json", "--data-dir", str(self.data)], capture_output=True, text=True,
+        windows = subprocess.run([sys.executable, "-m", "voyager_cli", "windows", "--json", "--data-dir", str(self.data)], capture_output=True, text=True,
                                  timeout=60, env=dict(os.environ, PYTHONPATH=str(CLI)))
         row = next(tab for window in json.loads(windows.stdout) for tab in window["tabs"] if tab["url"] == self.url("login.html#app-id"))
         app_id = row["id"]
         if "targetId" not in row:
             refused = self.browse("tab", app_id, session="token-app", check=False)
             self.assertIn("doesn't say which page belongs to", refused.stderr)
-            self.skipTest("this Ardia's `windows` doesn't report tab targets yet")
+            self.skipTest("this Voyager's `windows` doesn't report tab targets yet")
         picked = self.browse("tab", app_id, "--json", session="token-app")
         self.assertEqual(json.loads(picked.stdout)["data"]["appTabId"], app_id)
         listed = self.browse("tab", "list", session="token-app").stdout
@@ -839,9 +839,9 @@ class BrowseTokenPath(unittest.TestCase):
         self.assertIn("(opened by session token-app-opener)", line)
 
     def control(self, *args):
-        done = subprocess.run([sys.executable, "-m", "ardia_cli", "--data-dir", str(self.data), *args], capture_output=True, text=True, timeout=60,
+        done = subprocess.run([sys.executable, "-m", "voyager_cli", "--data-dir", str(self.data), *args], capture_output=True, text=True, timeout=60,
                               env=dict(os.environ, PYTHONPATH=str(CLI)))
-        self.assertEqual(done.returncode, 0, f"ardia {' '.join(args)}: {done.stderr}")
+        self.assertEqual(done.returncode, 0, f"voyager {' '.join(args)}: {done.stderr}")
         return done.stdout
 
     def size(self, session):
@@ -865,7 +865,7 @@ class BrowseTokenPath(unittest.TestCase):
         users_size = self.size(visitor)
         refused = json.loads(self.browse("set", "viewport", "390", "844", "--json", session=visitor, check=False).stdout)
         self.assertEqual((refused["success"], refused["code"]), (False, "policy_refused"))
-        self.assertEqual(refused["data"], {"method": "Emulation.setDeviceMetricsOverride", "reason": "on a tab the ardia command didn't open"})
+        self.assertEqual(refused["data"], {"method": "Emulation.setDeviceMetricsOverride", "reason": "on a tab the voyager command didn't open"})
         self.assertIn("only on a tab this command opened", refused["error"])
         self.assertEqual(self.size(visitor), users_size)
 
@@ -999,7 +999,7 @@ class BrowseTokenPath(unittest.TestCase):
     @unittest.skipUnless(JS_LOCATION, "the reveal is driven and pictured through the dev harness, which only a Debug build has")
     def test_a_tab_revealed_ahead_of_react_is_never_drawn_at_the_emulated_size(self):
         self.users_tab_shown("#users-reveal")
-        tab = self.shown_while("token-reveal", "#revealed", lambda tab: f"globalThis.expo.modules.ArdiaTabs.revealTab({json.dumps(tab)})")
+        tab = self.shown_while("token-reveal", "#revealed", lambda tab: f"globalThis.expo.modules.VoyagerTabs.revealTab({json.dumps(tab)})")
         self.control("tabs", "close", tab)
 
     @viewport_over_token
@@ -1018,7 +1018,7 @@ class BrowseTokenPath(unittest.TestCase):
         self.assertEqual(done.returncode, 0, done.stderr)
         target = done.stdout.strip()
         probe = "token-front-probe"
-        wait_for(lambda: "#front" in self.browse("tab", "active", session=probe, check=False).stdout, 20, "Ardia to show the tab made in front")
+        wait_for(lambda: "#front" in self.browse("tab", "active", session=probe, check=False).stdout, 20, "Voyager to show the tab made in front")
         self.browse("close", session=probe, check=False)
         self.browse("tab", target, session=session)
         before = self.size(session)
@@ -1042,7 +1042,7 @@ class BrowseTokenPath(unittest.TestCase):
         self.browse("tab", peek()["tabId"], session=session)
         before = self.size(session)
         said = json.loads(self.browse("set", "viewport", "390", "844", "--json", session=session, check=False).stdout)
-        self.assertEqual(said["data"], {"method": "Emulation.setDeviceMetricsOverride", "reason": "on a tab the ardia command didn't open"})
+        self.assertEqual(said["data"], {"method": "Emulation.setDeviceMetricsOverride", "reason": "on a tab the voyager command didn't open"})
         self.assertEqual(self.size(session), before)
 
     @viewport_over_token
@@ -1074,7 +1074,7 @@ class BrowseTokenPath(unittest.TestCase):
             done = self.browse(*args, session=session, check=False)
             self.assertEqual(done.returncode, 1, args)
             self.assertIn(f"needs {method}", done.stderr)
-            self.assertIn("isn't allowed for the ardia command", done.stderr)
+            self.assertIn("isn't allowed for the voyager command", done.stderr)
         data = json.loads(self.browse("cookies", "--json", session=session, check=False).stdout)
         self.assertEqual((data["success"], data["code"], data["data"]), (False, "policy_refused", {"method": "Network.getCookies", "reason": ""}))
 

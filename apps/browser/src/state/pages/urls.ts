@@ -1,4 +1,4 @@
-import { appUrlRoute, type AppPageHost } from "@ardia/core";
+import { appUrlRoute, type AppPageHost } from "@voyager/core";
 import { focus } from "../browser/actions";
 import { useBrowser } from "../browser/store";
 import { activeTabId, resolveWindowId, viewTabIds } from "../browser/model";
@@ -11,7 +11,7 @@ export const INTERNAL_PAGES: Record<AppPageHost, { title: string }> = {
   downloads: { title: "Downloads" },
 };
 
-const internalUrl = (page: AppPageHost, query?: string) => `ardia://${page}${query ? `?q=${encodeURIComponent(query)}` : ""}`;
+const internalUrl = (page: AppPageHost, query?: string) => `voyager://${page}${query ? `?q=${encodeURIComponent(query)}` : ""}`;
 
 export function internalPageOf(url: string | null | undefined): AppPageHost | null {
   const route = url ? appUrlRoute(url) : null;

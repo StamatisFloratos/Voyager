@@ -1,4 +1,4 @@
-import { call, savePassword, updatePassword, type PasswordExportStatus, type SavedPassword } from "@ardia/ardiacore";
+import { call, savePassword, updatePassword, type PasswordExportStatus, type SavedPassword } from "@voyager/ardiacore";
 
 export { savePassword, updatePassword };
 export type { SavedPassword, PasswordExportStatus };

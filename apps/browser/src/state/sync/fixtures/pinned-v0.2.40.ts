@@ -1,4 +1,4 @@
-import { assignPositions, type Adapter, type Extraction } from "@ardia/sync";
+import { assignPositions, type Adapter, type Extraction } from "@voyager/sync";
 import { useBrowser, type BrowserState } from "../../browser/store";
 import { ancestorIds, depthOf, leaveGroups, syncGroupOrder, withParent } from "../../groups/groups";
 import { isPinnedRow, makeTab, newId, pinKeyOf, pinSection, ROW_PIN, TILE_PIN, without } from "../../browser/model";

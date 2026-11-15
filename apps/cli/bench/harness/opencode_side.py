@@ -8,14 +8,14 @@ import threading
 import time
 from pathlib import Path
 
-import ardia_side
+import voyager_side
 import grading
 import registry
 import servers
 from procs import (front_pid, http, kill_group, kill_on_failure, listener_pids, proc_info, read_json, read_jsonl, same_process, sh,
                    terminate, wait_until, write_json)
 
-ROOT = Path(os.environ.get("BENCH_OPENCODE_HOME", Path.home() / "ardia-scratch/opencode-browse"))
+ROOT = Path(os.environ.get("BENCH_OPENCODE_HOME", Path.home() / "voyager-scratch/opencode-browse"))
 CDP_HELPER = Path(__file__).resolve().parent / "opencode_cdp.mjs"
 EXTENSION_ID = "mfnicocicmmlkpjnaffgihfjhdgjkdjg"
 DEFAULTS = {
@@ -33,7 +33,7 @@ FRONT_SAMPLE_S = 1.0
 
 
 def log(msg):
-    ardia_side.log(f"opencode: {msg}")
+    voyager_side.log(f"opencode: {msg}")
 
 
 def options(overrides=None):
@@ -242,7 +242,7 @@ def mcp_server(opts, home):
 
 
 def claude_command(model, effort, prompt, mcp_config):
-    cmd = ardia_side.claude_command(model, effort, prompt)
+    cmd = voyager_side.claude_command(model, effort, prompt)
     return cmd[:2] + ["--mcp-config", str(mcp_config)] + cmd[2:]
 
 
@@ -251,7 +251,7 @@ def toml_string(value):
 
 
 def codex_command(model, effort, workdir, prompt, server):
-    cmd = ardia_side.codex_command(model, effort, workdir, prompt)
+    cmd = voyager_side.codex_command(model, effort, workdir, prompt)
     env = ", ".join(f"{k} = {toml_string(v)}" for k, v in server["env"].items())
     flags = ["-c", f"mcp_servers.browse.command={toml_string(server['command'])}",
              "-c", f"mcp_servers.browse.args={json.dumps(server['args'])}",
@@ -260,9 +260,9 @@ def codex_command(model, effort, workdir, prompt, server):
 
 
 def agent_env(extra):
-    env = ardia_side.agent_env({"cli": "installed"}, extra)
+    env = voyager_side.agent_env({"cli": "installed"}, extra)
     env = {k: v for k, v in env.items() if not k.startswith(STRIPPED_ENV_PREFIXES)}
-    env["PATH"] = ":".join(p for p in env["PATH"].split(":") if p and Path(p) != ardia_side.DEV_BIN)
+    env["PATH"] = ":".join(p for p in env["PATH"].split(":") if p and Path(p) != voyager_side.DEV_BIN)
     return env
 
 
@@ -278,7 +278,7 @@ def browse_calls_claude(events):
             inp = block.get("input") or {}
             if m:
                 calls.append({"tool": m.group(1), "arguments": inp})
-            elif block.get("name") in ardia_side.SHELL_TOOLS:
+            elif block.get("name") in voyager_side.SHELL_TOOLS:
                 shell.append(inp.get("command"))
             else:
                 other.append(block.get("name"))
@@ -335,12 +335,12 @@ class FrontSampler:
 
 
 def run(task_id, agent, run_id, results_dir, overrides=None, contender=None, on_agent_start=None):
-    if agent not in ardia_side.MODELS:
+    if agent not in voyager_side.MODELS:
         raise SystemExit("agent must be claude or codex")
     opts = options(overrides)
     task = registry.task(task_id, int(opts.get("port_offset") or 0))
-    model = opts.get("model") or ardia_side.MODELS[agent][0]
-    effort = opts.get("effort") or ardia_side.MODELS[agent][1]
+    model = opts.get("model") or voyager_side.MODELS[agent][0]
+    effort = opts.get("effort") or voyager_side.MODELS[agent][1]
     deadline = int(opts.get("deadline_s") or task["deadline_s"])
     results_dir = Path(results_dir)
     runs_dir = results_dir / "runs"
@@ -351,9 +351,9 @@ def run(task_id, agent, run_id, results_dir, overrides=None, contender=None, on_
     home = lane_dir(opts)
     servers.start(task)
     try:
-        baseline = ardia_side.reset_task(task)
+        baseline = voyager_side.reset_task(task)
         state, setup = prepare(opts, task, home)
-        workdir = ardia_side.WORK / run_id
+        workdir = voyager_side.WORK / run_id
         if workdir.exists():
             shutil.rmtree(workdir)
         workdir.mkdir(parents=True)
@@ -403,7 +403,7 @@ def run(task_id, agent, run_id, results_dir, overrides=None, contender=None, on_
     passed, reset_by_agent = grading.grade(check, timed_out, baseline_reset_at_ms=baseline.get("reset_at_ms"))
     completed = check.get("completed_at_ms")
     lines = read_jsonl(events)
-    parsed = (ardia_side.parse_claude if agent == "claude" else ardia_side.parse_codex)(lines)
+    parsed = (voyager_side.parse_claude if agent == "claude" else voyager_side.parse_codex)(lines)
     calls, shell, other = (browse_calls_claude if agent == "claude" else browse_calls_codex)(lines)
     by_tool = {}
     for c in calls:

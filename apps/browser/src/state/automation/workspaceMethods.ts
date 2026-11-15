@@ -22,12 +22,12 @@ export function workspaceMethod(params: Record<string, unknown>): Body | Promise
   if (unknown.length) return failure("bad_request", `workspace takes window, profile and usage, not ${unknown.join(", ")}.`);
   if (params.usage !== undefined && typeof params.usage !== "boolean") return failure("bad_request", "usage is true or false.");
   const s = useBrowser.getState();
-  if (window && !eligibleKind(s, window)) return failure("no_window", `There's no window ${window} the ardia command can use.`);
+  if (window && !eligibleKind(s, window)) return failure("no_window", `There's no window ${window} the voyager command can use.`);
   if (profile && (!ownEntry(s.profiles, profile) || isIncognitoProfile(profile))) return failure("no_window", `There's no profile ${profile}.`);
   if (!params.usage) return { result: workspace(s, { window, profile }) };
   return sampleTabUsage().then(
     (usage) => ({ result: workspaceWithUsage(workspace(useBrowser.getState(), { window, profile }), usage) }),
-    (error) => failure("failed", `Ardia couldn't read its processes: ${errorText(error)}`),
+    (error) => failure("failed", `Voyager couldn't read its processes: ${errorText(error)}`),
   );
 }
 

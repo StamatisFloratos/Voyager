@@ -2,23 +2,23 @@
   "name": "browser-agents-2026-11",
   "repeats": 3,
   "tasks": "all",
-  "app": "~/ardia-scratch/bench-proper/app/Ardia.app",
+  "app": "~/voyager-scratch/bench-proper/app/Voyager.app",
   "port": 9371,
   "cli": "dev",
-  "ardia_test": "cdpTabsVisible",
+  "voyager_test": "cdpTabsVisible",
   "contenders": [
     {
-      "id": "ardia-claude",
-      "label": "Ardia + Claude Code (Opus 5.5)",
-      "kind": "ardia",
+      "id": "voyager-claude",
+      "label": "Voyager + Claude Code (Opus 5.5)",
+      "kind": "voyager",
       "agent": "claude",
       "model": "claude-opus-5-5",
       "effort": "high"
     },
     {
-      "id": "ardia-codex",
-      "label": "Ardia + Codex (GPT-6.1 Sol)",
-      "kind": "ardia",
+      "id": "voyager-codex",
+      "label": "Voyager + Codex (GPT-6.1 Sol)",
+      "kind": "voyager",
       "agent": "codex",
       "model": "gpt-6.1-sol",
       "effort": "high"

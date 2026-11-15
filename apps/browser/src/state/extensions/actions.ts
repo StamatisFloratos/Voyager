@@ -13,7 +13,7 @@ import {
   type ExtensionInstallPrompt,
   type InstalledExtension,
 } from "../../platform/extensions";
-import { webStoreExtensionId } from "@ardia/core";
+import { webStoreExtensionId } from "@voyager/core";
 import { confirm } from "../../platform/dialogs";
 import { showMenu, type MenuItem } from "../../platform/menus";
 import type { ChoiceItem } from "../app/menuChoice";

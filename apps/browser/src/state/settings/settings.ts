@@ -12,7 +12,7 @@ import {
   type SearchEngine,
   isProviderEntryList,
   type ProviderEntry,
-} from "@ardia/core";
+} from "@voyager/core";
 import type { StateCreator } from "zustand";
 import { fromLegacyUrl } from "../../lib/legacy";
 import type { BrowserState } from "../browser/store";

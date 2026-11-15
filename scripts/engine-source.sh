@@ -9,7 +9,7 @@ root="$(cd "$(dirname "$0")/.." && pwd -P)"
 die() { echo "error: $*" >&2; exit 1; }
 case "$version" in
   engine-*) ref="$version" shipped="the ArdiaCore engine ${version#engine-}" ;;
-  *) ref="v$version" shipped="Ardia $version" ;;
+  *) ref="v$version" shipped="Voyager $version" ;;
 esac
 pinned() { [ -n "${!1:-}" ] && echo "${!1}" || sed -n "s/^export $1=//p" "$root/engine/patches/build/env.sh"; }
 chromium="$(pinned CHROMIUM_VERSION)"
@@ -20,7 +20,7 @@ helium_macos="$(pinned HELIUM_MACOS_TAG)"
 
 work="$(mktemp -d "${TMPDIR:-/tmp}/ac-engine-source.XXXXXX")"
 trap 'rm -rf "$work"' EXIT
-name="ardia-engine-source-$version"
+name="voyager-engine-source-$version"
 src="$work/$name"
 mkdir -p "$src"
 fetch() {
@@ -31,9 +31,9 @@ fetch helium-chromium "$helium"
 fetch helium-macos "$helium_macos"
 
 cat >"$src/README.txt" <<EOF
-The source of $shipped, besides Ardia's own repository.
+The source of $shipped, besides Voyager's own repository.
 
-Ardia, with the engine's patches and build scripts:
+Voyager, with the engine's patches and build scripts:
   $REPO_URL/tree/$ref
   How to build it: docs/engine-build.md there.
 
@@ -45,7 +45,7 @@ Helium (GPL-3.0), copies of github.com/imputnet's tags:
   helium-chromium-$helium.tar.gz   its patches, domain substitution and build utilities
   helium-macos-$helium_macos.tar.gz   its macOS patches
 Helium's downloads (its onboarding page, its uBlock Origin, the search engine data in its deps.ini) aren't
-built into Ardia, so they aren't here.
+built into Voyager, so they aren't here.
 EOF
 
 tar --no-mac-metadata -cJf "$out" -C "$work" "$name"

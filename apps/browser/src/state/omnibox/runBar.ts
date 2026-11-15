@@ -1,5 +1,5 @@
 import { tabTitle } from "../browser/model";
-import type { Suggestion } from "@ardia/core";
+import type { Suggestion } from "@voyager/core";
 import { prompt } from "../../platform/dialogs";
 import { showMenu, type MenuItem } from "../../platform/menus";
 import type { BrowserCommand } from "../../platform/commands";

@@ -1,4 +1,4 @@
-import { cleanUrl } from "@ardia/core";
+import { cleanUrl } from "@voyager/core";
 import { sharePage, sharePageVia, shareText, type PageShare, type ShareAnchor } from "../../platform/share";
 import type { Tab } from "../browser/types";
 

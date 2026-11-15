@@ -1,1 +1,1 @@
-export * from "@ardia-real/import";
+export * from "@voyager-real/import";

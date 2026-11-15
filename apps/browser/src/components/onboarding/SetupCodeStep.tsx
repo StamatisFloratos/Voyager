@@ -19,7 +19,7 @@ const BRINGS = ["Where your tabs and address bar go", "What ⌘T and ⌘L open",
 export function SetupCodeLink({ onPress }: { onPress: () => void }) {
   return (
     <View mouseDownCanMoveWindow={false} style={{ marginLeft: "auto", height: onboardingButton.height, justifyContent: "center" }}>
-      <Button variant="text" look="link" tone="textSecondary" label="Have a setup code from ardia.dev?" title="Have a setup code?" onPress={onPress} />
+      <Button variant="text" look="link" tone="textSecondary" label="Have a setup code?" title="Have a setup code?" onPress={onPress} />
     </View>
   );
 }
@@ -41,7 +41,7 @@ export function SetupCodeStep({ onBack }: { onBack: () => void }) {
       <StepLayout
         pageKey="setupCodeApplied"
         title="You're set up"
-        subtitle="Ardia now looks the way you made it on ardia.dev. Search and privacy are still yours to choose, so those come next."
+        subtitle="Voyager has applied your setup code. Search and privacy are still yours to choose, so those come next."
         actions={
           <>
             <PrimaryButton title="Continue" icon="arrow.right" onPress={() => goToStep("outro")} />
@@ -55,7 +55,7 @@ export function SetupCodeStep({ onBack }: { onBack: () => void }) {
   return (
     <StepLayout
       pageKey="setupCode"
-      title="Have a setup code from ardia.dev?"
+      title="Have a setup code?"
       subtitle="Paste the code from the demo. It brings the layout, look and pinned apps you picked there."
       actions={
         <>

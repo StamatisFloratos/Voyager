@@ -12,7 +12,7 @@ import type {
   SystemSignal,
   UserScriptsFolder,
   WindowEvent,
-} from "@ardia/shell";
+} from "@voyager/shell";
 import { nativeEvents, unfaked } from "./events";
 import { reportModule } from "./report";
 import { telemetryLocalModule } from "./telemetryLocal";
@@ -32,7 +32,7 @@ const testGlobals = globalThis as { acTestUserScripts?: UserScriptsHost };
 export const docs = new Map<string, string>();
 export const heldSaves = { on: false, queue: [] as (() => void)[] };
 export const bangListServer: { reply: ((etag: string | null) => Promise<BangListReply>) | null } = { reply: null };
-export const appInfo: Partial<SystemInfo> = { appVersion: "1.0" };
+export const appInfo: Partial<SystemInfo> = { appVersion: "1.0", telemetryURL: "http://127.0.0.1:1/otel/v1/logs" };
 export const diagnostics: { crashReports: CrashReport[]; hardware: HardwareInfo; sample: DiagnosticsSample } = {
   crashReports: [],
   hardware: { chip: "Apple M1", gpu: "Apple M1", memoryGB: 16, displays: 1, maxScale: 2, hardwareDecode: { av1: false, vp9: true, hevc: true, h264: true } },

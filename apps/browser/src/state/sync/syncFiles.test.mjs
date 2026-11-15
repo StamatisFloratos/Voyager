@@ -13,7 +13,7 @@ globalThis.acTestNativeModules = {
 const shell = await import("../../test-native/index.ts");
 const { syncFiles } = await import("./syncFiles.ts");
 const { emptyDoc } = await import("./syncDoc.ts");
-const { emptyScope, Clock } = await import("@ardia/sync");
+const { emptyScope, Clock } = await import("@voyager/sync");
 
 const realNow = Date.now;
 const HOUR = 60 * 60_000;

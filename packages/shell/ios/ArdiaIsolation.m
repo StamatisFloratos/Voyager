@@ -22,7 +22,7 @@ static NSPasteboard *IsolatedPasteboardWithName(id self, SEL _cmd, NSPasteboardN
 }
 
 static void IsolatePasteboard(NSString *dataDirectory) {
-  gPasteboardName = [@"com.ardia.scratch:" stringByAppendingString:dataDirectory];
+  gPasteboardName = [@"com.stamatisfloratos.voyager.scratch:" stringByAppendingString:dataDirectory];
   Method withName = class_getClassMethod(NSPasteboard.class, @selector(pasteboardWithName:));
   gPasteboardWithName = method_getImplementation(withName);
   method_setImplementation(withName, (IMP)IsolatedPasteboardWithName);
@@ -41,7 +41,7 @@ static void IsolatePasteboard(NSString *dataDirectory) {
 #if DEBUG
   IsolatePasteboard(dataDirectory);
 #endif
-  NSString *domain = NSBundle.mainBundle.bundleIdentifier ?: @"com.ardia.browser";
+  NSString *domain = NSBundle.mainBundle.bundleIdentifier ?: @"com.stamatisfloratos.voyager";
   gDefaults = [[NSUserDefaults alloc]
       initWithSuiteName:[[dataDirectory stringByAppendingPathComponent:@"Preferences"] stringByAppendingPathComponent:domain]];
   if (!gDefaults) return;

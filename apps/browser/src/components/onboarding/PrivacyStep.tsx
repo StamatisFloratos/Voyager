@@ -1,4 +1,4 @@
-import { engineHost } from "@ardia/core";
+import { engineHost } from "@voyager/core";
 import { StyleSheet, View } from "react-native";
 import { searchEngines, type Settings } from "../../state/settings/settings";
 import { useSettings } from "../../state/browser/hooks";

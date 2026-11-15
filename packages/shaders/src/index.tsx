@@ -1,4 +1,4 @@
-import type { ThemeBackdropProps, ThemeTexture } from "@ardia/core";
+import type { ThemeBackdropProps, ThemeTexture } from "@voyager/core";
 import { requireNativeModule, requireNativeViewManager } from "expo-modules-core";
 import type { ComponentType } from "react";
 import type { ViewProps } from "react-native";

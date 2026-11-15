@@ -9,7 +9,7 @@
 // capture launches a hidden, onboarded instance (scripts/lib/instance.mjs) on a fixed seeded session: two profiles,
 // pinned tabs, a tab group, tabs on local file pages, bookmarks, history on fixed past dates, finished downloads.
 // Search suggestions and telemetry are off and Chrome sits behind a dead proxy, so nothing reaches the network; it
-// waits for uBlock Origin's bundled lists. Its data dir is always ~/ardia-scratch/ui-snapshots/data (the path
+// waits for uBlock Origin's bundled lists. Its data dir is always ~/voyager-scratch/ui-snapshots/data (the path
 // shows in Settings), so captures take turns on a lock. Each state is driven through the dev harness and written
 // as <out dir>/<state>.png with ac.shell.devSnapshotWindow (in-process, transparent background, works with the
 // screen locked) once consecutive snapshots are byte-identical. <out dir>/states.json has each state's result and
@@ -184,7 +184,7 @@ function compare(beforeDir, afterDir, tolerance) {
   return bad ? 1 : 0;
 }
 
-const ROOT = join(homedir(), "ardia-scratch/ui-snapshots");
+const ROOT = join(homedir(), "voyager-scratch/ui-snapshots");
 const PAGES = join(ROOT, "pages");
 const DATA = join(ROOT, "data");
 const LOCK = join(ROOT, "capture.lock");
@@ -236,9 +236,9 @@ s.importHistory("default", [
   { url: "https://swift.org/documentation/concurrency/", title: "Swift concurrency", visits: 3, lastVisit: at(0, 9, 12) },
   { url: "https://developer.apple.com/metal/", title: "Metal shaders", visits: 2, lastVisit: at(0, 10, 40) },
   { url: "https://news.ycombinator.com/", title: "Hacker News", visits: 9, lastVisit: at(0, 14, 5) },
-  { url: "https://github.com/ardia/ardia", title: "ardia/ardia", visits: 5, lastVisit: at(1, 18, 30) },
+  { url: "https://github.com/StamatisFloratos/Voyager", title: "StamatisFloratos/Voyager", visits: 5, lastVisit: at(1, 18, 30) },
   { url: "https://en.wikipedia.org/wiki/Typography", title: "Typography - Wikipedia", visits: 1, lastVisit: at(1, 11, 2) },
-  { url: "https://docs.ardia.test/handbook", title: "Handbook", visits: 4, lastVisit: at(3, 16, 45) },
+  { url: "https://docs.voyager.test/handbook", title: "Handbook", visits: 4, lastVisit: at(3, 16, 45) },
 ]);
 const roots = ac.bookmarks.bookmarkRoots(s, "default");
 const folder = s.addBookmarkFolder({ profileId: "default", title: "Reading", parentId: roots && roots.bar });
@@ -247,10 +247,10 @@ s.addBookmark({ profileId: "default", url: "https://developer.apple.com/", title
 s.addBookmark({ profileId: "default", url: "https://en.wikipedia.org/wiki/Typography", title: "Typography", parentId: folder });
 s.addBookmark({ profileId: "default", url: "https://news.ycombinator.com/", title: "Hacker News", parentId: folder });
 s.addBookmark({ profileId: "default", url: "${page("docs")}", title: "Design doc", parentId: roots && roots.other });
-const dl = (id, filename, total, state) => ({ id, url: "https://downloads.ardia.test/" + filename, filename,
+const dl = (id, filename, total, state) => ({ id, url: "https://downloads.voyager.test/" + filename, filename,
   path: "/Users/test/Downloads/" + filename, state, paused: false, received: state === "finished" ? total : 0, total, speed: 0,
   mimeType: "application/octet-stream", profile: "" });
-s.upsertDownload(dl("d1", "Ardia-0.2.41.dmg", 182000000, "finished"));
+s.upsertDownload(dl("d1", "Voyager-0.2.41.dmg", 182000000, "finished"));
 s.upsertDownload(dl("d2", "quarterly-report.pdf", 2400000, "finished"));
 s.upsertDownload(dl("d3", "photos.zip", 54000000, "failed"));
 return { roots: !!roots, folder: !!folder, downloads: st().downloads.length };

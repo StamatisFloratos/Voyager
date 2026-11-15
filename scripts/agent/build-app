@@ -53,7 +53,7 @@ repo=$(cd "$(dirname "$0")/../.." && pwd)
 app_dir="$repo/apps/browser"
 dd="$app_dir/build-$name"
 log="$dd/build-app.log"
-app="$dd/Build/Products/$config/Ardia.app"
+app="$dd/Build/Products/$config/Voyager.app"
 stamp_file="$dd/.ac-native-stamp-$config"
 
 native_stamp() {
@@ -95,7 +95,7 @@ echo "build-app: $config into ${dd#"$repo"/} (log: ${log#"$repo"/})"
 (
   cd "$app_dir" &&
     "$repo/scripts/agent/locked" xcodebuild --wait "$wait" --as "$name" -- \
-      xcodebuild -workspace macos/Ardia.xcworkspace -scheme Ardia-macOS -derivedDataPath "$dd" \
+      xcodebuild -workspace macos/Voyager.xcworkspace -scheme Voyager-macOS -derivedDataPath "$dd" \
       -destination 'platform=macOS,arch=arm64' -configuration "$config" -hideShellScriptEnvironment build
 ) >"$log" 2>&1
 status=$?

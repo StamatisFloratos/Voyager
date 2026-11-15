@@ -1,4 +1,4 @@
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import type { Settings } from "../settings/settings";
 import type { Tab } from "../browser/types";
 import { useBrowser } from "../browser/store";

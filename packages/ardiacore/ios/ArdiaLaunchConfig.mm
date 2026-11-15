@@ -5,15 +5,15 @@
 
 namespace {
 
-NSString *const kDataDirVariable = @"ARDIA_DATA_DIR";
-NSString *const kBackgroundVariable = @"ARDIA_BACKGROUND";
-NSString *const kRemoteDebuggingPortVariable = @"ARDIA_REMOTE_DEBUGGING_PORT";
-NSString *const kInstanceVariable = @"ARDIA_INSTANCE";
-NSString *const kSwitchesVariable = @"ARDIA_SWITCHES";
-NSString *const kTraceVariable = @"ARDIA_TRACE";
-NSString *const kTestVariable = @"ARDIA_TEST";
-NSString *const kPrewarmVariable = @"ARDIA_PREWARM";
-NSString *const kFeedbackURLVariable = @"ARDIA_FEEDBACK_URL";
+NSString *const kDataDirVariable = @"VOYAGER_DATA_DIR";
+NSString *const kBackgroundVariable = @"VOYAGER_BACKGROUND";
+NSString *const kRemoteDebuggingPortVariable = @"VOYAGER_REMOTE_DEBUGGING_PORT";
+NSString *const kInstanceVariable = @"VOYAGER_INSTANCE";
+NSString *const kSwitchesVariable = @"VOYAGER_SWITCHES";
+NSString *const kTraceVariable = @"VOYAGER_TRACE";
+NSString *const kTestVariable = @"VOYAGER_TEST";
+NSString *const kPrewarmVariable = @"VOYAGER_PREWARM";
+NSString *const kFeedbackURLVariable = @"VOYAGER_FEEDBACK_URL";
 NSString *const kSwitchesCacheDocument = @"switches-cache.json";
 
 NSArray<NSString *> *InstanceKeys() {
@@ -202,7 +202,7 @@ BOOL SignedForDistribution() {
   if ((self = [super init])) {
     _dataDirectory = StandardizedDirectory(environment[kDataDirVariable]);
     _configDirectory = _dataDirectory ? [_dataDirectory stringByAppendingPathComponent:@"config"]
-                                      : [NSHomeDirectory() stringByAppendingPathComponent:@".config/ardia"];
+                                      : [NSHomeDirectory() stringByAppendingPathComponent:@".config/voyager"];
     _background = BackgroundValue(environment[kBackgroundVariable]);
     const NSInteger port = Trimmed(environment[kRemoteDebuggingPortVariable] ?: @"").integerValue;
     _remoteDebuggingPort = port > 0 && port < 65536 ? @(port) : nil;
@@ -215,12 +215,12 @@ BOOL SignedForDistribution() {
     _signedForDistribution = [signedForDistribution copy];
     NSMutableDictionary<NSString *, NSString *> *inherited = [NSMutableDictionary dictionary];
     [environment enumerateKeysAndObjectsUsingBlock:^(NSString *name, NSString *value, BOOL *) {
-      if (![name hasPrefix:@"ARDIA_"]) inherited[name] = value;
+      if (![name hasPrefix:@"VOYAGER_"] && ![name hasPrefix:@"ARDIA_"]) inherited[name] = value;
     }];
     _environmentForChildProcesses = inherited;
     if ((_requestedAreas.count || _requestedTest.count) && !self.testInstance)
       Note([NSString stringWithFormat:@"%@ and %@ ignored: not a test instance (%@)", kTestVariable, kTraceVariable,
-                                      _dataDirectory ? @"signed for distribution" : @"no scratch ARDIA_DATA_DIR"]);
+                                      _dataDirectory ? @"signed for distribution" : @"no scratch VOYAGER_DATA_DIR"]);
   }
   return self;
 }
@@ -259,7 +259,7 @@ BOOL SignedForDistribution() {
   NSString *directory = _dataDirectory;
   if (!directory) {
     NSString *support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).firstObject;
-    directory = [support stringByAppendingPathComponent:NSBundle.mainBundle.bundleIdentifier ?: @"com.ardia.browser"];
+    directory = [support stringByAppendingPathComponent:NSBundle.mainBundle.bundleIdentifier ?: @"com.stamatisfloratos.voyager"];
   }
   NSData *data = [NSData dataWithContentsOfFile:[directory stringByAppendingPathComponent:kSwitchesCacheDocument]];
   NSDictionary *cache = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;

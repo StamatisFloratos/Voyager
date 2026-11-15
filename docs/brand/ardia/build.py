@@ -235,7 +235,7 @@ print("tinted marks")
 
 import shutil  # noqa: E402
 
-XCASSETS = Path("apps/browser/macos/Ardia-macOS/Assets.xcassets")
+XCASSETS = Path("apps/browser/macos/Voyager-macOS/Assets.xcassets")
 PLATE_MARK_PX = 512
 IMAGESET = '{\n  "images" : [\n    {\n      "filename" : "mark.png",\n      "idiom" : "universal"\n    }\n  ],\n  "info" : {\n    "author" : "xcode",\n    "version" : 1\n  }\n}\n'
 slots = {"AppIconMark": OUT / "plate-mark-1024.png"}
@@ -251,7 +251,7 @@ print("plate marks")
 
 import json  # noqa: E402
 
-ICON = Path("apps/browser/macos/Ardia-macOS/AppIcon.icon")
+ICON = Path("apps/browser/macos/Voyager-macOS/AppIcon.icon")
 
 
 def icon_layers(tile):

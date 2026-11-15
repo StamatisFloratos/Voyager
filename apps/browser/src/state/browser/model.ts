@@ -1,4 +1,4 @@
-import { appUrlOrigin, displayHost } from "@ardia/core";
+import { appUrlOrigin, displayHost } from "@voyager/core";
 import type { BrowserState } from "./store";
 import { DEFAULT_PROFILE_ID } from "../settings/settings";
 import type { BrowserWindow, Navigation, Profile, Tab, TabGroup, TabLive, TabPin, TabSnapshot } from "./types";

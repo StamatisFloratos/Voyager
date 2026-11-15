@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 globalThis.__DEV__ = false;
-const { providerApprovalKey } = await import("@ardia/core");
+const { providerApprovalKey } = await import("@voyager/core");
 const { DEFAULT_SETTINGS } = await import("../settings/settings.ts");
 const { readConfig } = await import("../config/configSettings.ts");
 const { registerOmniboxProvider, useRegisteredProviders } = await import("./providers.ts");

@@ -3,7 +3,7 @@ import { test } from "node:test";
 const { sessionWithTabPages, sessionWithTabPins } = await import("./savedShapes.ts");
 const { sessionWithSettingsMeta } = await import("../settings/settings.ts");
 const { sessionWithPinChoiceStamps } = await import("../pins/pinChoices.ts");
-const { Clock } = await import("@ardia/sync");
+const { Clock } = await import("@voyager/sync");
 
 const replays = (step, doc) => {
   const once = step(structuredClone(doc));

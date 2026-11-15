@@ -1,4 +1,4 @@
-import { nativeModule, type LaunchConfig } from "@ardia/shell";
+import { nativeModule, type LaunchConfig } from "@voyager/shell";
 
 let config: LaunchConfig | null = null;
 

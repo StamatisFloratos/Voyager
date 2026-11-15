@@ -10,7 +10,7 @@ const client = await import("./client.ts");
 const identity = await import("./identity.ts");
 const local = await import("./localStore.ts");
 const watch = await import("./watch.ts");
-const { anonymousIdentity } = await import("@ardia/core");
+const { anonymousIdentity } = await import("@voyager/core");
 
 const UUID4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const UUID7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;

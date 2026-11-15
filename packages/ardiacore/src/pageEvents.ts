@@ -1,4 +1,4 @@
-import { toAppUrl } from "@ardia/core";
+import { toAppUrl } from "@voyager/core";
 import type { NativeSyntheticEvent } from "react-native";
 import type { ExternalAppRequest } from "./permissions";
 import type {

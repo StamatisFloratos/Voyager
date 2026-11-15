@@ -1,4 +1,4 @@
-import { call, saveCard, type CardNetwork, type SavedAddress, type SavedCard, type AddressInput } from "@ardia/ardiacore";
+import { call, saveCard, type CardNetwork, type SavedAddress, type SavedCard, type AddressInput } from "@voyager/ardiacore";
 
 export { saveCard };
 export type { SavedAddress, SavedCard, CardNetwork };

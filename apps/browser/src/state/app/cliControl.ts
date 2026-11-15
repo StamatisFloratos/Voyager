@@ -16,7 +16,8 @@ import { useBrowser, type BrowserState } from "../browser/store";
 import { hasPage } from "../tabs/pageSession";
 import { shownPageId } from "../peek/peek";
 import { isTabReady, pageOf, usePages } from "../tabs/pageState";
-import { isInternalTab } from "../pages/urls";
+import { appUrlRoute } from "@voyager/core";
+import { tabDestination } from "../pages/urls";
 import { afterFirstWindow } from "../../lib/afterFirstWindow";
 import { parseSaved, unchanged, versionedJson, type Migrations } from "../../lib/savedDocument";
 import { errorText } from "../../lib/errors";
@@ -164,7 +165,7 @@ function shownReadyTab(s: BrowserState): string | null {
   const windowId = focusedWindowOf(s);
   const id = windowId ? shownPageId(s, windowId) : undefined;
   const tab = id ? s.tabs[id] : undefined;
-  if (!id || !tab?.url || pageOf(id).newTabShown || !hasPage(tab) || isInternalTab(tab)) return null;
+  if (!id || !tab?.url || pageOf(id).newTabShown || !hasPage(tab) || appUrlRoute(tabDestination(tab))) return null;
   return isTabReady(id) ? id : null;
 }
 

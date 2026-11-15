@@ -9,7 +9,7 @@ import threading
 import time
 from pathlib import Path
 
-import ardia_side
+import voyager_side
 import browseruse_side
 import grading
 import opencode_side
@@ -20,7 +20,7 @@ from procs import read_json, sh, write_json
 from scheduler import LANE_PORT_STRIDE, Scheduler
 
 
-ASIDE_DRIVER = Path(os.environ.get("BENCH_ASIDE_DRIVER", Path.home() / "ardia-scratch/aside-bench/bin/aside_run.mjs"))
+ASIDE_DRIVER = Path(os.environ.get("BENCH_ASIDE_DRIVER", Path.home() / "voyager-scratch/aside-bench/bin/aside_run.mjs"))
 ASIDE_GRACE_S = 180
 DEFAULT_MAX_LANES = 6
 EPHEMERAL_PORTS_FROM = 49152
@@ -108,9 +108,9 @@ def run_aside(item, results_dir, on_start=None):
 def restore_aside_memory():
     try:
         r = subprocess.run(["node", str(ASIDE_DRIVER), "--restore-memory"], capture_output=True, text=True, timeout=180)
-        ardia_side.log(f"aside --restore-memory exited {r.returncode}")
+        voyager_side.log(f"aside --restore-memory exited {r.returncode}")
     except Exception as e:
-        ardia_side.log(f"aside --restore-memory failed: {e}")
+        voyager_side.log(f"aside --restore-memory failed: {e}")
 
 
 def memory_used_pct():
@@ -127,11 +127,11 @@ def memory_used_pct():
 
 
 def lane_overrides(plan, contender, lane, port_offset=0):
-    keys = ("app", "port", "cli", "ardia_test", "humanize", "keep_notes", "model", "effort")
+    keys = ("app", "port", "cli", "voyager_test", "humanize", "keep_notes", "model", "effort")
     o = {k: contender.get(k, plan.get(k)) for k in keys}
     o["port_offset"] = port_offset
-    base_app = Path(o.get("app") or ardia_side.DEFAULTS["app"]).expanduser()
-    o["port"] = int(o.get("port") or ardia_side.DEFAULTS["port"]) + lane.index
+    base_app = Path(o.get("app") or voyager_side.DEFAULTS["app"]).expanduser()
+    o["port"] = int(o.get("port") or voyager_side.DEFAULTS["port"]) + lane.index
     if lane.index:
         o["lane"] = f"lane{lane.index}"
         o["app"] = str(lane_app(base_app, lane.index))
@@ -139,7 +139,7 @@ def lane_overrides(plan, contender, lane, port_offset=0):
 
 
 def lane_app(base_app, index):
-    dest = registry.HOME / f"app-lane{index}" / "Ardia.app"
+    dest = registry.HOME / f"app-lane{index}" / "Voyager.app"
     src_plist, dest_plist = base_app / "Contents/Info.plist", dest / "Contents/Info.plist"
     stale = not dest_plist.exists() or dest_plist.read_bytes() != src_plist.read_bytes()
     if stale:
@@ -153,7 +153,7 @@ def rate_limit_reason(rec):
     if rec.get("pass"):
         return None
     texts = [str(rec.get("harness_error") or ""), str(rec.get("error") or ""), str(rec.get("status") or "")]
-    if rec.get("side") in ("ardia", "opencode", "browseruse"):
+    if rec.get("side") in ("voyager", "opencode", "browseruse"):
         failed_cli = rec.get("cli_is_error") or rec.get("errors") or rec.get("exit_code") not in (0, None) or not rec.get("tokens")
         if not failed_cli:
             return None
@@ -189,7 +189,7 @@ def run_item(item, lane, results_dir, plan, on_start):
         return browseruse_side.run(item["task"], c["agent"], item["run_id"], results_dir,
                                    browseruse_overrides(plan, c, lane, offset), contender=c["id"],
                                    on_agent_start=on_start)
-    return ardia_side.run(item["task"], c["agent"], item["run_id"], results_dir, lane_overrides(plan, c, lane, offset),
+    return voyager_side.run(item["task"], c["agent"], item["run_id"], results_dir, lane_overrides(plan, c, lane, offset),
                           contender=c["id"], on_agent_start=on_start)
 
 
@@ -229,7 +229,7 @@ class Executor:
                     f.write(json.dumps({"t": round(time.time(), 1), "session": self.session, "used_pct": used,
                                         "active": len(running), "running": running}) + "\n")
             except Exception as e:
-                ardia_side.log(f"memory sample failed: {e}")
+                voyager_side.log(f"memory sample failed: {e}")
             self.stop_sampling.wait(SAMPLE_S)
 
     def worker(self, item, lane, mode, used, lanes_active):
@@ -272,11 +272,11 @@ class Executor:
                                     "harness_error": rec.get("harness_error"), "lanes_active": lanes_active,
                                     "memory_used_pct_at_start": used, "elapsed_s": round(t1 - t0, 1)}) + "\n")
             write_json(self.results_dir / "summary.json", summary.build(self.results_dir))
-        ardia_side.log(f"{run_id} on {lane.id}: pass={rec.get('pass')} {rec.get('harness_error') or ''}")
+        voyager_side.log(f"{run_id} on {lane.id}: pass={rec.get('pass')} {rec.get('harness_error') or ''}")
 
     def quit_lane(self, lane):
         if lane.id in self.lanes_used:
-            ardia_side.quit_instance(self.lanes_used.pop(lane.id))
+            voyager_side.quit_instance(self.lanes_used.pop(lane.id))
 
     def run(self):
         sampler = threading.Thread(target=self.sample_loop, daemon=True)
@@ -291,16 +291,16 @@ class Executor:
                     for lane in quits:
                         self.sched.drop_lane(lane)
                 for lane in quits:
-                    ardia_side.log(f"quitting idle lane {lane.id}")
+                    voyager_side.log(f"quitting idle lane {lane.id}")
                     self.quit_lane(lane)
                 used = memory_used_pct()
                 with self.lock:
                     starts = self.sched.decide(time.time(), used)
                     for item, lane, mode in starts:
-                        if lane.kind == "ardia" and item["contender"]["kind"] == "ardia":
+                        if lane.kind == "voyager" and item["contender"]["kind"] == "voyager":
                             self.lanes_used[lane.id] = lane_overrides(self.plan, item["contender"], lane)
                         active = len(self.sched.running)
-                        ardia_side.log(f"start {item['run_id']} on {lane.id} +{item['port_offset']} "
+                        voyager_side.log(f"start {item['run_id']} on {lane.id} +{item['port_offset']} "
                                        f"({mode}, {active} active, {used}% used)")
                         t = threading.Thread(target=self.worker, args=(item, lane, mode, used, active), daemon=True)
                         self.threads.append(t)
@@ -308,7 +308,7 @@ class Executor:
                     if starts or self.sched.running:
                         last_activity = time.time()
                 if time.time() - last_activity > STALL_S:
-                    ardia_side.log(f"nothing could start for {STALL_S:.0f} s (memory {used}%); stopping, resume later")
+                    voyager_side.log(f"nothing could start for {STALL_S:.0f} s (memory {used}%); stopping, resume later")
                     break
                 time.sleep(TICK_S)
             for t in self.threads:
@@ -323,8 +323,8 @@ class Executor:
                 browseruse_side.stop_all()
             if self.plan.get("stop_after", True):
                 for lane_id in list(self.lanes_used):
-                    ardia_side.quit_instance(self.lanes_used.pop(lane_id))
-                ardia_side.quit_instance()
+                    voyager_side.quit_instance(self.lanes_used.pop(lane_id))
+                voyager_side.quit_instance()
                 servers.stop()
             write_json(self.results_dir / "summary.json", summary.build(self.results_dir))
 
@@ -346,9 +346,9 @@ def simulate(plan, results_dir, max_lanes, base_used=None):
     t, finishing, launching, lines, peak = 0.0, {}, {}, [], 0
 
     def used_now():
-        ardia = sum(1 for ln in sched.lanes if ln.kind == "ardia" and (ln.launched or ln.busy))
+        voyager = sum(1 for ln in sched.lanes if ln.kind == "voyager" and (ln.launched or ln.busy))
         aside = any(ln.kind == "aside" for ln in sched.lanes)
-        return round(base + 2.5 * ardia + 4.0 * aside + 1.0 * len(sched.running), 1)
+        return round(base + 2.5 * voyager + 4.0 * aside + 1.0 * len(sched.running), 1)
 
     while not sched.done() and t < 7 * 24 * 3600:
         for rid in [r for r, at in launching.items() if at <= t]:
@@ -374,7 +374,7 @@ def simulate(plan, results_dir, max_lanes, base_used=None):
         t += TICK_S
     lines.append(f"{len(items)} runs, simulated wall {fmt(t)}, peak {peak} lanes, serial sum "
                  f"{fmt(sum(known.get((i['task'], i['contender']['id'])) or (200.0 if i['contender']['kind'] == 'aside' else 100.0) for i in items))}"
-                 f" (memory modeled from {base}%: +2.5 per Ardia instance, +4 for Aside, +1 per running agent)")
+                 f" (memory modeled from {base}%: +2.5 per Voyager instance, +4 for Aside, +1 per running agent)")
     return lines
 
 
@@ -384,10 +384,10 @@ def fmt(seconds):
 
 
 def reserved_ports(plan, max_lanes):
-    bases = [("Ardia DevTools", int(plan.get("port") or ardia_side.DEFAULTS["port"]))]
+    bases = [("Voyager DevTools", int(plan.get("port") or voyager_side.DEFAULTS["port"]))]
     for c in plan["contenders"]:
-        if c["kind"] == "ardia" and c.get("port"):
-            bases.append(("Ardia DevTools", int(c["port"])))
+        if c["kind"] == "voyager" and c.get("port"):
+            bases.append(("Voyager DevTools", int(c["port"])))
         if c["kind"] == "opencode":
             bases += [("OpenCode CDP", int(c.get("cdp_port") or opencode_side.DEFAULTS["cdp_port"])),
                       ("OpenCode relay", int(c.get("relay_port") or opencode_side.DEFAULTS["relay_port"]))]
@@ -429,7 +429,7 @@ def pin_offsetless_tasks(plan):
     for tid in registry.task_ids(plan.get("tasks", "all")):
         ok, why = servers.supports_offset(tid, LANE_PORT_STRIDE)
         if not ok:
-            ardia_side.log(f"{tid}: its server ignores BENCH_PORT_OFFSET, so its runs share the +0 server one at a "
+            voyager_side.log(f"{tid}: its server ignores BENCH_PORT_OFFSET, so its runs share the +0 server one at a "
                            f"time ({why})")
             pinned.append(tid)
     return pinned
@@ -446,7 +446,7 @@ def execute(plan_path, results_dir=None, dry_run=False, max_lanes=None):
         for line in simulate(plan, results_dir, max_lanes):
             print(line)
         return None
-    ardia_side.log(ports_line)
+    voyager_side.log(ports_line)
     write_json(results_dir / "plan.json", dict(plan, registry=str(registry.REGISTRY), max_lanes=max_lanes))
     pinned = pin_offsetless_tasks(plan)
     if any(c["kind"] == "aside" for c in plan["contenders"]) or pinned:

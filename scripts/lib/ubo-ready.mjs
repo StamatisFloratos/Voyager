@@ -1,7 +1,7 @@
 import { devtools, sleep, uboReady } from "./instance.mjs";
 
 const [port, seconds = "90"] = process.argv.slice(2);
-const adUrl = "https://ib.adnxs.com/ut/v3?ardia-release-check";
+const adUrl = "https://ib.adnxs.com/ut/v3?voyager-release-check";
 const deadline = Date.now() + Number(seconds) * 1000;
 const left = () => Math.max(1, deadline - Date.now());
 

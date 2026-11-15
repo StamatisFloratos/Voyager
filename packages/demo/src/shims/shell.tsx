@@ -1,5 +1,5 @@
-export * from "@ardia-real/shell";
-import type { AppEvent, CommandEvent, ConfirmOptions, InlineWrite, LaunchConfig, PromptOptions, SystemInfo, WindowEvent } from "@ardia-real/shell";
+export * from "@voyager-real/shell";
+import type { AppEvent, CommandEvent, ConfirmOptions, InlineWrite, LaunchConfig, PromptOptions, SystemInfo, WindowEvent } from "@voyager-real/shell";
 import { unstable_batchedUpdates } from "react-dom";
 import { emitNativeEvent, provideNativeModule } from "./expo-modules-core";
 import { NATIVE_CHANGE } from "./react-native";
@@ -22,10 +22,10 @@ export { MouseArea } from "./web/MouseArea";
 export { showMenu } from "./web/menus";
 
 const SYSTEM_INFO: SystemInfo = {
-  appName: "Ardia",
+  appName: "Voyager",
   appVersion: "demo",
   appBuild: "web",
-  bundleId: "dev.ardia.demo",
+  bundleId: "com.stamatisfloratos.voyager.demo",
   configuration: "Release",
   osVersion: "web",
   osBuild: "web",

@@ -1,4 +1,4 @@
-import { cleanUrl, markdownLink } from "@ardia/core";
+import { cleanUrl, markdownLink } from "@voyager/core";
 import { copyText } from "../../platform/clipboard";
 import { prompt } from "../../platform/dialogs";
 import { updateFolder } from "../live/store";

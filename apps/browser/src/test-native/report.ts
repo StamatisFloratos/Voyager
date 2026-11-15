@@ -1,4 +1,4 @@
-import type { ReportEvent, ShellNativeModules, UploadReply } from "@ardia/shell";
+import type { ReportEvent, ShellNativeModules, UploadReply } from "@voyager/shell";
 import { nativeEvents } from "./events";
 
 const events = nativeEvents();

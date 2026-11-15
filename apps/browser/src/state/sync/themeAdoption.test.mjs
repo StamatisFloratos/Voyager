@@ -5,7 +5,7 @@ globalThis.__DEV__ = false;
 globalThis.acTestNativeModules = {};
 
 const { useBrowser } = await import("../browser/store.ts");
-const { emptyScope, canonical } = await import("@ardia/sync");
+const { emptyScope, canonical } = await import("@voyager/sync");
 const themes = await import("./syncThemes.ts");
 const nightlyFour = await import("./fixtures/syncThemes-v0.2.43-nightly.4.ts");
 const S = () => useBrowser.getState();

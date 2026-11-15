@@ -1,4 +1,4 @@
-import { THEME_TEXTURES } from "@ardia/core";
+import { THEME_TEXTURES } from "@voyager/core";
 import { padPosition, sanitizeTheme } from "../../lib/profileLook";
 import type { ProfileTheme, ThemeColor, ThemeLook, ThemeMode, ThemeTexture } from "../browser/types";
 

@@ -1,13 +1,13 @@
 # Automation: commands and events
 
-The `ardia` command can run Ardia's commands and react to what happens in the browser: tabs opening, pages loading,
-windows taking focus. Hooks run outside the app as ordinary programs, so nothing third-party runs in Ardia's process.
+The `voyager` command can run Voyager's commands and react to what happens in the browser: tabs opening, pages loading,
+windows taking focus. Hooks run outside the app as ordinary programs, so nothing third-party runs in Voyager's process.
 Issue #717. Config files and themes are `docs/config.md`; page scripting over CDP is `docs/cli.md`.
 
 ## The control socket
 
-- While "Let the ardia command control Ardia" (`cliControl`) is on, the app listens on a Unix socket at exactly
-  `<data dir>/ArdiaControl.sock` (the app's own data dir; `ARDIA_DATA_DIR` for test instances).
+- While "Let the voyager command control Voyager" (`cliControl`) is on, the app listens on a Unix socket at exactly
+  `<data dir>/ArdiaControl.sock` (the app's own data dir; `VOYAGER_DATA_DIR` for test instances).
 - **Safe place.** The server starts only if the data dir is a real directory (not a symlink) owned by the user and not
   writable by group or others; otherwise it logs one line and reports an error status. The socket is created under a
   0177 umask, so it is 0600 from the start (a socket is made 0777 less the umask, so 0077 would leave it 0700).
@@ -63,7 +63,7 @@ Error codes: `bad_request`, `unknown_method`, `unknown_command`, `refused`, `no_
 ### Who's included
 
 One eligibility rule serves `windows`, events and command targets: a window is eligible when it is a normal browser
-window or Little Ardia, and not private; a tab is eligible when its window is eligible and its profile isn't
+window or Little Voyager, and not private; a tab is eligible when its window is eligible and its profile isn't
 incognito. A tab shown in Peek is not part of its window's tabs and sends no events until it lands in one. Events for
 something that closed are built from the previous snapshot, and only if it was eligible there.
 
@@ -72,7 +72,7 @@ bookmark searches) and their fixed page title.
 
 ### Methods
 
-- `hello` `{"caller"?: {"name", "app"?}}` → `{"app": "Ardia", "version": "0.2.44", "protocol": 3}`. Protocol 2 added
+- `hello` `{"caller"?: {"name", "app"?}}` → `{"app": "Voyager", "version": "0.2.44", "protocol": 3}`. Protocol 2 added
   `subscribe`'s options, `run`'s `tab`, `answer` and decide requests; protocol 3 added `workspace` and `apply`
   (Tabs and groups, below); older clients keep working. `caller` names
   who runs the client for the pill (The pill), display only.
@@ -87,7 +87,7 @@ bookmark searches) and their fixed page title.
   open at all it runs with none, as the menu does (`newTab` and `newWindow` open one); otherwise `no_window`. A
   command that asks for confirmation still asks. `tab` targets one eligible tab without activating or focusing
   it, for commands whose scope is `"page"` and `closeTab`, `togglePin`, `moveTabUp`, `moveTabDown`, `duplicateTab`
-  and `bookmarkPage` (`bad_request` otherwise); a tab target is dispatched before Peek, Little Ardia, sidebar and
+  and `bookmarkPage` (`bad_request` otherwise); a tab target is dispatched before Peek, Little Voyager, sidebar and
   command-panel handling, so `closeTab` closes exactly that tab; with `window` too, the tab must be in that
   window. Window, tab, profile and eligibility are checked just before the command runs: a closed, moved or
   private target is `no_window`, never a fallback to the focused tab.
@@ -203,12 +203,12 @@ profile goes where the store puts moved tabs.
 - **Refused.** A shared folder's group (`groupKeptOpen`) is never ungrouped, closed, deleted, unpinned, nested or
   moved to another profile here (the sidebar asks first), and no operation may remove or empty one indirectly: closing
   or deleting a child that holds all its tabs (the store closes the outermost group with the same tabs), moving,
-  pinning or regrouping all its members, or moving a child group out with them; Little Ardia tabs aren't organized (it holds one tab); a Top Apps tile
+  pinning or regrouping all its members, or moving a child group out with them; Little Voyager tabs aren't organized (it holds one tab); a Top Apps tile
   doesn't change profile.
 - **URLs** go through the omnibox's own fix-up (`fixupUrl`, so `example.com` works) and then must be http or https
-  with a host and no user info (`lib/urlParts.ts`'s strict reading), `file://`, `about:blank`, or `ardia://history`,
+  with a host and no user info (`lib/urlParts.ts`'s strict reading), `file://`, `about:blank`, or `voyager://history`,
   `bookmarks`, `downloads` or `newtab`. Never `javascript:`, `data:`, `blob:`, `view-source:`, `chrome:`, other
-  `ardia://` pages (settings, flags, extensions…) or schemes that open other apps.
+  `voyager://` pages (settings, flags, extensions…) or schemes that open other apps.
 - **Icons** are what the icon picker offers: an emoji from its list (`lib/emojiData.ts`), `symbol:<name>` (an SF
   Symbol name, lowercase with dots), `"none"` (groups: No Icon) or null. Names are trimmed text of at most 200
   characters without control characters.
@@ -264,7 +264,7 @@ clipboard writes, internal pages). That is the point of it, and it is opt-in beh
 | `page.error` | `windowId`, `tabId`, `profile`, `url`, `status` |
 
 \* Named-only: `"*"` never includes them; a subscriber names each one. Notification text never goes into a hook's
-environment (no `ARDIA_TITLE`, no `ARDIA_URL`) and the runner never logs it.
+environment (no `VOYAGER_TITLE`, no `VOYAGER_URL`) and the runner never logs it.
 
 - **URLs** are minimized by default: no query, no fragment. A connection (or a hook, `"fullUrls": true`) asks for
   full ones. Internal pages report their redacted URL either way.
@@ -299,27 +299,27 @@ nobody listens to pays nothing.
 
 ## Decide hooks
 
-Hooks that answer before something happens, with a deadline after which Ardia does its default.
+Hooks that answer before something happens, with a deadline after which Voyager does its default.
 
 | Event | Asked when | `data` | Answer | Default | Program deadline |
 |---|---|---|---|---|---|
 | `tab.opening` | a top-level navigation the user starts: typed or pasted in the address bar, a link opened in a new tab or window, a URL from another app. Never redirects, subresources, same-tab link clicks, restores or reloads | `url`, `via` (`typed`, `newTab`, `link`, `external`), `windowId`, `tabId`, `profile` | `{"url"}` to rewrite, `{"cancel": true}` | open the original | 250 ms |
-| `link.opening` | a URL arrives from another app, after `tab.opening` | `url`, `source` (`bundleId`, `appName`, null when unknown) | `{"profile"?, "open"?: "tab"\|"littleArdia"\|"window", "window"?}`, `{"drop": true}` | Ardia's usual routing | 250 ms |
+| `link.opening` | a URL arrives from another app, after `tab.opening` | `url`, `source` (`bundleId`, `appName`, null when unknown) | `{"profile"?, "open"?: "tab"\|"littleArdia"\|"window", "window"?}`, `{"drop": true}` | Voyager's usual routing | 250 ms |
 | `download.deciding` | a download has finished (it moves after completion; nothing hooks the engine before the download starts) | `url`, `origin`, `filename`, `mime`, `size`, `path` (where it is now), `profile` | `{"folder"}` | the file stays where it is | 2 s |
 | `permission.requested` | a site asks for camera, microphone, location, notifications… | `origin`, `kinds`, `windowId`, `tabId`, `profile` | `{"permission": "deny"\|"ask"\|"allow"}` | the normal prompt | 2 s |
 
 - **Two forms.** Declarative rules in hooks.json that the app evaluates itself, in process and synchronously, with
   no program and no deadline to speak of; they work with CLI control off, since they are config. Or a program hook
   (`run`) served by the hooks runner: the request's JSON is its stdin (`{"decide", "event", "deadline", "data"}`),
-  its stdout JSON is the answer, and only `ARDIA_EVENT` is set. Program hooks need control on and a runner.
+  its stdout JSON is the answer, and only `VOYAGER_EVENT` is set. Program hooks need control on and a runner.
 - **Precedence.** Hooks are tried in file order; the first that applies (its `match` patterns, `from`, `kinds`)
   and is active (approved where approval is needed) answers. A rewrite list where no rule matches doesn't apply, so
   the next hook gets its turn. A program hook that applies while no runner serves it means the default; it never
   falls through. Never "fastest answer wins".
 - **Defaults.** A timeout, a crash, invalid JSON, a disconnect, overload or an answer outside what is allowed all
-  mean the default. One deadline per decision, from the moment Ardia intercepted it, on a monotonic timer; nothing
+  mean the default. One deadline per decision, from the moment Voyager intercepted it, on a monotonic timer; nothing
   waits synchronously on the main thread.
-- **URLs Ardia can't read unambiguously fail closed.** Rules and program answers work on a strict reading of the
+- **URLs Voyager can't read unambiguously fail closed.** Rules and program answers work on a strict reading of the
   URL (`lib/urlParts.ts`), not React Native's `URL`. Hosts are lowercased, Unicode hosts become punycode (with the
   omnibox's `punycodeEncode`, so `https://bücher.de/` matches `https://xn--bcher-kva.de/*` and the other way
   round) and an explicit default port (`:443`, `:80`) is dropped. A URL with a backslash, user info (`@` in the
@@ -333,7 +333,7 @@ Hooks that answer before something happens, with a deadline after which Ardia do
 - **Rewrites.** A rewrite answer must be a canonical http or https URL without credentials; `rewrite` rules build it
   from a template with `{url}`, `{origin}`, `{host}`, `{path}`, `{query}` and `{hash}`. A query-stripping template
   (`{origin}{path}`, `{origin}{path}{hash}`) needs no approval only because the expanded target is checked to have
-  exactly the original origin; if it doesn't, Ardia uses its default. The replacement keeps the original
+  exactly the original origin; if it doesn't, Voyager uses its default. The replacement keeps the original
   disposition and profile and always goes out as not user-initiated (a typed URL that a rule leaves alone keeps its
   value). A link opened in a new tab or window already has contents the engine prepared and started loading before
   JS hears of it: a rewrite adopts those contents into the tab, which keeps the opener, and navigates them to the
@@ -346,7 +346,7 @@ Hooks that answer before something happens, with a deadline after which Ardia do
   once answered (closed again on cancel).
 - **What a program sees.** Decide data has the URL without its query and fragment unless the hook says
   `"fullUrls": true`; a program that rewrites query parameters needs it. The runner trims again on its side.
-- **link.opening** decides before any tab exists. At every launch native holds incoming links (no early Little Ardia
+- **link.opening** decides before any tab exists. At every launch native holds incoming links (no early Little Voyager
   tab, no parked link tabs) until JS reports its link policy with `setHoldIncomingLinks(hold, hooksStamp)`: the app reports it
   once its hooks are loaded and again on every change, `true` while an active `tab.opening` or `link.opening` hook
   exists. `hooksStamp` is the stamp (device, inode, size, mtime, ctime) native returned with the hooks.json read the
@@ -383,7 +383,7 @@ Hooks that answer before something happens, with a deadline after which Ardia do
   answer leaves the file where it is. Folders cross the bridge as `~/…`.
   **Trust boundary.** The checks stop a swapped or linked file from being moved in place of the download; they don't
   stop a process running as the same user that already holds a writable descriptor or a hard link to the file from
-  rewriting it after the check. Such a process is outside what Ardia defends against: it can already read
+  rewriting it after the check. Such a process is outside what Voyager defends against: it can already read
   `ArdiaControl.json` and drive the browser.
   Code: `state/automation/downloadHooks.ts`.
 - **Floods.** At most 64 pending decisions (16 per runner connection), 200 hooks and 50 rewrite rules per hook; the
@@ -420,54 +420,54 @@ an aborted query is cancelled (the program is killed). The program prints `[{"ti
 
 ### The pill
 
-`run` and `apply` show the "ardia is controlling Ardia" pill like a CDP connection does: it counts as active from the moment
+`run` and `apply` show the "voyager is controlling Voyager" pill like a CDP connection does: it counts as active from the moment
 the request arrives until its reply is written, then the usual 3 s hold. A `run`, `apply` or `caller` on a connection whose
 `hello` named a caller puts that name (and app icon) on the pill, the most recent one winning (`docs/cli.md`). The indicator combines CDP connections and
 socket runs; neither overwrites the other. `hello`, `commands`, `windows`, `workspace` and `subscribe` don't show it, so a hooks
 runner connected all day doesn't keep it up. Stop hides it at once.
 
-## The ardia command
+## The voyager command
 
-Every command finds the socket from `--data-dir` / `$ARDIA_DATA_DIR`, else the installed app's data dir, connects,
-checks the server's uid, and exits 2 with one line when Ardia isn't running, control is off or the check fails.
+Every command finds the socket from `--data-dir` / `$VOYAGER_DATA_DIR`, else the installed app's data dir, connects,
+checks the server's uid, and exits 2 with one line when Voyager isn't running, control is off or the check fails.
 
-- `ardia run COMMAND [ARG] [--window ID] [--tab ID] [--json]` runs a command (`COMMAND:ARG` works too, as in
+- `voyager run COMMAND [ARG] [--window ID] [--tab ID] [--json]` runs a command (`COMMAND:ARG` works too, as in
   shortcut ids). Exit 1 if refused, unknown (with the closest ids) or `no_window`. A dropped connection after
   sending is reported, never retried, with exit 2 and a line saying the command may or may not have run.
-- `ardia commands [--json]` lists command ids, titles and variants.
-- `ardia windows [--json]` prints the windows and their tabs.
-- `ardia tabs [--window ID] [--profile ID] [--flat] [--usage] [--pid N] [--json]` prints the workspace (each window's
+- `voyager commands [--json]` lists command ids, titles and variants.
+- `voyager windows [--json]` prints the windows and their tabs.
+- `voyager tabs [--window ID] [--profile ID] [--flat] [--usage] [--pid N] [--json]` prints the workspace (each window's
   spaces, Top Apps, pinned section, groups nested). `--usage` prints one tab per line with its process id, CPU and
   memory, hottest first (`--json`: the tree, or the flat list with `--flat`, with `pid`, `cpu` and `memory` on each
   tab); `--pid N` prints only the tabs in process N (`--json`: a flat list), and exits 1 when no tab runs there
-  (`no_tab`) or the app reports no process ids (`no_pid`). An app from before `usage` gets "update Ardia"; `ardia tabs open|move|pin|unpin|activate|mute|unmute|sleep|wake|close|rename|icon …`
-  and `ardia groups [create|update|rename|move|ungroup|close|delete] …` each send one `apply` operation; `ardia groups`
-  alone lists the groups. `ardia apply [FILE|-]` sends a batch (a JSON list or `{"ops": [...]}`). Exit 1 for a
-  refusal, a bad request or a stopped batch (with how many operations ran), 2 when Ardia can't be reached or the
-  connection dropped after sending (it may or may not have run; never retried); an Ardia without protocol 3 gets
-  "update Ardia".
-- `ardia events [EVENT…] [--json] [--full-urls] [--idle DURATION]` streams events (default all but the named-only
+  (`no_tab`) or the app reports no process ids (`no_pid`). An app from before `usage` gets "update Voyager"; `voyager tabs open|move|pin|unpin|activate|mute|unmute|sleep|wake|close|rename|icon …`
+  and `voyager groups [create|update|rename|move|ungroup|close|delete] …` each send one `apply` operation; `voyager groups`
+  alone lists the groups. `voyager apply [FILE|-]` sends a batch (a JSON list or `{"ops": [...]}`). Exit 1 for a
+  refusal, a bad request or a stopped batch (with how many operations ran), 2 when Voyager can't be reached or the
+  connection dropped after sending (it may or may not have run; never retried); a Voyager without protocol 3 gets
+  "update Voyager".
+- `voyager events [EVENT…] [--json] [--full-urls] [--idle DURATION]` streams events (default all but the named-only
   ones) until interrupted; `--json` prints the raw lines. Event names are checked against the table above (a typo
   fails with the closest names, exit 1); a lost connection exits 2. `dropped` is reported on stderr in the text
   form. `--idle` sets the threshold for the idle events.
-- `ardia on EVENT[,EVENT…] [--match PATTERN]… [--timeout S] [--idle DURATION] [--full-urls] -- PROGRAM [ARGS…]`
+- `voyager on EVENT[,EVENT…] [--match PATTERN]… [--timeout S] [--idle DURATION] [--full-urls] -- PROGRAM [ARGS…]`
   runs PROGRAM for each event. PROGRAM's stdout and stderr are the terminal's; the runner's own lines go to stderr.
-  Without Ardia it waits and retries like a reconnect.
-- `ardia hooks run|install|uninstall|list` runs the hooks in `hooks.json` in the config folder (`docs/config.md`'s
+  Without Voyager it waits and retries like a reconnect.
+- `voyager hooks run|install|uninstall|list` runs the hooks in `hooks.json` in the config folder (`docs/config.md`'s
   resolver, so a scratch instance uses its own). `list` shows each hook's kind (`event`, `command`, `decide`,
   `scheduled`, `omnibox`), trigger and action.
-- From a script or a hook's program, call the commands: `ardia run … --json`, `ardia windows --json` and
-  `ardia events --json` give the same replies and lines as the socket, and `ardia browse` drives the pages. They
-  find the socket the same way (`--data-dir`, `$ARDIA_DATA_DIR`, else the installed app's), and the shared options
+- From a script or a hook's program, call the commands: `voyager run … --json`, `voyager windows --json` and
+  `voyager events --json` give the same replies and lines as the socket, and `voyager browse` drives the pages. They
+  find the socket the same way (`--data-dir`, `$VOYAGER_DATA_DIR`, else the installed app's), and the shared options
   go before or after the command (`docs/cli.md`, Shared options).
 
 ### Running a hook
 
-- The event's JSON line is the hook's stdin (authoritative). The environment gets `ARDIA_EVENT`, `ARDIA_WINDOW_ID`,
-  `ARDIA_TAB_ID`, `ARDIA_PROFILE`, `ARDIA_URL`, `ARDIA_TITLE`, all set or removed for every run (never inherited from
-  the runner), NULs stripped and each cut to 4 KB. `notification.shown` sets neither `ARDIA_TITLE` nor `ARDIA_URL`.
+- The event's JSON line is the hook's stdin (authoritative). The environment gets `VOYAGER_EVENT`, `VOYAGER_WINDOW_ID`,
+  `VOYAGER_TAB_ID`, `VOYAGER_PROFILE`, `VOYAGER_URL`, `VOYAGER_TITLE`, all set or removed for every run (never inherited from
+  the runner), NULs stripped and each cut to 4 KB. `notification.shown` sets neither `VOYAGER_TITLE` nor `VOYAGER_URL`.
   A hook without `fullUrls` gets URLs without their query and fragment even when another hook asked for full ones.
-  Event data (`ARDIA_TITLE`, `ARDIA_URL`, the JSON line) comes from pages, so a program that prints it to a terminal
+  Event data (`VOYAGER_TITLE`, `VOYAGER_URL`, the JSON line) comes from pages, so a program that prints it to a terminal
   should escape control characters first, as the CLI's own output does; the runner leaves PROGRAM's output alone.
 - PROGRAM runs from argv, never through a shell unless PROGRAM is one; event values are never put into the command
   line. A leading `~` in PROGRAM is expanded, nothing else is.
@@ -479,7 +479,7 @@ checks the server's uid, and exits 2 with one line when Ardia isn't running, con
   deadline plus the grace periods even if something escaped the group. Stdin is written with the same deadline. A
   failure to start is logged and the hook carries on.
 - The CLI's own connection buffers at most 1,000 unread events, like the server: past that the oldest are dropped,
-  counted, and logged (`ardia events` on stderr) before the next one. Replies are never dropped. A request whose write
+  counted, and logged (`voyager events` on stderr) before the next one. Replies are never dropped. A request whose write
   was attempted counts as possibly sent, whatever fails after.
 - On disconnect the runner reconnects with backoff (1 s doubling to 30 s), resubscribes, and logs that events may have
   been missed in between.
@@ -511,7 +511,7 @@ checks the server's uid, and exits 2 with one line when Ardia isn't running, con
   (`"HH:MM"`, local time or `timezone`, an IANA name; optional `days`, from `mon` to `sun`), `every` (a duration,
   at least `1m`), or `omnibox` (`{"title", "keyword"}` or `{"title", "global": true}`, with `run`).
 - Actions: `run` (a non-empty list; a string is refused, with the `["/bin/sh", "-c", "…"]` form suggested; `timeout`
-  in seconds, more than 0 and at most 86400, for event and scheduled hooks only), `command` (an Ardia command id,
+  in seconds, more than 0 and at most 86400, for event and scheduled hooks only), `command` (a Voyager command id,
   optional `arg` a variant; no process is spawned: the runner sends `run` targeting the event's window, and its tab
   when the command acts on a page; `app.launched` targets `focusedWindowId`; a schedule targets the last focused
   window), or a decide answer: `rewrite` (1 to 50 `{"match", "to"}`) or `cancel: true` for `tab.opening`; `route`
@@ -532,7 +532,7 @@ checks the server's uid, and exits 2 with one line when Ardia isn't running, con
 
 ### Scheduled hooks
 
-The runner fires them and passes a `schedule.fired` event (it never comes from Ardia): `{"hook", "schedule": "at" |
+The runner fires them and passes a `schedule.fired` event (it never comes from Voyager): `{"hook", "schedule": "at" |
 "every", "occurrence": "name@2026-11-02T09:55", "scheduledAt", "catchUp", "timezone"?}`.
 
 - `at` computes the next occurrence in its time zone and checks at least every 20 s. Occurrences missed while the
@@ -542,17 +542,17 @@ The runner fires them and passes a `schedule.fired` event (it never comes from A
   interval, it fires one catch-up and restarts the interval; it never bursts.
 - No overlapping runs: if the hook's previous run is still going or waiting, that firing is skipped and logged.
 
-- `hooks install` writes the user LaunchAgent `dev.ardia.hooks` (`ProgramArguments` = the installed `ardia` launcher's
-  stable path, `$ARDIA_CLI_HOME/current/bin/ardia`, then `hooks run --log ~/Library/Logs/Ardia/hooks.log`;
+- `hooks install` writes the user LaunchAgent `dev.ardia.hooks` (`ProgramArguments` = the installed `voyager` launcher's
+  stable path, `$VOYAGER_CLI_HOME/current/bin/ardia`, then `hooks run --log ~/Library/Logs/Voyager/hooks.log`;
   `RunAtLoad`, `KeepAlive`, `ProcessType` `Background`; `WorkingDirectory` the home folder; `EnvironmentVariables`
-  with the installing shell's `PATH` and `ARDIA_DATA_DIR` set to empty) and loads it with `launchctl bootout` then
-  `bootstrap gui/<uid>` (bootstrap retried twice). The data dir is pinned by the empty `ARDIA_DATA_DIR`, not by
+  with the installing shell's `PATH` and `VOYAGER_DATA_DIR` set to empty) and loads it with `launchctl bootout` then
+  `bootstrap gui/<uid>` (bootstrap retried twice). The data dir is pinned by the empty `VOYAGER_DATA_DIR`, not by
   `--data-dir`: `--data-dir` would also move the config folder to `<data dir>/config`, and the empty value keeps a
-  `launchctl setenv ARDIA_DATA_DIR` from redirecting the agent. It refuses when the launcher isn't installed.
+  `launchctl setenv VOYAGER_DATA_DIR` from redirecting the agent. It refuses when the launcher isn't installed.
   `uninstall` runs `bootout` and removes the plist. Both refuse when a scratch data dir is in use (`--data-dir` /
-  `$ARDIA_DATA_DIR`), so tests never touch the real LaunchAgent. `hooks list` shows the hooks, checks the file
+  `$VOYAGER_DATA_DIR`), so tests never touch the real LaunchAgent. `hooks list` shows the hooks, checks the file
   (exit 1 when it's invalid) and reads `launchctl print` for the agent's state.
-- Output goes to `~/Library/Logs/Ardia/hooks.log` (0600, opened without following links), rotated at 5 MB to one
+- Output goes to `~/Library/Logs/Voyager/hooks.log` (0600, opened without following links), rotated at 5 MB to one
   `hooks.log.1`; stdout and stderr are drained as they come and a single line longer than 64 KB is cut. `hooks run`
   writes the log itself (`--log PATH`, `-` for the terminal), so the plist's `StandardOutPath` and
   `StandardErrorPath` are `/dev/null`: launchd would hold its own descriptor to the file and defeat the rotation.

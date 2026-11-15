@@ -1,4 +1,4 @@
-import { call, on, type DeviceChooser, type PermissionKind, type PermissionRequest, type PermissionResult } from "@ardia/ardiacore";
+import { call, on, type DeviceChooser, type PermissionKind, type PermissionRequest, type PermissionResult } from "@voyager/ardiacore";
 
 export type { PermissionKind, PermissionRequest, PermissionResult, DeviceChooser };
 

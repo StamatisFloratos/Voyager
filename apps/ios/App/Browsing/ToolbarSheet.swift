@@ -1,6 +1,6 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import VoyagerBrowser
+import VoyagerDesign
+import VoyagerSync
 import SwiftUI
 
 struct ToolbarSheet: View {
@@ -148,7 +148,7 @@ struct ToolbarSheet: View {
       if let feedback = app.browse.titleFeedback {
         Text(feedback)
           .fontWeight(.semibold)
-          .foregroundStyle(Color.ardiaAccentText)
+          .foregroundStyle(Color.voyagerAccentText)
           .frame(maxWidth: .infinity)
           .transition(.opacity)
       } else {

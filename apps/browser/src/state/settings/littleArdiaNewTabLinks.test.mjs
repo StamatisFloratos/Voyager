@@ -31,7 +31,7 @@ const load = (saved) => {
 };
 const pushed = () => settingsAdapter.extract(() => undefined).values.has(`set:${KEY}`);
 
-test("new-tab links open inside Little Ardia by default", () => {
+test("new-tab links open inside Little Voyager by default", () => {
   assert.equal(DEFAULT_SETTINGS[KEY], true);
 });
 

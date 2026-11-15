@@ -2,7 +2,7 @@
   "name": "opencode-browse-2026-11",
   "repeats": 3,
   "tasks": "all",
-  "results": "~/ardia-scratch/bench-proper/results/opencode-1",
+  "results": "~/voyager-scratch/bench-proper/results/opencode-1",
   "contenders": [
     {
       "id": "opencode-claude",

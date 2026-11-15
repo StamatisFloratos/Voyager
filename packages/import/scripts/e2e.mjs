@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// End-to-end import of cookies, addresses and cards into a hidden Ardia instance, from a fake Chrome home
+// End-to-end import of cookies, addresses and cards into a hidden Voyager instance, from a fake Chrome home
 // (scripts/e2e_fixture.py; never a real profile). It drives the real import window through the dev harness
 // (apps/browser/src/components/dev/devHarness.ts) and its `globalThis.acImport` hook (components/import/importDevHandle.ts,
 // Debug builds only), reads the profile's cookies over CDP, and checks a local fixture site receives them.
 //
-//   node packages/import/scripts/e2e.mjs <Ardia.app> <scratch dir> [import|restart|all] [--keep]
+//   node packages/import/scripts/e2e.mjs <Voyager.app> <scratch dir> [import|restart|all] [--keep]
 //
-//   <Ardia.app>  a Debug build at the current NATIVE_API_VERSION (Metro on :8081 serves it the JS)
-//   <scratch dir>    data/ is ARDIA_DATA_DIR and home/ the fake Chrome home (both wiped by the import phase);
+//   <Voyager.app>  a Debug build at the current NATIVE_API_VERSION (Metro on :8081 serves it the JS)
+//   <scratch dir>    data/ is VOYAGER_DATA_DIR and home/ the fake Chrome home (both wiped by the import phase);
 //                    result-<phase>.json lists each phase's failures
 //   import           a private profile is refused; the UI imports 5 cookies, 1 address and
 //                    1 card; refused/expired cookies stay out; the site gets the session cookie; a re-import adds nothing
@@ -15,8 +15,8 @@
 //   all              (default) import, then restart
 //   --keep           leaves the last instance running (poke it with scripts/agent/ac eval <scratch dir>/data '<js>')
 //
-// The instance runs through scripts/lib/instance.mjs (hidden, its own DevTools port) with ARDIA_INSTANCE importSourceDir
-// at the fake home and ARDIA_TEST importSecret, so the Keychain is never asked. One line per check; everything
+// The instance runs through scripts/lib/instance.mjs (hidden, its own DevTools port) with VOYAGER_INSTANCE importSourceDir
+// at the fake home and VOYAGER_TEST importSecret, so the Keychain is never asked. One line per check; everything
 // else goes to <scratch dir>/e2e.log. Exit code 1 if any check failed.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";

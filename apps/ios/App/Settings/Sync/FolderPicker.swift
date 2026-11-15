@@ -7,7 +7,7 @@ extension View {
       guard case .success(let urls) = result, let url = urls.first else { return }
       onPick(url)
     }
-    .fileDialogMessage(Text("Open iCloud Drive and choose the Ardia Sync folder."))
+    .fileDialogMessage(Text("Open iCloud Drive and choose the Voyager Sync folder."))
     .fileDialogConfirmationLabel(Text("Use Folder"))
   }
 }

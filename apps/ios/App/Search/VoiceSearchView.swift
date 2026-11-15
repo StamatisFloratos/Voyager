@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaDesign
+import VoyagerBrowser
+import VoyagerDesign
 import UIKit
 import SwiftUI
 
@@ -17,7 +17,7 @@ struct VoiceSearchView: View {
         .ignoresSafeArea()
       VStack(spacing: Spacing.section) {
         Spacer()
-        ArdiaLogoMark()
+        VoyagerLogoMark()
           .frame(width: 128, height: 128)
           .scaleEffect(reduceMotion ? 1 : 0.92 + dictation.level * 0.16)
           .shadow(color: .black.opacity(0.15), radius: 12, y: 6)
@@ -56,7 +56,7 @@ struct VoiceSearchView: View {
       VStack(spacing: Spacing.small) {
         Text("Speech and Mic permissions required.")
           .font(.title3.weight(.semibold))
-        Text("Allow Microphone and Speech Recognition for Ardia in Settings to search with your voice.")
+        Text("Allow Microphone and Speech Recognition for Voyager in Settings to search with your voice.")
           .font(.subheadline)
           .foregroundStyle(.white.opacity(0.8))
         Button("Open Settings") {

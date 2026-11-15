@@ -1,4 +1,4 @@
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import type { BrowserState } from "../browser/store";
 import type { HistoryEntry } from "../browser/types";
 import { historyOf } from "../history/history";

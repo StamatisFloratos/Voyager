@@ -11,13 +11,13 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import notes
-from ardia_cli.browse import actions, changes, commands, daemon, fields, paths, snapshot
-from ardia_cli.browse import cli as browse_cli
-from ardia_cli.browse.errors import BrowseError, Gated, Usage
-from ardia_cli.browse.state import State
+from voyager_cli import notes
+from voyager_cli.browse import actions, changes, commands, daemon, fields, paths, snapshot
+from voyager_cli.browse import cli as browse_cli
+from voyager_cli.browse.errors import BrowseError, Gated, Usage
+from voyager_cli.browse.state import State
 
-SCRATCH = Path.home() / "ardia-scratch"
+SCRATCH = Path.home() / "voyager-scratch"
 
 
 def scratch(test) -> Path:
@@ -114,7 +114,7 @@ class FillFormats(unittest.TestCase):
             self.assertIn(fields.FORMATS[kind], caught.exception.message)
 
     def test_fill_sets_typed_inputs_directly_and_reads_back(self):
-        from ardia_cli.browse import actions
+        from voyager_cli.browse import actions
 
         calls = []
 
@@ -126,7 +126,7 @@ class FillFormats(unittest.TestCase):
                 calls.append("focus")
 
             async def call(self, function, *args, **kwargs):
-                if "ardiaBrowse.info" in function:
+                if "voyagerBrowse.info" in function:
                     return {"tag": "input", "type": "time", "editable": True, "disabled": False, "value": ""}
                 calls.append(("set", args[1]))
                 return {"set": True, "stored": args[1]}
@@ -136,7 +136,7 @@ class FillFormats(unittest.TestCase):
         self.assertEqual(calls, ["focus", ("set", "14:30")])
 
     def test_a_value_the_input_rejects_is_an_error(self):
-        from ardia_cli.browse import actions
+        from voyager_cli.browse import actions
 
         class Page:
             async def focus_element(self, element):
@@ -282,7 +282,7 @@ class ChangesReport(unittest.TestCase):
         os.chmod(folder / "y.test.md", 0o600)
         state = SimpleNamespace(config={"data_root": str(root)})
         here = changes.arrival_notes(state, view([], url="http://x.test/"), view([], url="http://y.test/a"))
-        self.assertEqual(here, "# notes for y.test (ardia notes): Use the blue button")
+        self.assertEqual(here, "# notes for y.test (voyager notes): Use the blue button")
         self.assertIsNone(changes.arrival_notes(state, view([], url="http://y.test/b"), view([], url="http://y.test/a")))
         report = changes.diff(view([row("e1", "a")], url="http://x.test/"), view([row("e2", "b")], loader="L2", url="http://y.test/a"))
         report["notes"] = here
@@ -302,7 +302,7 @@ class ChangesReport(unittest.TestCase):
         self.assertEqual(changes.clean_url("https://x/api/events/42"), "https://x/api/events/42")
 
     def test_a_registered_secret_is_masked_before_the_path_is_cut(self):
-        from ardia_cli import redact
+        from voyager_cli import redact
 
         secret = "ControlTokenAllLettersQwertyuiopAsdfgh"
         redact.add_secret(secret)
@@ -531,7 +531,7 @@ class OutputCap(unittest.TestCase):
         self.assertNotIn("capped", daemon.render({"json": True}, result=commands.Result({"t": text}, text))[1])
 
     def test_a_secret_cut_by_the_cap_is_still_masked(self):
-        from ardia_cli import redact
+        from voyager_cli import redact
 
         secret = "S3cretContinuesPastTheCap"
         redact.add_secret(secret)
@@ -759,11 +759,11 @@ class SiteNotes(unittest.TestCase):
         self.assertEqual(caught.exception.code, "notes_too_large")
         self.assertEqual([row["site"] for row in notes.run_request(root, notes.Request("list", None), None).data["notes"]], ["example.com"])
         site, header = notes.header(root, "https://example.com/page")
-        self.assertEqual(header, "# notes for example.com (ardia notes): Line one\n# Line two")
+        self.assertEqual(header, "# notes for example.com (voyager notes): Line one\n# Line two")
         notes.run_request(root, notes.Request("set", "long.example", "y" * 3000), None)
         _, header = notes.header(root, "http://long.example/")
         self.assertLess(len(header), notes.HEADER_LIMIT + 200)
-        self.assertIn("ardia notes get long.example", header)
+        self.assertIn("voyager notes get long.example", header)
         target = root / "elsewhere.md"
         target.write_text("secret")
         os.symlink(target, root / "Notes" / "linked.example.md")
@@ -788,7 +788,7 @@ class SiteNotes(unittest.TestCase):
 
 class SecretsBeforeCuts(unittest.TestCase):
     def test_a_secret_is_masked_before_a_label_is_folded_or_a_name_is_cut(self):
-        from ardia_cli import redact
+        from voyager_cli import redact
 
         secret = "Sk3cretTokenValue1234567890abcdef"
         redact.add_secret(secret)

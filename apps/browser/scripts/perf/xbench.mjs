@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Cross-browser benchmark: Ardia against Dia, Helium and Google Chrome on the release gate's rows that every Chromium
+// Cross-browser benchmark: Voyager against Dia, Helium and Google Chrome on the release gate's rows that every Chromium
 // browser can be measured on the same way. One harness drives all four from outside the app, over CDP, with the same
 // local pages, window size, fresh profile per run and number of runs, interleaved browser by browser (A B C D, then
 // rotated). Method, fairness rules and results: docs/perf/vs-browsers.md.
@@ -11,13 +11,13 @@
 //   node apps/browser/scripts/perf/xbench.mjs signin --browsers dia --base dia=<home>   open the browser on that HOME, in
 //                        view, for the owner to sign in by hand; returns when they quit it (or at --deadline)
 //   node apps/browser/scripts/perf/xbench.mjs prepare-bg --browsers <a,b>    make <apps>/<name>-bg/: the copy with LSBackgroundOnly
-//                        set (it can't become the active app, as Ardia's test instances can't), signed ad hoc with its
+//                        set (it can't become the active app, as Voyager's test instances can't), signed ad hoc with its
 //                        entitlements and without the hardened runtime; run it as the browser <name>-bg
 //
 //     --browsers <a,b>     ardia,dia,helium,chrome (default: all four, in that order)
-//     --apps <dir>         where the copies live (default /tmp/ac-xbench/apps): ardia/Ardia.app, dia/Dia.app,
+//     --apps <dir>         where the copies live (default /tmp/ac-xbench/apps): ardia/Voyager.app, dia/Dia.app,
 //                          helium/Helium.app, chrome/Google Chrome.app. Never a bundle in /Applications.
-//     --app <name>=<path>  repeatable: another copy for one browser (Ardia built from main, say)
+//     --app <name>=<path>  repeatable: another copy for one browser (Voyager built from main, say)
 //     --rounds <n>         rounds (default 3). A round is every launch, then every session, browser by browser
 //     --launches <n>       launches of each kind per browser per round (default 2)
 //     --rows <a,b>         link,restore,session,size (default all). session = idle, memory, newtab, switch, newwindow
@@ -30,8 +30,8 @@
 //                          moment input comes. off: run now, with the Mac in use (competitors' windows show on screen)
 //     --away <secs>        idle time that counts as away (default 600)
 //     --window <x,y>       the windows' top-left corner (default 40,80)
-//     --env <name>=K=V     repeatable: extra environment for one browser's instances (ardia=ARDIA_INSTANCE=chromiumSwitches=…)
-//     --launch-tab on|off  Ardia's template session names its active tab as launchTab, as a user's session written
+//     --env <name>=K=V     repeatable: extra environment for one browser's instances (ardia=VOYAGER_INSTANCE=chromiumSwitches=…)
+//     --launch-tab on|off  Voyager's template session names its active tab as launchTab, as a user's session written
 //                          with that kill switch on does (default on)
 //     --allow-focus        record a browser making itself the active app instead of stopping (only for an A/B the
 //                          owner agreed to, run while they're away)
@@ -48,10 +48,10 @@
 //
 // What every instance gets: its own copy of a template profile (made once per browser by one launch that opens the
 // test page, settles 90 s and quits), HOME and CFFIXED_USER_HOME pointed into it (nothing reaches the real
-// ~/Library), the CDP port, and Ardia's background-mode switches for all: --disable-backgrounding-occluded-windows
+// ~/Library), the CDP port, and Voyager's background-mode switches for all: --disable-backgrounding-occluded-windows
 // --mute-audio. Chromium browsers: --user-data-dir --no-first-run --no-default-browser-check --password-store=basic
-// --use-mock-keychain --window-size --window-position. Chrome and Helium also --restore-last-session (Ardia and Dia
-// restore by default). Ardia: ARDIA_BACKGROUND=1, ARDIA_DATA_DIR, ARDIA_REMOTE_DEBUGGING_PORT, onboarding done.
+// --use-mock-keychain --window-size --window-position. Chrome and Helium also --restore-last-session (Voyager and Dia
+// restore by default). Voyager: VOYAGER_BACKGROUND=1, VOYAGER_DATA_DIR, VOYAGER_REMOTE_DEBUGGING_PORT, onboarding done.
 //
 // Rows:
 //   launch → page painted (link)  link     `open -a <app> <url>` with the browser closed: the URL's first-contentful-paint
@@ -128,7 +128,7 @@ const SETTLE_TEMPLATE_MS = 90_000;
 const HARNESS = 1;
 
 const BROWSERS = {
-  ardia: { name: "Ardia", bundle: "ardia/Ardia.app", hidden: true },
+  ardia: { name: "Voyager", bundle: "ardia/Voyager.app", hidden: true },
   dia: { name: "Dia", bundle: "dia/Dia.app", readOnly: true, guardPrefs: true, downloadUrl: (i) => `https://releases.diabrowser.com/release/Dia-${i.version}-${i.build}.dmg` },
   helium: { name: "Helium", bundle: "helium/Helium.app", restoreSwitch: true, downloadUrl: (i) => `https://github.com/imputnet/helium-macos/releases/download/${i.version}/helium_${i.version}_arm64-macos.dmg` },
   chrome: { name: "Google Chrome", bundle: "chrome/Google Chrome.app", restoreSwitch: true, downloadUrl: () => "https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg" },
@@ -472,7 +472,7 @@ class Instance {
   env() {
     const env = { HOME: this.home, CFFIXED_USER_HOME: this.home };
     if (isArdia(this.name)) {
-      Object.assign(env, { ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: join(this.home, "data"), ARDIA_REMOTE_DEBUGGING_PORT: String(port),
+      Object.assign(env, { VOYAGER_BACKGROUND: "1", VOYAGER_DATA_DIR: join(this.home, "data"), VOYAGER_REMOTE_DEBUGGING_PORT: String(port),
         ...launchVariables({ instance: { updateFeed: `${base()}/appcast.xml` } }) });
     }
     const extra = opt.env.filter((e) => e.startsWith(`${this.name}=`)).map((e) => e.slice(this.name.length + 1))
@@ -857,7 +857,7 @@ async function sizeItem(name) {
   const app = bundleOf(name);
   const i = info(app);
   const given = opt.dmg.find((d) => d.startsWith(`${name}=`))?.slice(name.length + 1);
-  const local = isArdia(name) ? join(repoRoot, `dist/${i.version}/Ardia-${i.version}.dmg`) : null;
+  const local = isArdia(name) ? join(repoRoot, `dist/${i.version}/Voyager-${i.version}.dmg`) : null;
   const source = given ?? (local && existsSync(local) ? local : spec(name).downloadUrl?.(i));
   let download = NaN;
   if (source && /^https?:/.test(source)) {
@@ -1120,9 +1120,9 @@ function chromiumOf(app, template) {
 const NOTES = [
   "One harness drives all four from outside the app over CDP, the same local test pages served from 127.0.0.1, one instance at a time, browsers interleaved per run and rotated each round.",
   "Every run starts from its own copy of a template profile made once per browser (one launch, the test page open, 90 s to settle, quit), with HOME pointed into it; default settings, built-in ad blockers as shipped.",
-  "Chrome and Helium get --restore-last-session so all four restore the same one-tab session (Ardia and Dia restore by default).",
-  "Window 1280×800 at the same place for every browser that takes --window-size; Ardia's window frame is set in its session to the same size; Dia ignores --window-size and opens full-screen-sized (1512×949).",
-  "Chrome and Helium run as shipped: they bring themselves to the front at launch and on a tab switch, and fetch their Finch (variations) seed and components as usual. Dia runs in view without taking focus, signed in with a throwaway account. Ardia runs in its background test mode: it can't become the active app, its windows sit behind the owner's and report themselves as not occluded, and App Nap is off for it.",
+  "Chrome and Helium get --restore-last-session so all four restore the same one-tab session (Voyager and Dia restore by default).",
+  "Window 1280×800 at the same place for every browser that takes --window-size; Voyager's window frame is set in its session to the same size; Dia ignores --window-size and opens full-screen-sized (1512×949).",
+  "Chrome and Helium run as shipped: they bring themselves to the front at launch and on a tab switch, and fetch their Finch (variations) seed and components as usual. Dia runs in view without taking focus, signed in with a throwaway account. Voyager runs in its background test mode: it can't become the active app, its windows sit behind the owner's and report themselves as not occluded, and App Nap is off for it.",
   "Memory is phys_footprint summed over every process of the browser (app, helpers, GPU, renderers, utilities, anything running from its bundle); CPU and wakeups are rusage over the same processes.",
   "Measured on the owner's working Mac, in normal use: browsers interleaved run by run and rotated each round so the owner's activity falls on all of them alike; each figure is the median of the runs, with min–max and n.",
   "Median, min–max and n over runs; a row is a win when the ranges don't overlap.",

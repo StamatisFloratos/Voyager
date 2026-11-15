@@ -43,7 +43,7 @@ test("an Arc space brings its top-level pinned tabs over as pinned rows", () => 
   assert.equal(cal.customTitle, "Cal");
 });
 
-test("Arc split views come over as Ardia splits, pinned, in a folder and among the open tabs", () => {
+test("Arc split views come over as Voyager splits, pinned, in a folder and among the open tabs", () => {
   start();
   const r = importArcSpace(P, home());
   assert.deepEqual(splitUrls(), [

@@ -1,4 +1,4 @@
-import ArdiaDesign
+import VoyagerDesign
 import SwiftUI
 
 struct AboutPage: View {
@@ -9,7 +9,7 @@ struct AboutPage: View {
           AppIconPreview(side: 72)
             .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
           VStack(spacing: Spacing.hairline) {
-            Text("Ardia")
+            Text("Voyager")
               .font(.system(.title, design: .rounded, weight: .bold))
               .accessibilityAddTraits(.isHeader)
             Text(AppVersion.footer)
@@ -23,9 +23,8 @@ struct AboutPage: View {
       }
 
       Section {
-        AboutLink("ardia.dev", systemImage: "globe", url: "https://ardia.dev")
-        AboutLink("Release Notes", systemImage: "sparkles", url: "https://ardia.dev/release-notes")
-        AboutLink("Source Code", systemImage: "chevron.left.forwardslash.chevron.right", url: "https://github.com/mantrakp04/ardia")
+        AboutLink("Release Notes", systemImage: "sparkles", url: "https://github.com/StamatisFloratos/Voyager/releases")
+        AboutLink("Source Code", systemImage: "chevron.left.forwardslash.chevron.right", url: "https://github.com/StamatisFloratos/Voyager")
       } footer: {
         Text("No accounts. Your data stays on your devices and in your iCloud Drive.")
       }
@@ -36,7 +35,7 @@ struct AboutPage: View {
         }
       }
     }
-    .navigationTitle("About Ardia")
+    .navigationTitle("About Voyager")
     .navigationBarTitleDisplayMode(.inline)
   }
 }
@@ -107,9 +106,9 @@ struct OpenSourceCredit: Identifiable {
   static let all: [OpenSourceCredit] = [
     OpenSourceCredit(
       name: "Ardia",
-      use: String(localized: "This app, and the Mac browser it syncs with."),
+      use: String(localized: "The open-source browser Voyager is based on."),
       license: "Apache License 2.0",
-      url: "https://github.com/mantrakp04/ardia"
+      url: "https://github.com/ardia-browser/ardia"
     ),
     OpenSourceCredit(
       name: "EasyList",

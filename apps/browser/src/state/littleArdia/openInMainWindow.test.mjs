@@ -28,7 +28,7 @@ for (const [position, expected] of [
   ["top", ["https://little.example/", "https://a.example/", "https://b.example/", "https://c.example/"]],
   ["nextToCurrent", ["https://a.example/", "https://b.example/", "https://little.example/", "https://c.example/"]],
 ]) {
-  test(`Open in Ardia puts the Little Ardia tab where a new tab goes with "New tabs open at" set to ${position}`, () => {
+  test(`Open in Voyager puts the Little Voyager tab where a new tab goes with "New tabs open at" set to ${position}`, () => {
     const { main, small, moved } = mainWindowWithThreeTabs(position);
     openInMainWindow(small);
     assert.equal(S().windows[small], undefined);

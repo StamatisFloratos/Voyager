@@ -8,7 +8,7 @@ import { launch, reporter, session, sleep } from "../../../scripts/lib/instance.
 const args = process.argv.slice(2);
 const appArg = args.find((a) => !a.startsWith("--"));
 if (!appArg) {
-  console.error("usage: node sidebar-click-test.mjs <Debug Ardia.app> [--port=<DevTools port>] [--keep-data]\n\nOne click on a sidebar tab or pinned tile opens it, through AppKit's event path: as its hover card appears, under another tile's appearing card, after a New Tab, after closing a pinned tab, when the pointer drifts up to 9 pt between press and release, and right after a press whose mouse up a menu took. A plain press switches on mouse down; a drag from it reorders the selected tab; ⌘/⇧-click, a press in a multi-selection, the shown tab, double-click rename, the close button, middle- and right-click keep their own behaviour.");
+  console.error("usage: node sidebar-click-test.mjs <Debug Voyager.app> [--port=<DevTools port>] [--keep-data]\n\nOne click on a sidebar tab or pinned tile opens it, through AppKit's event path: as its hover card appears, under another tile's appearing card, after a New Tab, after closing a pinned tab, when the pointer drifts up to 9 pt between press and release, and right after a press whose mouse up a menu took. A plain press switches on mouse down; a drag from it reorders the selected tab; ⌘/⇧-click, a press in a multi-selection, the shown tab, double-click rename, the close button, middle- and right-click keep their own behaviour.");
   process.exit(2);
 }
 const appPath = resolve(appArg);

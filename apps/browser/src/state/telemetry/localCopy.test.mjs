@@ -11,7 +11,7 @@ globalThis.fetch = async (url, init) => (requests.push({ url, ...init }), { stat
 const client = await import("./client.ts");
 const local = await import("./localStore.ts");
 const { sendDailyPing } = await import("./daily.ts");
-const { APP_INGEST_KEY } = await import("@ardia/core");
+const { APP_INGEST_KEY } = await import("@voyager/core");
 
 const UUID7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const state = () => JSON.parse(stub.docs.get("telemetry.json"));
@@ -44,7 +44,7 @@ test("every event and log line carries the session id, queued and in the local c
 test("posts send the app's ingest key", async () => {
   await client.flush();
   assert.ok(requests.length > 0);
-  for (const r of requests) assert.equal(r.headers["X-Ardia-Key"], APP_INGEST_KEY);
+  for (const r of requests) assert.equal(r.headers["X-Voyager-Key"], APP_INGEST_KEY);
 });
 
 test("local writes are batched: nothing reaches the store until 10 s pass, then one append per day", (t) => {

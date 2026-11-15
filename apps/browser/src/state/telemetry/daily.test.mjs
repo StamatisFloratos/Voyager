@@ -55,7 +55,7 @@ test("one anonymous ping a day, marked only after a 2xx", async () => {
   assert.equal(await daily.sendDailyPing(at("2026-10-25")), "already");
   assert.equal(posts.length, 1);
   const sent = attributes(posts[0]);
-  assert.equal(posts[0].url, "https://ardia.dev/otel/v1/logs");
+  assert.equal(posts[0].url, "http://127.0.0.1:1/otel/v1/logs");
   assert.equal(sent.event, "daily_active");
   assert.equal(sent.uuid, sent.distinct_id);
   assert.match(sent.uuid, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
@@ -67,7 +67,7 @@ test("one anonymous ping a day, marked only after a 2xx", async () => {
       distinct_id: undefined,
       $lib: "ardia-daily",
       $lib_version: "1",
-      $app_name: "Ardia",
+      $app_name: "Voyager",
       $app_version: "0.3.0",
       $os: "macOS",
       os_major: "26",

@@ -165,7 +165,7 @@ test("a sent tab isn't opened while the Mac is quitting, so it can't land after 
 
 test("a tab sent to this Mac opens once, behind the current tab of the window showing its profile, and the send is deleted", async () => {
   reset();
-  const { Clock } = await import("@ardia/sync");
+  const { Clock } = await import("@voyager/sync");
   const engine = await import("./engine.ts?receive");
   engine.startSync();
   assert.ok("ok" in (await engine.turnOnSync("/sync")));

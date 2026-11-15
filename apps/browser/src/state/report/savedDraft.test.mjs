@@ -48,7 +48,7 @@ test("a failed send comes back failed, with its report to resume and the same id
   assert.deepEqual(restored.identity, identity);
 });
 
-test("a recording deleted while Ardia was closed is dropped, the words stay", () => {
+test("a recording deleted while Voyager was closed is dropped, the words stay", () => {
   const restored = roundTrip(filled(), (path) => !path.endsWith(".mp4"));
   assert.deepEqual(restored.recording, { phase: "none" });
   assert.equal(restored.draft.description, "fd");

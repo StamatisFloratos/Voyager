@@ -78,7 +78,7 @@ export const appEnv = (app, env) => {
   const binary = binaryOf(app);
   const forThisBuild = forBuild(binary, env);
   if (basename(binary) !== "Netnyahoo") return forThisBuild;
-  const legacy = Object.fromEntries(Object.entries(forThisBuild).filter(([k]) => k.startsWith("ARDIA_")).map(([k, v]) => [`NETNYAHOO_${k.slice("ARDIA_".length)}`, v]));
+  const legacy = Object.fromEntries(Object.entries(forThisBuild).filter(([k]) => k.startsWith("VOYAGER_")).map(([k, v]) => [`NETNYAHOO_${k.slice("VOYAGER_".length)}`, v]));
   return { ...forThisBuild, ...legacy };
 };
 export const onScreenWindows = (pid) => JSON.parse(execFileSync("osascript", ["-l", "JavaScript", "-e",
@@ -357,7 +357,7 @@ export async function launch(app, opts = {}) {
   const location = jsMode === "pinned" ? `localhost:${js.port}` : jsMode === "live" ? `localhost:${metroPort}` : jsMode === "none" ? null : jsMode;
   const switches = [opts.switches].flat().filter(Boolean).join(" ");
   const env = appEnv(app, mergeLaunchEnv({
-    ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: data, ARDIA_REMOTE_DEBUGGING_PORT: String(port),
+    VOYAGER_BACKGROUND: "1", VOYAGER_DATA_DIR: data, VOYAGER_REMOTE_DEBUGGING_PORT: String(port),
     ...launchVariables({
       instance: { ...(location ? { jsLocation: location } : {}), ...(switches ? { chromiumSwitches: switches } : {}), ...opts.instance },
       test: opts.test, trace: opts.trace, switchOverrides: opts.switchOverrides,
@@ -473,7 +473,7 @@ if (process.argv[1] === here) {
   const args = process.argv.slice(2);
   if (args[0] === "--metro-proxy") await metroProxyMain(args[1], Number(args[2]));
   else if (args[0] === "--self-test") {
-    const bin = "/tmp/Ardia.app/Contents/MacOS/Ardia";
+    const bin = "/tmp/Voyager.app/Contents/MacOS/Voyager";
     const cmd = (map) => (pid) => map[pid];
     assert.equal(parsePort("9474"), 9474);
     for (const bad of ["0", "65536", "94.5", "-1", "", "9474x", "1e3"]) assert.throws(() => parsePort(bad), /1\.\.65535/, bad);
@@ -482,7 +482,7 @@ if (process.argv[1] === here) {
     assert.ok(commandIsBinary(bin, bin));
     assert.ok(commandIsBinary(`${bin} --flag`, bin));
     assert.ok(!commandIsBinary(`${bin}2`, bin));
-    assert.ok(!commandIsBinary(`/tmp/Ardia.app/Contents/Frameworks/Ardia Helper.app/Contents/MacOS/Ardia Helper`, bin));
+    assert.ok(!commandIsBinary(`/tmp/Voyager.app/Contents/Frameworks/Voyager Helper.app/Contents/MacOS/Voyager Helper`, bin));
     assert.deepEqual(parseProcessLine(`Wed Sep 30 18:44:18 2026     ${bin} --x\n`), { started: "Wed Sep 30 18:44:18 2026", command: `${bin} --x` });
     assert.equal(parseProcessLine(""), null);
     assert.equal(ownedCandidate([], new Set(), cmd({}), bin), null);

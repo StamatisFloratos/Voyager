@@ -1,4 +1,4 @@
-import type { CommandAction } from "@ardia/core";
+import type { CommandAction } from "@voyager/core";
 import { useBrowser, type BrowserState } from "../browser/store";
 import { activeTab, isIncognitoProfile, viewTabIds } from "../browser/model";
 import { hiddenEmptyCard } from "../omnibox/newTabBarPolicy";

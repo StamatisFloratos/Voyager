@@ -4,7 +4,7 @@ import Foundation
 import Security
 
 public class KeychainModule: Module {
-  private static let service = "Ardia Connected Accounts"
+  private static let service = "Voyager Connected Accounts"
 
   public func definition() -> ModuleDefinition {
     Name("ArdiaKeychain")
@@ -30,7 +30,7 @@ public class KeychainModule: Module {
       if status == errSecItemNotFound {
         var add = Self.query(account)
         add[kSecValueData as String] = data
-        add[kSecAttrLabel as String] = "Ardia: \(account)"
+        add[kSecAttrLabel as String] = "Voyager: \(account)"
         status = SecItemAdd(add as CFDictionary, nil)
       } else if status != errSecSuccess {
         SecItemDelete(Self.query(account) as CFDictionary)

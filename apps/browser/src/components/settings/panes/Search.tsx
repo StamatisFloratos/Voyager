@@ -1,4 +1,4 @@
-import { engineHost, type SearchEngine } from "@ardia/core";
+import { engineHost, type SearchEngine } from "@voyager/core";
 import { Box, Button, DialogActions, DialogTitle, Sheet, space, Symbol, Text, TextField, Toggle } from "../../ui";
 import { useState } from "react";
 import { View } from "react-native";
@@ -62,7 +62,7 @@ export function SearchPane() {
 
       {fromExtensions.length > 0 && (
         <>
-          <SectionHeader title="Extensions" description="Some extensions can add search engines to Ardia." />
+          <SectionHeader title="Extensions" description="Some extensions can add search engines to Voyager." />
           <Group>
             {fromExtensions.map((e) => (
               <EngineRow key={e.id} engine={e} selected={selectedId === e.id} locked={locked} />

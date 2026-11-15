@@ -4,7 +4,7 @@ import { MockPanel, useScreen } from "./Screen";
 import { StepActions, StepLayout } from "./StepLayout";
 
 const LINK_CHOICES: ChoiceOption<boolean>[] = [
-  { value: true, preview: "links-little", title: "Little Ardia", subtitle: "A small window that's gone when you're done" },
+  { value: true, preview: "links-little", title: "Little Voyager", subtitle: "A small window that's gone when you're done" },
   { value: false, preview: "links-tab", title: "A new tab", subtitle: "Right in your main window" },
 ];
 
@@ -20,7 +20,7 @@ export function HomeStep() {
       actions={
         <StepActions
           onContinue={() =>
-            confirmAnswer("links", { openLinksInLittleArdia: little }, [little ? "Links from other apps open in Little Ardia" : "Links from other apps open in a tab"])
+            confirmAnswer("links", { openLinksInLittleArdia: little }, [little ? "Links from other apps open in Little Voyager" : "Links from other apps open in a tab"])
           }
           onSkip={() => skipStep()}
         />

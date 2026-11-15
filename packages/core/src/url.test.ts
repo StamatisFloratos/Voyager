@@ -116,15 +116,16 @@ test("cleanUrl keeps the rest of the URL exactly as it was", () => {
   assert.equal(cleanUrl("https://user:pw@example.com:8443/p?utm_term=x&k"), "https://user:pw@example.com:8443/p?k");
 });
 
-test("displayed URLs say ardia://, never chrome://", () => {
-  assert.equal(urlForDisplay("ardia://version/"), "ardia://version");
-  assert.equal(urlForDisplay("chrome://version/"), "ardia://version");
-  assert.equal(urlForDisplay("chrome://settings/languages"), "ardia://settings/languages");
-  assert.equal(urlForDisplay("ardia://history/?q=a"), "ardia://history?q=a");
-  assert.equal(displayUrl("chrome://gpu/"), "ardia://gpu");
-  assert.deepEqual(breadcrumb("ardia://version/", "About Version"), { host: "ardia://version", trail: ["About Version"] });
-  assert.deepEqual(breadcrumb("ardia://history", "History"), { host: "ardia://history", trail: [] });
-  assert.deepEqual(breadcrumb("chrome://flags/", "Experiments"), { host: "ardia://flags", trail: ["Experiments"] });
+test("displayed URLs say voyager://, never chrome://", () => {
+  assert.equal(urlForDisplay("voyager://version/"), "voyager://version");
+  assert.equal(urlForDisplay("ardia://version/"), "voyager://version");
+  assert.equal(urlForDisplay("chrome://version/"), "voyager://version");
+  assert.equal(urlForDisplay("chrome://settings/languages"), "voyager://settings/languages");
+  assert.equal(urlForDisplay("voyager://history/?q=a"), "voyager://history?q=a");
+  assert.equal(displayUrl("chrome://gpu/"), "voyager://gpu");
+  assert.deepEqual(breadcrumb("voyager://version/", "About Version"), { host: "voyager://version", trail: ["About Version"] });
+  assert.deepEqual(breadcrumb("voyager://history", "History"), { host: "voyager://history", trail: [] });
+  assert.deepEqual(breadcrumb("chrome://flags/", "Experiments"), { host: "voyager://flags", trail: ["Experiments"] });
 });
 
 test("host:port navigates: single-label intranet hosts over http, a number or a time never", () => {

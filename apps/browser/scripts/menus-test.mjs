@@ -8,7 +8,7 @@ import { launch, reporter, session, sleep } from "../../../scripts/lib/instance.
 const args = process.argv.slice(2);
 const appArg = args.find((a) => !a.startsWith("--"));
 if (!appArg) {
-  console.error(`usage: node menus-test.mjs <Debug Ardia.app> [--keep-data] [--keep-running] [--only=<regex>]
+  console.error(`usage: node menus-test.mjs <Debug Voyager.app> [--keep-data] [--keep-running] [--only=<regex>]
 
 Right-clicks the sidebar's rows, tiles, groups and background through AppKit's event path, picks items through the
 appMenu and appDialog test hooks (docs/testing.md) and checks what each pick did to the store: the tab, several-tab,

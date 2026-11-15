@@ -21,7 +21,7 @@ final class ScriptCreateCommand: NSCreateCommand {
       }
       return ShellScripting.perform(body) { ($0["tabId"] as? String).flatMap { ScriptTab(id: $0).objectSpecifier } }
     default:
-      setError("Ardia can't make a new \(createClassDescription.className).")
+      setError("Voyager can't make a new \(createClassDescription.className).")
       return nil
     }
   }

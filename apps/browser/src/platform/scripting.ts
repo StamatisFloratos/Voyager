@@ -1,4 +1,4 @@
-import { nativeModule, type ScriptCommand, type ScriptState } from "@ardia/shell";
+import { nativeModule, type ScriptCommand, type ScriptState } from "@voyager/shell";
 
 export type { ScriptCommand, ScriptState };
 

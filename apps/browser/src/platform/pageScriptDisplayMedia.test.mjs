@@ -154,14 +154,14 @@ test("a page's own request without a click is refused; with a click it opens the
   assert.deepEqual(clicked.nativeCalls, []);
 });
 
-test("the shim is in place as soon as the page script runs, before Ardia's config arrives (#914)", async () => {
+test("the shim is in place as soon as the page script runs, before Voyager's config arrives (#914)", async () => {
   const p = page();
   assert.notEqual(p.shim, p.native);
   assert.equal(await rejection(p.devices.getDisplayMedia()), "InvalidStateError: getDisplayMedia() requires transient activation (user gesture).");
   assert.deepEqual(p.nativeCalls, []);
 });
 
-test("config without Ardia's picker gives the page Chrome's own method back, and config with it installs the shim again", () => {
+test("config without Voyager's picker gives the page Chrome's own method back, and config with it installs the shim again", () => {
   const p = page();
   p.restore();
   assert.equal(p.proto.getDisplayMedia, p.native);
@@ -249,7 +249,7 @@ function blankFrame() {
   return { receive, devices, proto: MediaDevices.prototype, native: nativeGetDisplayMedia, sent, nativeCalls };
 }
 
-test("a blank or srcdoc frame asks Ardia for its display-media config, and with the picker off a click there uses Chrome's own method", () => {
+test("a blank or srcdoc frame asks Voyager for its display-media config, and with the picker off a click there uses Chrome's own method", () => {
   const f = blankFrame();
   assert.equal(typeof f.receive, "function");
   assert.deepEqual(f.sent, [{ kind: "displayMediaHello", data: {} }]);

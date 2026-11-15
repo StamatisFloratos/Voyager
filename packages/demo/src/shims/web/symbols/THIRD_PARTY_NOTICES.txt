@@ -1,4 +1,4 @@
-Third-party notices for the Ardia demo symbol artwork (packages/demo/src/shims/web/symbols/data.ts)
+Third-party notices for the Voyager demo symbol artwork (packages/demo/src/shims/web/symbols/data.ts)
 
 The demo draws its icons from the open icon sets below, rescaled and repositioned, and from original geometry drawn for Ardia. It contains no SF Symbols artwork.
 

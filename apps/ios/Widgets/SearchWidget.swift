@@ -1,5 +1,5 @@
 import AppIntents
-import ArdiaDesign
+import VoyagerDesign
 import SwiftUI
 import WidgetKit
 

@@ -33,7 +33,7 @@ test("the sidebar sits on the left unless the owner picks the right", () => {
   assert.equal(S().settings.sidebarSide, "left");
 });
 
-test("tabs along the top and Little Ardia never put a sidebar on the right", () => {
+test("tabs along the top and Little Voyager never put a sidebar on the right", () => {
   const w = oneWindow();
   chooseSidebarSide("right");
   S().toggleTabLayout(w);

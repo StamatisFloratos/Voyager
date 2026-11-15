@@ -69,7 +69,7 @@ test("closing one of two windows still warns and isn't kept as the last window",
   assert.equal(S().closedWindows.at(-1).lastWindow, undefined);
 });
 
-test("a private or Little Ardia window left open doesn't stop the last regular window being kept", async () => {
+test("a private or Little Voyager window left open doesn't stop the last regular window being kept", async () => {
   const { w } = arcWindow();
   S().createWindow({ kind: "private", url: "https://secret.com" });
   S().createWindow({ kind: "small", url: "https://little.com" });

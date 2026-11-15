@@ -7,7 +7,7 @@ import { launch, session } from "../../../scripts/lib/instance.mjs";
 
 const { values: flags, positionals } = parseArgs({ allowPositionals: true, options: { bundle: { type: "string" }, out: { type: "string" }, port: { type: "string" } } });
 if (!positionals[0]) {
-  console.error("usage: node hidden-pane-test.mjs <Ardia.app> [--bundle <main.jsbundle>] [--out <dir>]");
+  console.error("usage: node hidden-pane-test.mjs <Voyager.app> [--bundle <main.jsbundle>] [--out <dir>]");
   process.exit(2);
 }
 const out = resolve(flags.out ?? join(tmpdir(), "ac-hidden-pane"));

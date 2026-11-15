@@ -1,6 +1,6 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import VoyagerBrowser
+import VoyagerDesign
+import VoyagerSync
 import Foundation
 import UIKit
 import WidgetKit

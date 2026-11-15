@@ -168,7 +168,7 @@ test("a link still downloading from iCloud is waited for, never deleted, and kee
   assert.deepEqual(names(a), ["A", "New", "B"]);
 });
 
-test("files Ardia can't open (other schemes, unreadable) stay untouched and keep their names taken", () => {
+test("files Voyager can't open (other schemes, unreadable) stay untouched and keep their names taken", () => {
   const fs = dir({ "Mail.webloc": { held: true } });
   fs.files.get("Mail.webloc").held = true;
   const a = mac([link("t1", "Mail", "https://mail.example/")]);
@@ -185,7 +185,7 @@ test("two links with one name get distinct files, case-insensitively", () => {
   assert.equal(cleanName("   ", "Link"), "Link");
 });
 
-test("subfolders are directories, both ways, and removing one deletes only the links Ardia knew", () => {
+test("subfolders are directories, both ways, and removing one deletes only the links Voyager knew", () => {
   const fs = dir();
   const a = mac([link("t1", "Top", "https://top.example/"), { kind: "dir", key: "g1", name: "Reading", children: [link("t2", "Essay", "https://essay.example/")] }]);
   cycle(a, fs);

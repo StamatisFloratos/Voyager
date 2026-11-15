@@ -90,7 +90,7 @@ test("scrolling tucks the toolbar away only while its own setting is on, and nev
   assert.equal(tucked(), true, "hidden tabs don't stop the toolbar tucking");
 });
 
-test("Little Ardia has no tabs to hide and leaves the setting alone", () => {
+test("Little Voyager has no tabs to hide and leaves the setting alone", () => {
   fresh();
   const small = S().createWindow({ kind: "small", url: "https://example.com" });
   assert.equal(shown(small), false);

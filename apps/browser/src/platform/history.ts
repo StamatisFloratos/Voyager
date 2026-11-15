@@ -7,4 +7,4 @@ export {
   onHistoryChanged,
   type EngineHistoryEntry,
   type HistoryChange,
-} from "@ardia/ardiacore";
+} from "@voyager/ardiacore";

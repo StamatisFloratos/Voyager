@@ -28,7 +28,7 @@ const SPLIT_WITH: { value: SplitLinkModifier; title: string }[] = [
 const NEW_TAB_LINKS: { value: Settings["newTabLinksOpenIn"]; title: string }[] = [
   { value: "tab", title: "A new tab" },
   { value: "peek", title: "A Peek" },
-  { value: "littleArdia", title: "Little Ardia" },
+  { value: "littleArdia", title: "Little Voyager" },
 ];
 
 const withNote = (anchor: SettingId, note: string | null) => (note ? `${setting(anchor).description ?? ""} ${note}`.trim() : undefined);

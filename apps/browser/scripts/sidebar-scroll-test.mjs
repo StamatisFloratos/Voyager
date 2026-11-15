@@ -8,7 +8,7 @@ import { launch, reporter, session, sleep } from "../../../scripts/lib/instance.
 const args = process.argv.slice(2);
 const appArg = args.find((a) => !a.startsWith("--"));
 if (!appArg) {
-  console.error("usage: node sidebar-scroll-test.mjs <Debug Ardia.app> [--port=<DevTools port>] [--keep-data]\n\nThe sidebar's pinned tiles stay put while the tabs scroll under them (Dia's dock), with the address field in the sidebar and without: drags onto the tiles after a scroll, selecting a tile while scrolled, a dock too tall for the window (24 tiles in an 800 pt window), and a click on a tab in view after a change to another profile's page.");
+  console.error("usage: node sidebar-scroll-test.mjs <Debug Voyager.app> [--port=<DevTools port>] [--keep-data]\n\nThe sidebar's pinned tiles stay put while the tabs scroll under them (Dia's dock), with the address field in the sidebar and without: drags onto the tiles after a scroll, selecting a tile while scrolled, a dock too tall for the window (24 tiles in an 800 pt window), and a click on a tab in view after a change to another profile's page.");
   process.exit(2);
 }
 const appPath = resolve(appArg);

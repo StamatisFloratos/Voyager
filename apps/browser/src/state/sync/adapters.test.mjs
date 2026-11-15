@@ -4,7 +4,7 @@ const { useBrowser } = await import("../browser/store.ts");
 const { bookmarkRoots } = await import("../bookmarks/bookmarks.ts");
 const { historyOf } = await import("../history/history.ts");
 const model = await import("../browser/model.ts");
-const { Clock, emptyScope, syncScope } = await import("@ardia/sync");
+const { Clock, emptyScope, syncScope } = await import("@voyager/sync");
 const adapters = await import("./adapters.ts");
 const { useEditClock } = await import("./editClock.ts");
 const { settingsAdapter, settingsToReapply } = await import("./settingsAdapter.ts");
@@ -1952,7 +1952,7 @@ test("only evidence that the anchor left the rows after the order record ends th
   assert.deepEqual(decide({ [orderKey]: order, "pinrow:x": { v: 1, h: after } }), { a: "x" }, "but a newer row marker means it's still a row");
 });
 
-const { compact } = await import("@ardia/sync");
+const { compact } = await import("@voyager/sync");
 
 async function deletedWhileAway(OldMac) {
   const realNow = Date.now;

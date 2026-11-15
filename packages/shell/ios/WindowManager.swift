@@ -274,7 +274,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
 
   private static let auxFrameSaveDelay: TimeInterval = 0.3
 
-  private static func auxFrameName(_ kind: WindowKind) -> String { "Ardia\(kind.rawValue.capitalized)" }
+  private static func auxFrameName(_ kind: WindowKind) -> String { "Voyager\(kind.rawValue.capitalized)" }
 
   @objc private func auxFrameChanged(_ notification: Notification) {
     guard let window = notification.object as? NSWindow else { return }

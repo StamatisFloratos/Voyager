@@ -7,7 +7,7 @@ import { launch, session } from "../../../scripts/lib/instance.mjs";
 
 const { values: flags, positionals } = parseArgs({ allowPositionals: true, options: { bundle: { type: "string" }, out: { type: "string" }, port: { type: "string" } } });
 if (!positionals[0]) {
-  console.error("usage: node window-toolbar-test.mjs <Ardia.app> [--bundle <main.jsbundle>] [--out <dir>] [--port <n>]");
+  console.error("usage: node window-toolbar-test.mjs <Voyager.app> [--bundle <main.jsbundle>] [--out <dir>] [--port <n>]");
   process.exit(2);
 }
 const out = resolve(flags.out ?? join(tmpdir(), "ac-window-toolbar"));

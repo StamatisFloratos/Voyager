@@ -1,4 +1,4 @@
-import { fuzzyScore, hostOf } from "@ardia/core";
+import { fuzzyScore, hostOf } from "@voyager/core";
 
 export type GroupPanelGroup = { tabIds: string[]; parentId?: string };
 export type GroupPanelTab = { id: string; title: string; url: string; usedAt: number };

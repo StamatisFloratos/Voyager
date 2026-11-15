@@ -1,4 +1,4 @@
-import { findScope, offeredSiteSearch, type SearchScope } from "@ardia/core";
+import { findScope, offeredSiteSearch, type SearchScope } from "@voyager/core";
 import { useBrowser } from "../browser/store";
 import { searchEngines } from "../settings/settings";
 import { providerKeywords } from "./activeProviders";

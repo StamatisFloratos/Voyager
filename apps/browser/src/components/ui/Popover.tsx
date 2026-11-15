@@ -1,4 +1,4 @@
-import { Symbol, VisualEffect } from "@ardia/shell";
+import { Symbol, VisualEffect } from "@voyager/shell";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "./Button";

@@ -6,7 +6,7 @@ import { devtools, launch, session, sleep } from "../../../scripts/lib/instance.
 
 const [appArg, scratchArg] = process.argv.slice(2);
 if (!appArg || appArg === "-h" || appArg === "--help") {
-  console.error("usage: pending-address-check.mjs <Ardia.app> [scratch dir]\nA tab a link opened keeps its pending address while the ardia command looks up its DevTools target.");
+  console.error("usage: pending-address-check.mjs <Voyager.app> [scratch dir]\nA tab a link opened keeps its pending address while the voyager command looks up its DevTools target.");
   process.exit(appArg ? 0 : 64);
 }
 const scratch = resolve(scratchArg ?? join(process.env.TMPDIR ?? "/tmp", `ac-pending-address-${process.pid}`));

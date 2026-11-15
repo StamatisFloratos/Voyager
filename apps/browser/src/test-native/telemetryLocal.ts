@@ -1,4 +1,4 @@
-import type { ShellNativeModules, TelemetryLocalExport } from "@ardia/shell";
+import type { ShellNativeModules, TelemetryLocalExport } from "@voyager/shell";
 
 const DAY_MS = 86_400_000;
 const utcDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
@@ -87,6 +87,6 @@ export const telemetryLocalModule: ShellNativeModules["ArdiaTelemetryLocal"] = {
   exportToDownloads: async (now) => {
     const text = telemetryLocal.lines().map((l) => `${l}\n`).join("");
     telemetryLocal.exports.push({ now, text });
-    return { ...exported(text), path: "/tmp/fake/Ardia data.jsonl" };
+    return { ...exported(text), path: "/tmp/fake/Voyager data.jsonl" };
   },
 };

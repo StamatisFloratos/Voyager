@@ -40,8 +40,8 @@ final class LegacyKeychainTests: XCTestCase {
   }
 
   let item = Renamed.KeychainItem(
-    oldService: "Ardia Migration Test Old Safe Storage", newService: "Ardia Migration Test New Safe Storage",
-    account: ("Old", "New"), label: { _ in "Ardia Migration Test New Safe Storage" }, accessible: nil, critical: true)
+    oldService: "Voyager Migration Test Old Safe Storage", newService: "Voyager Migration Test New Safe Storage",
+    account: ("Old", "New"), label: { _ in "Voyager Migration Test New Safe Storage" }, accessible: nil, critical: true)
 
   static func crypt(_ op: CCOperation, _ secret: Data, _ input: Data) -> Data? {
     var key = [UInt8](repeating: 0, count: 16)

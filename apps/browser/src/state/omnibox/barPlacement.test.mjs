@@ -18,7 +18,7 @@ test("the In the centre setting still sends ⌘L to the centre", () => {
   assert.equal(keyBarPlacement({ setting: "centred", small: false, fieldShown: false }), "centred");
 });
 
-test("Little Ardia keeps its own dropdown", () => {
+test("Little Voyager keeps its own dropdown", () => {
   assert.equal(keyBarPlacement({ setting: "centred", small: true, fieldShown: false }), "field");
 });
 

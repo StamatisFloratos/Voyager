@@ -10,9 +10,9 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ardia_cli import command_metrics
-from ardia_cli.browse import commands, daemon, script
-from ardia_cli.browse.errors import BrowseError
+from voyager_cli import command_metrics
+from voyager_cli.browse import commands, daemon, script
+from voyager_cli.browse.errors import BrowseError
 from test_browse_pages import FakeController, run, scratch_registry
 
 WORKER_UNDER_NODE = r"""
@@ -96,7 +96,7 @@ class Hints(unittest.TestCase):
         for name in ("document", "window", "localStorage"):
             error = self.run_script([{"kind": "error", "message": f"{name} is not defined", "name": "ReferenceError", "line": 1, "logs": []}])
             self.assertEqual(error.message, f"line 1: ReferenceError: {name} is not defined\nthe script runs outside the page, so it has no "
-                                            "document or window: put page code in page.evaluate(() => …), or use `ardia browse eval`")
+                                            "document or window: put page code in page.evaluate(() => …), or use `voyager browse eval`")
         self.assertTrue(self.metrics.values["script_page_world_hint"])
 
     def test_a_script_variable_inside_page_evaluate_says_to_pass_it(self):

@@ -1,4 +1,4 @@
-import type { SearchScope } from "@ardia/core";
+import type { SearchScope } from "@voyager/core";
 import { View } from "react-native";
 import { Symbol, Text, useTheme } from "../ui";
 import { Favicon } from "../favicon/Favicon";

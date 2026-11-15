@@ -56,17 +56,17 @@ out="$(cd "$out" && pwd -P)"
 archive="$out/ArdiaCore-$short.tar.xz"
 source_archive="$out/ArdiaCore-$short-source.tar.xz"
 work="$out/pack"
-mkdir -p "$work/Ardia.app/Contents/Frameworks"
+mkdir -p "$work/Voyager.app/Contents/Frameworks"
 echo "==> Copy the engine"
-copy=(cp -cR "$framework" "$work/Ardia.app/Contents/Frameworks/")
+copy=(cp -cR "$framework" "$work/Voyager.app/Contents/Frameworks/")
 case "$framework" in
   "$chromium_src/"*) "$root/scripts/agent/locked" chromium --wait 500 -- "${copy[@]}" ;;
   *) "${copy[@]}" ;;
 esac
 echo "==> Strip"
-"$root/packages/ardiacore/scripts/strip-engine.sh" "$work/Ardia.app" "$out/symbols"
+"$root/packages/ardiacore/scripts/strip-engine.sh" "$work/Voyager.app" "$out/symbols"
 echo "==> Pack"
-tar --no-mac-metadata -cf - -C "$work/Ardia.app/Contents/Frameworks" "Chromium Framework.framework" | xz -T0 -9 >"$archive"
+tar --no-mac-metadata -cf - -C "$work/Voyager.app/Contents/Frameworks" "Chromium Framework.framework" | xz -T0 -9 >"$archive"
 rm -rf "$work"
 sha="$(shasum -a 256 "$archive" | awk '{ print $1 }')"
 echo "$sha  $(basename "$archive")" >"$archive.sha256"

@@ -1,4 +1,4 @@
-import { Surface, VisualEffect, type SurfaceProps } from "@ardia/shell";
+import { Surface, VisualEffect, type SurfaceProps } from "@voyager/shell";
 import { StyleSheet } from "react-native";
 import { GlassFill, useGlass } from "./Glass";
 import { hex, shadowOpacityOf, useTheme } from "./theme";

@@ -3,7 +3,7 @@ import type { Preset } from "../onboarding/onboarding";
 import type { Settings } from "../settings/settings";
 
 export const SETUP_CODE_VERSION = 1;
-export const SETUP_CODE_PREFIX = `ardia${SETUP_CODE_VERSION}-`;
+export const SETUP_CODE_PREFIX = `voyager${SETUP_CODE_VERSION}-`;
 export const SETUP_CODE_MAX_LENGTH = 160;
 export const SETUP_CODE_MAX_INPUT = SETUP_CODE_MAX_LENGTH * 8;
 
@@ -79,9 +79,9 @@ const CHECK_SPACE = 36 ** CHECK_DIGITS;
 export const SETUP_CODE_ERRORS = {
   empty: "Paste a setup code first.",
   shape: `That doesn't look like a setup code. It starts with ${SETUP_CODE_PREFIX}`,
-  newer: "That code is from a newer Ardia. Update Ardia, then paste it again.",
-  damaged: "That code looks cut off or mistyped. Copy it again from ardia.dev.",
-  nothing: "That code has nothing this version of Ardia can apply.",
+  newer: "That code is from a newer Voyager. Update Voyager, then paste it again.",
+  damaged: "That code looks cut off or mistyped. Copy the full setup code and try again.",
+  nothing: "That code has nothing this version of Voyager can apply.",
 } as const;
 
 function checksum(body: string): string {
@@ -145,11 +145,11 @@ export function decodeSetupCode(input: string): SetupCodeResult {
   const code = normalizeSetupCode(input);
   if (!code) return { ok: false, error: SETUP_CODE_ERRORS.empty };
   if (code.length > SETUP_CODE_MAX_LENGTH) return { ok: false, error: SETUP_CODE_ERRORS.shape };
-  const version = /^ardia(\d{1,3})-/.exec(code);
+  const version = /^(?:voyager|ardia)(\d{1,3})-/.exec(code);
   if (!version) return { ok: false, error: SETUP_CODE_ERRORS.shape };
   if (Number(version[1]) > SETUP_CODE_VERSION) return { ok: false, error: SETUP_CODE_ERRORS.newer };
-  if (version[0] !== SETUP_CODE_PREFIX) return { ok: false, error: SETUP_CODE_ERRORS.shape };
-  const rest = code.slice(SETUP_CODE_PREFIX.length);
+  if (version[1] !== String(SETUP_CODE_VERSION)) return { ok: false, error: SETUP_CODE_ERRORS.shape };
+  const rest = code.slice(version[0].length);
   const dash = rest.lastIndexOf("-");
   if (dash < 0 || rest.length - dash - 1 !== CHECK_DIGITS) return { ok: false, error: SETUP_CODE_ERRORS.damaged };
   const body = rest.slice(0, dash);

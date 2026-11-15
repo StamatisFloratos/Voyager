@@ -1,4 +1,4 @@
-import { assignPositions, type Adapter } from "@ardia/sync";
+import { assignPositions, type Adapter } from "@voyager/sync";
 import { addHistoryVisits, deleteHistoryUrls } from "../../../platform/history";
 import { bookmarkUuidFor, isBookmarkUuid, rootIdsFor } from "../../bookmarks/bookmarks";
 import { MAX_HISTORY, MAX_VISIT_TIMES } from "../../history/history";

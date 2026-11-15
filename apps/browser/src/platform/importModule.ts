@@ -1,4 +1,4 @@
-import type * as ImportApi from "@ardia/import";
+import type * as ImportApi from "@voyager/import";
 
 export type {
   BookmarkNode,
@@ -15,8 +15,8 @@ export type {
   SafariExport,
   SpaceSuggestion,
   SpaceSummary,
-} from "@ardia/import";
+} from "@voyager/import";
 
 let api: typeof ImportApi | undefined;
 
-export const importModule = (): typeof ImportApi => (api ??= require("@ardia/import") as typeof ImportApi);
+export const importModule = (): typeof ImportApi => (api ??= require("@voyager/import") as typeof ImportApi);

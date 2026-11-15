@@ -175,7 +175,7 @@ public enum DiaAutomation {
     case OSStatus(procNotFound), OSStatus(connectionInvalid):
       .notRunning("Dia isn't running")
     case OSStatus(errAEEventNotPermitted), OSStatus(errAEEventWouldRequireUserConsent):
-      .locked("macOS didn't allow Ardia to read Dia's tabs")
+      .locked("macOS didn't allow Voyager to read Dia's tabs")
     case OSStatus(errAETimeout):
       .unreadable("Dia didn't answer within \(Int(timeout)) seconds")
     default:
@@ -219,7 +219,7 @@ public enum DiaTabsFetch {
   static func readRunning(app: DiaApp, source: DiaScriptingSource) throws -> DiaTabsResult {
     switch app.consent() {
     case .granted: return try DiaTabsImport.read(from: source)
-    case .denied, .notDetermined: throw ImportError.locked("macOS didn't allow Ardia to read Dia's tabs")
+    case .denied, .notDetermined: throw ImportError.locked("macOS didn't allow Voyager to read Dia's tabs")
     case .notRunning: throw ImportError.notRunning("Dia isn't running")
     case .notInstalled: throw ImportError.notFound("Dia isn't installed")
     }

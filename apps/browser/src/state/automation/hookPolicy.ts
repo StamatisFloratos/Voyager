@@ -48,7 +48,7 @@ const hex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(16).padSt
 export function launchActionApproval(entry: string): ApprovalRule | null {
   const [id] = entry.split(":");
   if (SAFE_LAUNCH_ACTIONS.has(id!)) return null;
-  return { key: `launchAction:${hex(sha256(entry)).slice(0, 32)}`, kind: "launchAction", name: `launchActions: ${entry}`, summary: `Runs ${entry} each time Ardia starts` };
+  return { key: `launchAction:${hex(sha256(entry)).slice(0, 32)}`, kind: "launchAction", name: `launchActions: ${entry}`, summary: `Runs ${entry} each time Voyager starts` };
 }
 
 export function applyTemplate(template: string, href: string): string | null {

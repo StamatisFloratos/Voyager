@@ -2,7 +2,7 @@
   "name": "browser-use-1.0.0-2026-11-09",
   "repeats": 3,
   "tasks": "all",
-  "results": "~/ardia-scratch/bench-proper/results/browseruse-1",
+  "results": "~/voyager-scratch/bench-proper/results/browseruse-1",
   "contenders": [
     {
       "id": "browseruse-claude",

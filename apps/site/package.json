@@ -1,5 +1,5 @@
 {
-  "name": "@ardia/site",
+  "name": "@voyager/site",
   "private": true,
   "type": "module",
   "scripts": {

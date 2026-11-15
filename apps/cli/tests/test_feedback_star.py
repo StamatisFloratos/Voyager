@@ -12,7 +12,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ardia_cli import caller, cli, endpoint, star, telemetry, usage
+from voyager_cli import caller, cli, endpoint, star, telemetry, usage
 from test_telemetry import CLEARED, Stub, scratch_dir
 
 
@@ -25,8 +25,8 @@ class Case(unittest.TestCase):
         self.home = self.temp / "cli"
         self.stub = Stub()
         self.addCleanup(self.stub.close)
-        env = {k: v for k, v in os.environ.items() if k not in CLEARED + ("ARDIA_CLI_HOME", usage.STAR_PROMPT_ENV) + usage.CI_ENV}
-        env.update({"ARDIA_CLI_HOME": str(self.home), telemetry.TEST_URL_ENV: self.stub.url})
+        env = {k: v for k, v in os.environ.items() if k not in CLEARED + ("VOYAGER_CLI_HOME", usage.STAR_PROMPT_ENV) + usage.CI_ENV}
+        env.update({"VOYAGER_CLI_HOME": str(self.home), telemetry.TEST_URL_ENV: self.stub.url})
         for patch in (
             mock.patch.dict(os.environ, env, clear=True),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.data),
@@ -98,8 +98,8 @@ class TaskCountTest(Case):
         for argv, env in (
             (["--port", "9222", "open", "https://a.test"], {}),
             (["--ws=ws://127.0.0.1:1/devtools/browser/x", "open", "https://a.test"], {}),
-            (["open", "https://a.test"], {"ARDIA_PORT": "9222"}),
-            (["open", "https://a.test"], {"ARDIA_DATA_DIR": str(self.temp / "throwaway")}),
+            (["open", "https://a.test"], {"VOYAGER_PORT": "9222"}),
+            (["open", "https://a.test"], {"VOYAGER_DATA_DIR": str(self.temp / "throwaway")}),
             (["--data-dir", str(self.temp / "throwaway"), "open", "https://a.test"], {}),
         ):
             with self.subTest(argv=argv, env=env):
@@ -131,14 +131,14 @@ class TaskCountTest(Case):
 
     def test_a_checkout_without_a_cli_home_records_nothing(self):
         with mock.patch.dict(os.environ, {}, clear=False):
-            os.environ.pop("ARDIA_CLI_HOME")
+            os.environ.pop("VOYAGER_CLI_HOME")
             self.assertIsNone(usage.recording_home(os.environ))
             with mock.patch.object(usage, "locked") as locked:
                 usage.record(call(["open", "x"]), 0, os.environ)
             locked.assert_not_called()
 
     def test_runs_through_the_cli_and_prints_on_stderr(self):
-        with mock.patch.object(usage, "TASKS_BEFORE_ASKING", 1), mock.patch("ardia_cli.browse.cli.main", return_value=0):
+        with mock.patch.object(usage, "TASKS_BEFORE_ASKING", 1), mock.patch("voyager_cli.browse.cli.main", return_value=0):
             with mock.patch.object(usage.time, "time", return_value=0):
                 self.run_cli("browse", "open", "https://a.test")
             with mock.patch.object(usage.time, "time", return_value=usage.TASK_GAP_S * 2):
@@ -178,17 +178,17 @@ class StarTest(Case):
         run, calls = self.fake_run((0, 0))
         status, out, _ = self.star(run, lambda name: "/opt/homebrew/bin/gh")
         self.assertEqual(status, 0)
-        self.assertEqual(calls, [["/opt/homebrew/bin/gh", "api", "--method", "PUT", "/user/starred/mantrakp04/ardia", "--silent"]])
+        self.assertEqual(calls, [["/opt/homebrew/bin/gh", "api", "--method", "PUT", "/user/starred/StamatisFloratos/Voyager", "--silent"]])
         self.assertIn("Starred", out)
         self.assertEqual(usage.read(self.home)["star"]["via"], "gh")
 
-    def test_opens_the_page_in_a_new_ardia_tab_when_gh_isnt_signed_in(self):
+    def test_opens_the_page_in_a_new_voyager_tab_when_gh_isnt_signed_in(self):
         run, calls = self.fake_run((4, 0))
         status, out, _ = self.star(run, lambda name: "/usr/local/bin/gh", data_dir="/tmp/d")
         self.assertEqual(status, 0)
         self.assertEqual(len(calls), 2)
         browse = calls[1]
-        self.assertEqual(browse[:4], [sys.executable, "-I", "-m", "ardia_cli"])
+        self.assertEqual(browse[:4], [sys.executable, "-I", "-m", "voyager_cli"])
         self.assertEqual(browse[4:], ["--data-dir", "/tmp/d", "browse", "--session", star.SESSION, "open", star.URL, "--show"])
         self.assertIn("Ask the user to click Star", out)
         self.assertEqual(usage.read(self.home)["star"]["via"], "browser")
@@ -216,7 +216,7 @@ class StarTest(Case):
 
         status, out, _ = self.star(run, lambda name: "/usr/bin/gh")
         self.assertEqual(status, 0)
-        self.assertIn("new Ardia tab", out)
+        self.assertIn("new Voyager tab", out)
 
     def test_star_command_is_wired_into_the_cli(self):
         with mock.patch.object(star, "star_with_gh", return_value=True) as gh:

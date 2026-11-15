@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import VoyagerBrowser
 
 extension AppModel {
   var filterLists: FilterLists { blocker.filterLists }

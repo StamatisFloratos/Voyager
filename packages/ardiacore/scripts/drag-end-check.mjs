@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { join, resolve } from "node:path";
 import { devtools, launch, sleep } from "../../../scripts/lib/instance.mjs";
 
-const usage = `usage: drag-end-check.mjs <Debug Ardia.app> [scratch dir]
+const usage = `usage: drag-end-check.mjs <Debug Voyager.app> [scratch dir]
 Checks, in one hidden instance launched with --test nativeDragRefused, that a page keeps taking clicks and keys after
 a drag nobody ends: one a DevTools session took and left behind (dropped mid-drag, with and without
 Input.setInterceptDrags), one DevTools input started that no session took, and one macOS refused to start. Also: a

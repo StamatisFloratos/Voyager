@@ -24,7 +24,7 @@ final class IconStyleTests: XCTestCase {
   }
 
   func testTheWatcherHearsAStyleChangeMadeByAnotherProcess() throws {
-    let suite = "com.ardia.icon-style-test-\(UUID().uuidString)"
+    let suite = "com.stamatisfloratos.voyager.icon-style-test-\(UUID().uuidString)"
     let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
     defer { defaults.removePersistentDomain(forName: suite) }
     let changed = expectation(description: "the watcher calls back")

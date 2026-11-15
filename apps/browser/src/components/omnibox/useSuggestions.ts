@@ -7,7 +7,7 @@ import {
   type SearchEngine,
   type SearchScope,
   type SuggestionResult,
-} from "@ardia/core";
+} from "@voyager/core";
 import { useEffect, useMemo, useState } from "react";
 import { bookmarksByUrl } from "../../state/bookmarks/bookmarks";
 import { useMenuBarRevision } from "../../state/commands/commandShortcuts";

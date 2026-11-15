@@ -1,4 +1,4 @@
-import ArdiaDesign
+import VoyagerDesign
 import SwiftUI
 import WidgetKit
 
@@ -30,7 +30,7 @@ struct MacTabsWidget: Widget {
       MacTabsWidgetView(entry: entry)
     }
     .configurationDisplayName("Your Mac’s Tabs")
-    .description("The tabs you have open in Ardia on your Mac.")
+    .description("The tabs you have open in Voyager on your Mac.")
     .supportedFamilies([.systemMedium, .systemLarge])
   }
 }

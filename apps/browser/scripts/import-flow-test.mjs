@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Drives the import window through every flow against fake browser data, never a real profile.
 //
-//   node apps/browser/scripts/import-flow-test.mjs <Debug Ardia.app> <scratch dir> [flow…] [--record <file>] [--compare <file>] [--keep]
+//   node apps/browser/scripts/import-flow-test.mjs <Debug Voyager.app> <scratch dir> [flow…] [--record <file>] [--compare <file>] [--keep]
 //
 //   <scratch dir>     home/ is a copy of packages/import/fixtures/home (the fake Chrome, Arc, Dia, Firefox, Safari… data)
-//                     and data/ the instance's ARDIA_DATA_DIR; both are wiped first
+//                     and data/ the instance's VOYAGER_DATA_DIR; both are wiped first
 //   flow              chrome, chromeSkip, chromeBack, arc, firefox, dia, safariDirect, safariExport, safariBadFile
 //                     (default: all of them, in that order)
 //   --record <file>   writes what each flow did (the steps it passed through, counts, failures, notes, extensions and
@@ -12,9 +12,9 @@
 //   --compare <file>  fails each flow whose record differs from the one in <file>
 //   --keep            leaves the instance running
 //
-// The instance is hidden, reads the fake home through ARDIA_INSTANCE importSourceDir/importSafariHome, decrypts with
-// ARDIA_TEST importSecret (the fixtures' Safe Storage secret, so the Keychain is never asked), and takes Dia's open
-// tabs from packages/import/fixtures/dia through ARDIA_TEST importDiaWindows, asked of <scratch dir>/FakeDia.app (a
+// The instance is hidden, reads the fake home through VOYAGER_INSTANCE importSourceDir/importSafariHome, decrypts with
+// VOYAGER_TEST importSecret (the fixtures' Safe Storage secret, so the Keychain is never asked), and takes Dia's open
+// tabs from packages/import/fixtures/dia through VOYAGER_TEST importDiaWindows, asked of <scratch dir>/FakeDia.app (a
 // background-only stand-in registered with Launch Services for the run), so the real Dia is never opened. Every flow
 // opens a fresh import window and drives it through globalThis.acImport. Exit code 1 if any check failed.
 import assert from "node:assert/strict";

@@ -1,5 +1,7 @@
 # Feedback and telemetry
 
+> Upstream reference from Ardia 0.2.46. For current Voyager behavior, paths and build instructions, see [the fork notes](voyager.md).
+
 How Ardia (app and CLI) knows who hit a problem, what they saw, and whether the fix held. This is the
 contract the app, the CLI, the feedback service and the dashboard build against. Change it here first.
 

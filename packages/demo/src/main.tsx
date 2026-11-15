@@ -1,7 +1,7 @@
 import "./styles.css";
 import { createRoot } from "react-dom/client";
 import { unstable_batchedUpdates } from "react-native";
-import { emitCommand } from "@ardia/shell";
+import { emitCommand } from "@voyager/shell";
 import { WindowRoot } from "../../../apps/browser/src/App";
 import { startNativeSync } from "../../../apps/browser/src/state/app/nativeSync";
 import { startTabPages } from "../../../apps/browser/src/state/tabs/tabPages";

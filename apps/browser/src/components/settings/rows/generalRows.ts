@@ -23,13 +23,13 @@ export const generalRows = {
           keywords: ["close window", "confirm"],
         },
         openLinksInLittleArdia: {
-          title: "Open links from other apps in Little Ardia",
-          keywords: ["little ardia", "little arc", "arc", "little window", "small window", "mini window", "external links", "links from other apps", "open links", "discord", "slack", "mail", "messages"],
+          title: "Open links from other apps in Little Voyager",
+          keywords: ["little voyager", "little arc", "arc", "little window", "small window", "mini window", "external links", "links from other apps", "open links", "discord", "slack", "mail", "messages"],
         },
         littleArdiaOpensNewTabLinks: {
-          title: "Keep new-tab links inside a Little Ardia window",
-          description: "For links clicked in a Little Ardia window: a link that would open a new tab loads right there instead of in a tab of the main window. ⌘-click still opens it behind. Links in the main window follow Settings › Tabs › Open new-tab links in.",
-          keywords: ["little ardia", "target blank", "new tab", "links"],
+          title: "Keep new-tab links inside a Little Voyager window",
+          description: "For links clicked in a Little Voyager window: a link that would open a new tab loads right there instead of in a tab of the main window. ⌘-click still opens it behind. Links in the main window follow Settings › Tabs › Open new-tab links in.",
+          keywords: ["little voyager", "target blank", "new tab", "links"],
         },
       },
     },
@@ -85,8 +85,8 @@ export const generalRows = {
         setupCode: {
           advanced: true,
           title: "Apply a setup code",
-          description: "Paste the code from the demo on ardia.dev to bring over the layout, look and pinned apps you picked there.",
-          keywords: ["setup code", "demo", "ardia.dev", "preset", "arc", "layout"],
+          description: "Paste a setup code to apply its layout, appearance and pinned apps.",
+          keywords: ["setup code", "demo", "preset", "arc", "layout"],
         },
       },
     },
@@ -237,7 +237,7 @@ export const generalRows = {
         },
         newTabLinksOpenIn: {
           title: "Open new-tab links in",
-          description: "Where a link that would open a new tab goes when you click it in a tab. ⌘-click still opens a tab behind, and sign-in pop-ups stay windows. Links from other apps follow Settings › General › Open links from other apps in Little Ardia.",
+          description: "Where a link that would open a new tab goes when you click it in a tab. ⌘-click still opens a tab behind, and sign-in pop-ups stay windows. Links from other apps follow Settings › General › Open links from other apps in Little Voyager.",
           keywords: ["peek", "new tab", "target blank", "links", "preview", "open links"],
         },
         peekModifier: {

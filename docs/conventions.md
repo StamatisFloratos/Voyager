@@ -1,6 +1,6 @@
 # Conventions
 
-How Ardia's code is laid out and written. `apps/browser/src/conventions.test.mjs` enforces most of it (see
+How Voyager's code is laid out and written. `apps/browser/src/conventions.test.mjs` enforces most of it (see
 [The check](#the-check)); the rest is on review.
 
 ## Backwards compatibility: migrations only
@@ -11,7 +11,7 @@ its commit's engine key, `engine/engine-key.sh`), so code never tolerates a mism
 - No `respondsToSelector` guards for ArdiaCore's API, no optional `?.()` native calls, no always-true `isAvailable`
   checks, no metadata probes, no aliases for old names, no duplicate overloads. Keep `respondsToSelector` only for
   private AppKit or Chromium classes looked up at runtime.
-- What stays: versioned on-disk data migrations (Netnyahoo → Ardia included), the versioned sync payload (a nightly Mac
+- What stays: versioned on-disk data migrations (explicit legacy fixtures only), the versioned sync payload (a nightly Mac
   syncs with a stable Mac a version behind), and the one app/engine version assertion: `NATIVE_API_VERSION` and
   `apiVersion` in `packages/shell/ios/AppModule.swift`. Bump both when the native surface changes.
 
@@ -34,10 +34,10 @@ lib/                    pure helpers: url, color, time, keys
 | `platform` | `platform`, `lib` |
 | `lib` | `lib` (nothing else in the app) |
 
-- Only `platform/` imports native packages (`@ardia/ardiacore`, `@ardia/shell`, `@ardia/shaders`, `@ardia/import`,
-  `@ardia/sync`), `expo-modules-core` or `NativeModules`. `components/ui/` may import native *views* to wrap them.
+- Only `platform/` imports native packages (`@voyager/ardiacore`, `@voyager/shell`, `@voyager/shaders`, `@voyager/import`,
+  `@voyager/sync`), `expo-modules-core` or `NativeModules`. `components/ui/` may import native *views* to wrap them.
 - `platform/<domain>.ts` holds one domain's native functions and types (`platform/downloads.ts`, `platform/menus.ts`,
-  `platform/windows.ts`, …). It binds each one itself, against the typed `call()`/`on()` of `@ardia/ardiacore` or a
+  `platform/windows.ts`, …). It binds each one itself, against the typed `call()`/`on()` of `@voyager/ardiacore` or a
   package's typed `nativeModule(…)`, so a call returns and throws exactly what the native API does; the packages keep
   the types and only the wrappers that add something (a secret call, a mapping, a view). A name lives in one platform
   module.
@@ -83,7 +83,7 @@ lib/                    pure helpers: url, color, time, keys
   (Surface, Symbol, the web view, …) are wrapped there too. Feature code passes `style` only for layout (flex,
   position, size) and animated values.
 - One copy of each piece. Before writing a button, panel, closing animation, colour maths or a URL helper, use the
-  one in `components/ui/`, `lib/` (`lib/url.ts`, `lib/color.ts`) or `@ardia/core` (`hostOf`).
+  one in `components/ui/`, `lib/` (`lib/url.ts`, `lib/color.ts`) or `@voyager/core` (`hostOf`).
 - Import pieces from the `components/ui` index (`import { Button, Popover } from "../ui"`). Inside `components/ui`,
   modules import each other directly.
 
@@ -212,7 +212,7 @@ writeDocument(DOC, versionedJson(data, VERSION));
 
 ## Names
 
-- App-side ObjC classes and their files are `Ardia<Thing>`; Swift types use plain names (the module namespaces them).
+- App-side ObjC classes and their files are `Voyager<Thing>`; Swift types use plain names (the module namespaces them).
 - The engine's exported ObjC API is `ArdiaCore*`; engine C/C++ is `ac_*`.
 - No `Cef*`/`CEF`/`cef` names, no `AC*` or app-side `ArdiaCore*` classes in `packages/*/ios`.
 - No `Netnyahoo` or `NN*` names outside migration code (`LegacyMigration.swift`, `legacy.ts`, `*Migration.swift`,
@@ -235,7 +235,7 @@ writeDocument(DOC, versionedJson(data, VERSION));
 - **One `PageEngine` protocol** for the Chromium and WebKit page engines: same method names, one event table.
 - **One Expo module per domain** (`ArdiaTabs`, `ArdiaDownloads`, `ArdiaExtensions`, `ArdiaProfiles`,
   `ArdiaPermissions`, `ArdiaWindows`, `ArdiaMenus`, `ArdiaSystem`, …), each in `<Domain>Module.swift`, registered as
-  `Ardia<Domain>`.
+  `Voyager<Domain>`.
 - ArdiaShell links ArdiaCore directly and calls it with types: no selector strings or string notifications between
   them.
 - **One authority per rule:** the engine's off-the-record flag alone decides private profiles; one helper builds
@@ -259,16 +259,16 @@ still counts:
 
 | Variable | Value | What it does |
 | --- | --- | --- |
-| `ARDIA_DATA_DIR` | path | The instance's data directory |
-| `ARDIA_BACKGROUND` | `1` | Hidden instance: never activates, windows sit behind the owner's |
-| `ARDIA_REMOTE_DEBUGGING_PORT` | port | CDP port |
-| `ARDIA_INSTANCE` | `key=value,…` | The few other instance settings (downloads dir, update feed, extra Chromium switches, …) |
-| `ARDIA_SWITCHES` | `name=on,…` | The only feature toggle, backed by the registry `platform/killSwitches.ts`: kill switches (on by default, at most 8) and experiments (off by default), each with an owner and `removeBy` |
-| `ARDIA_TRACE` | `pip,visibility,…` | Trace logging per area |
-| `ARDIA_TEST` | `keychain=file,reauth=granted,…` | All test fakes and fixtures |
-| `ARDIA_FEEDBACK_URL` | URL | Where Report a Problem sends (`https://ardia.dev/api/feedback` otherwise); the `ardia` CLI reads the same variable (`docs/feedback.md`) |
+| `VOYAGER_DATA_DIR` | path | The instance's data directory |
+| `VOYAGER_BACKGROUND` | `1` | Hidden instance: never activates, windows sit behind the owner's |
+| `VOYAGER_REMOTE_DEBUGGING_PORT` | port | CDP port |
+| `VOYAGER_INSTANCE` | `key=value,…` | The few other instance settings (downloads dir, update feed, extra Chromium switches, …) |
+| `VOYAGER_SWITCHES` | `name=on,…` | The only feature toggle, backed by the registry `platform/killSwitches.ts`: kill switches (on by default, at most 8) and experiments (off by default), each with an owner and `removeBy` |
+| `VOYAGER_TRACE` | `pip,visibility,…` | Trace logging per area |
+| `VOYAGER_TEST` | `keychain=file,reauth=granted,…` | All test fakes and fixtures |
+| `VOYAGER_FEEDBACK_URL` | URL | Where Report a Problem sends (`https://ardia.dev/api/feedback` otherwise); the `voyager` CLI reads the same variable (`docs/feedback.md`) |
 
-- `ARDIA_TEST` and `ARDIA_TRACE` work only in a test instance (not signed for distribution, a scratch data dir, the
+- `VOYAGER_TEST` and `VOYAGER_TRACE` work only in a test instance (not signed for distribution, a scratch data dir, the
   mock keychain); a release build ignores them and logs that once. CDP, argv and extra switches reach Chrome only with
   the mock keychain.
 - An experiment ends by keeping the winning path and deleting the other branch and its toggle. One still being tried

@@ -63,7 +63,7 @@ export function ShortcutsPane() {
   return (
     <View>
       <Box gap="xl">
-        <PaneIntro>Perform common actions in Ardia faster and from anywhere. Select an action to customize its keyboard shortcut.</PaneIntro>
+        <PaneIntro>Perform common actions in Voyager faster and from anywhere. Select an action to customize its keyboard shortcut.</PaneIntro>
         <Group>
           <Row anchor="shortcuts.undoReopensClosedTab">
             <Toggle value={undoReopensClosedTab} onChange={(v) => updateSettings({ undoReopensClosedTab: v })} />

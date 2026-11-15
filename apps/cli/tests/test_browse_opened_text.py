@@ -7,9 +7,9 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli.browse import changes, commands, snapshot
-from ardia_cli.browse import cli as browse_cli
-from ardia_cli.browse.snapshot import Node
+from voyager_cli.browse import changes, commands, snapshot
+from voyager_cli.browse import cli as browse_cli
+from voyager_cli.browse.snapshot import Node
 
 LONG_ROW = ("Priya Raman Starred Nov 5 Kontor kickoff next week Hi Jordan, Now that the Kontor contract is signed, "
             "could you set up the kickoff? Let's do Wednesday the 11th at 2:00 PM")

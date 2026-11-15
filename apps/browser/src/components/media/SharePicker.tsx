@@ -199,7 +199,7 @@ function ScreenRecordingNeeded() {
   return (
     <View style={NOTICE}>
       <Text size="small" tone="textSecondary">
-        To share a window or your entire screen, turn on Ardia in System Settings › Privacy & Security › Screen Recording, then quit and reopen Ardia.
+        To share a window or your entire screen, turn on Voyager in System Settings › Privacy & Security › Screen Recording, then quit and reopen Voyager.
       </Text>
       <Button variant="pill" title="Open System Settings" onPress={() => void askForScreenRecording()} />
     </View>

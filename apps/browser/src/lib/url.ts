@@ -1,4 +1,4 @@
-import { appUrlOrigin, breadcrumb, displayHost, hostOf, urlForDisplay } from "@ardia/core";
+import { appUrlOrigin, breadcrumb, displayHost, hostOf, urlForDisplay } from "@voyager/core";
 
 export const withoutFragment = (url: string) => url.replace(/#.*$/, "");
 

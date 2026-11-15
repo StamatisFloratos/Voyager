@@ -1,4 +1,4 @@
-import { siteSearchKey, type Suggestion } from "@ardia/core";
+import { siteSearchKey, type Suggestion } from "@voyager/core";
 import type { BarDismissal } from "../../state/omnibox/barState";
 import { dispositionFor, type Disposition } from "../../state/omnibox/openFromBar";
 import type { offeredScope } from "../../state/omnibox/scopes";

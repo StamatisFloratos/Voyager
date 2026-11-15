@@ -14,7 +14,7 @@ if (args.includes("--self-test")) {
 }
 const appArg = args.find((a) => !a.startsWith("--"));
 if (!appArg) {
-  console.error("usage: node profile-swipe-test.mjs <Debug Ardia.app> [--port=<DevTools port>] [--keep-data] [--stale-window] [--only=<case name substring>] [--bundle-port=<Metro port>] | --self-test");
+  console.error("usage: node profile-swipe-test.mjs <Debug Voyager.app> [--port=<DevTools port>] [--keep-data] [--stale-window] [--only=<case name substring>] [--bundle-port=<Metro port>] | --self-test");
   process.exit(2);
 }
 const app = resolve(appArg);
@@ -51,7 +51,7 @@ const server = createServer((req, res) => {
   res.end('<!doctype html><title>Swipe scroll fixture</title><body style="margin:0"><div style="width:2600px;height:4000px;background:linear-gradient(120deg,#ffd9dd,#addbff)">Native scroll fixture</div>');
 });
 
-const tab = (id, profileId) => ({ id, profileId, url: "ardia://newtab", title: "New Tab" });
+const tab = (id, profileId) => ({ id, profileId, url: "voyager://newtab", title: "New Tab" });
 const fixture = session({ profiles: ["Personal", "Work"], tabs: [tab("t1", "default"), tab("t2", "work")] });
 
 const ac = (body, timeout = 15000) => owned.eval(body, { timeout });

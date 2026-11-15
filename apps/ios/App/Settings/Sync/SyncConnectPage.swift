@@ -1,5 +1,5 @@
-import ArdiaDesign
-import ArdiaSync
+import VoyagerDesign
+import VoyagerSync
 import SwiftUI
 
 struct SyncConnectPage: View {
@@ -54,8 +54,8 @@ struct SyncConnectPage: View {
 
         SetupStepRow(
           2,
-          title: Text("Choose the Ardia Sync folder"),
-          detail: Text("Choose the Ardia Sync folder in iCloud Drive."),
+          title: Text("Choose the Voyager Sync folder"),
+          detail: Text("Choose the Voyager Sync folder in iCloud Drive."),
           progress: .step(done: false, after: hasPhrase)
         ) {
           VStack(alignment: .leading, spacing: Spacing.tight) {

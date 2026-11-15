@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-const { Clock, emptyScope, syncScope, compact } = await import("@ardia/sync");
+const { Clock, emptyScope, syncScope, compact } = await import("@voyager/sync");
 const adapters = { ...(await import("./adapters.ts")), ...(await import("./devices.ts")), ...(await import("./sentTabsAdapter.ts")) };
 
 const DAY = 86_400_000;

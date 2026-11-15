@@ -1,4 +1,4 @@
-import { fillProviderTemplate, parseProviderReply, PROVIDER_LIMITS, remoteRequestAllowed, type ProviderRowInput } from "@ardia/core";
+import { fillProviderTemplate, parseProviderReply, PROVIDER_LIMITS, remoteRequestAllowed, type ProviderRowInput } from "@voyager/core";
 import { isTestInstance } from "../../platform/launchConfig";
 
 export const REMOTE_PROVIDER = { debounceMs: 120, maxBytes: 131_072, maxInFlight: 4, cacheSize: 64, cacheMs: 300_000, maxQuery: 512 } as const;

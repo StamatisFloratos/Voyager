@@ -1,4 +1,4 @@
-import { canonical, type ScopeState } from "@ardia/sync";
+import { canonical, type ScopeState } from "@voyager/sync";
 import { themeFromRecord } from "../profileAdapters";
 import type { ProfileLink } from "../syncDoc";
 

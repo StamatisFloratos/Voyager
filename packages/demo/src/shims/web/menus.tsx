@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import type { MenuItem } from "@ardia-real/shell";
+import type { MenuItem } from "@voyager-real/shell";
 import { useBrowser } from "../../../../../apps/browser/src/state/browser/store";
 import { Symbol } from "./Symbol";
 

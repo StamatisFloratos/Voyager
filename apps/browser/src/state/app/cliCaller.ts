@@ -1,6 +1,6 @@
 export type CliCaller = { name: string; app: string | null };
 
-export const CLI_CALLER_FALLBACK = "ardia";
+export const CLI_CALLER_FALLBACK = "voyager";
 const MAX_NAME = 40;
 const MAX_APP_PATH = 1024;
 const INVISIBLE = /[\p{C}]/gu;
@@ -32,8 +32,8 @@ export type ControlLine = { lead: string; name: string; rest: string };
 
 export function controlLine(caller: CliCaller | null): ControlLine {
   const name = caller?.name ?? CLI_CALLER_FALLBACK;
-  if (name.toLowerCase() === CLI_CALLER_FALLBACK) return { lead: "The ", name: CLI_CALLER_FALLBACK, rest: " command is controlling Ardia" };
-  return { lead: "", name, rest: " is controlling Ardia" };
+  if (name.toLowerCase() === CLI_CALLER_FALLBACK) return { lead: "The ", name: CLI_CALLER_FALLBACK, rest: " command is controlling Voyager" };
+  return { lead: "", name, rest: " is controlling Voyager" };
 }
 
 export const controlLineText = ({ lead, name, rest }: ControlLine) => `${lead}${name}${rest}`;

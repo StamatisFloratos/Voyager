@@ -1,4 +1,4 @@
-import { nativeModule, type ConfigFileRead } from "@ardia/shell";
+import { nativeModule, type ConfigFileRead } from "@voyager/shell";
 
 export type { ConfigFileRead };
 

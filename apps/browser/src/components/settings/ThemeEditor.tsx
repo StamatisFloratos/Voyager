@@ -17,7 +17,7 @@ import {
   spaceLookSource,
   type ShownLook,
 } from "../../lib/profileLook";
-import { THEME_TEXTURES } from "@ardia/core";
+import { THEME_TEXTURES } from "@voyager/core";
 import { PROFILE_COLORS } from "../ui/theme";
 import { useAppDark, useProfile, useSettings, useWindow } from "../../state/browser/hooks";
 import type { ProfileColor, ProfileTheme, ThemeMode, ThemeTexture } from "../../state/browser/types";

@@ -29,17 +29,17 @@ enum Renamed {
     oldService: "Netnyahoo Safe Storage", newService: "Ardia Safe Storage", account: ("Netnyahoo", "Ardia"),
     label: { _ in "Ardia Safe Storage" }, accessible: nil, critical: true)
   static let connectedAccounts = KeychainItem(
-    oldService: "Netnyahoo Connected Accounts", newService: "Ardia Connected Accounts", account: nil,
-    label: { "Ardia: \($0)" }, accessible: nil, critical: false)
+    oldService: "Netnyahoo Connected Accounts", newService: "Voyager Connected Accounts", account: nil,
+    label: { "Voyager: \($0)" }, accessible: nil, critical: false)
   static let syncKey = KeychainItem(
-    oldService: "Netnyahoo Sync Key", newService: "Ardia Sync Key", account: nil,
-    label: { _ in "Ardia Sync Key" }, accessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly, critical: false)
+    oldService: "Netnyahoo Sync Key", newService: "Voyager Sync Key", account: nil,
+    label: { _ in "Voyager Sync Key" }, accessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly, critical: false)
   static let keychain = [safeStorage, connectedAccounts, syncKey]
 
   static let paths: [(old: String, new: String)] = [
     ("Chromium/NetnyahooPictureInPicture.plist", "Chromium/ArdiaPictureInPicture.plist"),
     ("Chromium/NativeMessagingHosts/.netnyahoo-managed.json", "Chromium/NativeMessagingHosts/.ardia-managed.json"),
-    ("Chromium/*/Netnyahoo Favicons", "Chromium/*/Ardia Favicons"),
+    ("Chromium/*/Netnyahoo Favicons", "Chromium/*/Voyager Favicons"),
   ]
 
   static let jsonKeys = [
@@ -51,9 +51,9 @@ enum Renamed {
   ]
 
   static let urls: [(old: String, new: String)] = [
-    ("netnyahoo://yahu", "ardia://game"),
+    ("netnyahoo://yahu", "voyager://game"),
     ("chrome://yahu", "chrome://game"),
-    ("netnyahoo://", "ardia://"),
+    ("netnyahoo://", "voyager://"),
   ]
 
   static let defaultsKeys = [
@@ -62,8 +62,8 @@ enum Renamed {
     "NNPictureInPictureZoom": "ACPictureInPictureZoom",
     "NNUpdateFeedURL": "ACUpdateFeedURL",
   ]
-  static let defaultsKeyPrefixes = [("NSWindow Frame Netnyahoo", "NSWindow Frame Ardia")]
-  static let menuTitleWords = [("Small Yahu", "Little Ardia"), ("Netnyahoo", "Ardia")]
+  static let defaultsKeyPrefixes = [("NSWindow Frame Netnyahoo", "NSWindow Frame Voyager")]
+  static let menuTitleWords = [("Small Yahu", "Little Voyager"), ("Netnyahoo", "Voyager")]
 }
 
 public enum LegacyMigration {
@@ -80,7 +80,7 @@ public enum LegacyMigration {
   }
 
   public static func runAtLaunch(scratch: ScratchInstance?, bundleId: String? = Bundle.main.bundleIdentifier) -> Bool {
-    let bundleId = bundleId ?? "com.ardia.browser"
+    let bundleId = bundleId ?? "com.stamatisfloratos.voyager"
     guard bundleId != LegacyName.bundleId else { return true }
     let context: LegacyMigrator.Context?
     if let scratch {
@@ -150,7 +150,7 @@ public enum LegacyMigration {
     let inside = { (a: String, b: String) in a == b || a.hasPrefix(b + "/") }
     guard resolved(home) != realHome, !inside(resolved(home), realHome + "/Library"), !inside(resolved(data), resolved(home)),
       !inside(resolved(home), resolved(data)) else {
-      NSLog("Ardia: the legacy source must be a scratch folder apart from the data dir and your home; ignored")
+      NSLog("Voyager: the legacy source must be a scratch folder apart from the data dir and your home; ignored")
       return nil
     }
     let library = home.appendingPathComponent("Library")
@@ -158,7 +158,7 @@ public enum LegacyMigration {
     let handlers = library.appendingPathComponent("Preferences/\(launchServicesDomain).plist")
     for input in [library, oldData, library.appendingPathComponent("Preferences"), handlers, home.appendingPathComponent("keychain.json")]
     where FileManager.default.fileExists(atPath: input.path) && !inside(resolved(input), resolved(home)) {
-      NSLog("Ardia: \(input.path) leads out of the legacy source; ignored")
+      NSLog("Voyager: \(input.path) leads out of the legacy source; ignored")
       return nil
     }
     return LegacyMigrator.Context(
@@ -238,7 +238,7 @@ extension LegacyMigration {
     let resolvedFolder = String(cString: folder)
     free(folder)
     let new = old.deletingLastPathComponent().appendingPathComponent("\(name).app")
-    let log = { (message: String) in NSLog("Ardia: renaming \(old.path): \(message)") }
+    let log = { (message: String) in NSLog("Voyager: renaming \(old.path): \(message)") }
     var info = stat()
     let isIn = { (bundle: URL) in (running() ?? "").hasPrefix("\(resolvedFolder)/\(bundle.lastPathComponent)/") }
     let isBundle = lstat(old.path, &info) == 0 && info.st_mode & S_IFMT == S_IFDIR && isIn(old)

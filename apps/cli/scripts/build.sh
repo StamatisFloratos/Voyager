@@ -1,12 +1,12 @@
 #!/bin/sh
-# Builds the ardia CLI tarball: a relocatable CPython 3.13 with ardia_cli, its pinned dependencies, esbuild and axe-core.
+# Builds the voyager CLI tarball: a relocatable CPython 3.13 with voyager_cli, its pinned dependencies, esbuild and axe-core.
 #
 #   apps/cli/scripts/build.sh <version> <out dir>
 #   apps/cli/scripts/build.sh -h | --help
 #
-# Writes <out dir>/ardia-cli-<version>-macos-arm64.tar.gz and its .sha256. Needs the network (python-build-standalone
+# Writes <out dir>/voyager-cli-<version>-macos-arm64.tar.gz and its .sha256. Needs the network (python-build-standalone
 # from GitHub, wheels, esbuild and axe-core from npm) and uv (~/.local/bin/uv or on PATH). The Python, esbuild and axe-core
-# downloads are pinned by sha256 (the npm ones also by npm's sha512 integrity) and cached in ~/Library/Caches/ardia-cli-build.
+# downloads are pinned by sha256 (the npm ones also by npm's sha512 integrity) and cached in ~/Library/Caches/voyager-cli-build.
 set -eu
 
 python_release=20261013
@@ -39,7 +39,7 @@ uv=$(command -v uv 2>/dev/null || true)
 [ -n "$uv" ] || uv=$HOME/.local/bin/uv
 [ -x "$uv" ] || { echo "build.sh: uv not found" >&2; exit 1; }
 
-cache=$HOME/Library/Caches/ardia-cli-build
+cache=$HOME/Library/Caches/voyager-cli-build
 mkdir -p "$cache" "$out"
 out=$(cd "$out" && pwd)
 if ! [ -f "$cache/$python_asset" ] || [ "$(shasum -a 256 "$cache/$python_asset" | awk '{ print $1 }')" != "$python_sha256" ]; then
@@ -65,9 +65,9 @@ actual=$(shasum -a 256 "$cache/$axe_asset" | awk '{ print $1 }')
 actual=$(openssl dgst -sha512 -binary "$cache/$axe_asset" | base64)
 [ "$actual" = "$axe_sha512" ] || { echo "build.sh: $axe_asset sha512 mismatch ($actual)" >&2; exit 1; }
 
-work=$(mktemp -d "${TMPDIR:-/tmp}/ardia-cli-build.XXXXXX")
+work=$(mktemp -d "${TMPDIR:-/tmp}/voyager-cli-build.XXXXXX")
 trap 'rm -rf "$work"' EXIT
-root=$work/ardia-cli-$version
+root=$work/voyager-cli-$version
 mkdir -p "$root/bin"
 tar -xzf "$cache/$python_asset" -C "$root"
 python=$root/python/bin/python3
@@ -77,19 +77,19 @@ site=$lib/site-packages
 
 UV_CACHE_DIR=$cache/uv "$uv" pip install --quiet --python "$python" --break-system-packages --link-mode copy \
   --no-build --require-hashes -r "$cli_dir/requirements.lock"
-cp -R "$cli_dir/ardia_cli" "$site/ardia_cli"
-printf '__version__ = "%s"\n' "$version" >"$site/ardia_cli/__init__.py"
-mkdir "$work/esbuild" "$site/ardia_cli/bin"
+cp -R "$cli_dir/voyager_cli" "$site/voyager_cli"
+printf '__version__ = "%s"\n' "$version" >"$site/voyager_cli/__init__.py"
+mkdir "$work/esbuild" "$site/voyager_cli/bin"
 tar -xzf "$cache/$esbuild_asset" -C "$work/esbuild" package/bin/esbuild
-cp "$work/esbuild/package/bin/esbuild" "$site/ardia_cli/bin/esbuild"
-chmod 755 "$site/ardia_cli/bin/esbuild"
+cp "$work/esbuild/package/bin/esbuild" "$site/voyager_cli/bin/esbuild"
+chmod 755 "$site/voyager_cli/bin/esbuild"
 rm -rf "$work/esbuild"
-mkdir "$work/axe" "$site/ardia_cli/vendor"
+mkdir "$work/axe" "$site/voyager_cli/vendor"
 tar -xzf "$cache/$axe_asset" -C "$work/axe" package/axe.min.js package/LICENSE
-cp "$work/axe/package/axe.min.js" "$site/ardia_cli/vendor/axe.min.js"
-cp "$work/axe/package/LICENSE" "$site/ardia_cli/vendor/axe-core-LICENSE"
+cp "$work/axe/package/axe.min.js" "$site/voyager_cli/vendor/axe.min.js"
+cp "$work/axe/package/LICENSE" "$site/voyager_cli/vendor/axe-core-LICENSE"
 rm -rf "$work/axe"
-[ "$("$site/ardia_cli/bin/esbuild" --version)" = "$esbuild_version" ] || { echo "build.sh: the bundled esbuild doesn't run" >&2; exit 1; }
+[ "$("$site/voyager_cli/bin/esbuild" --version)" = "$esbuild_version" ] || { echo "build.sh: the bundled esbuild doesn't run" >&2; exit 1; }
 
 rm -rf "$lib/test" "$lib/idlelib" "$lib/tkinter" "$lib/turtledemo" "$lib/ensurepip" "$lib/lib2to3" \
   "$lib/turtle.py" "$lib/pydoc_data" "$lib"/config-* "$lib/lib-dynload"/_tkinter* \
@@ -107,9 +107,9 @@ find "$root" -type l | while IFS= read -r link; do
     /*|..|../*|*/../*|*/..) rm -f "$link" ;;
   esac
 done
-"$python" -I -c 'import ardia_cli.cli, ardia_cli.computer, ardia_cli.browse.cli, ardia_cli.browse.daemon, ardia_cli.scripts_cli, ardia_cli.scripts_test, ardia_cli.scripts_store, ardia_cli.browsing, pydoll, sqlite3, ssl, zoneinfo, ctypes, lzma; from ardia_cli.userscript import find_esbuild; assert find_esbuild().endswith("ardia_cli/bin/esbuild"); from ardia_cli.browse.audit import axe_source; assert "axe" in axe_source()[:4000]' >/dev/null
+"$python" -I -c 'import voyager_cli.cli, voyager_cli.computer, voyager_cli.browse.cli, voyager_cli.browse.daemon, voyager_cli.scripts_cli, voyager_cli.scripts_test, voyager_cli.scripts_store, voyager_cli.browsing, pydoll, sqlite3, ssl, zoneinfo, ctypes, lzma; from voyager_cli.userscript import find_esbuild; assert find_esbuild().endswith("voyager_cli/bin/esbuild"); from voyager_cli.browse.audit import axe_source; assert "axe" in axe_source()[:4000]' >/dev/null
 
-cat >"$root/bin/ardia" <<'EOF'
+cat >"$root/bin/voyager" <<'EOF'
 #!/bin/sh
 self=$0
 while [ -L "$self" ]; do
@@ -120,16 +120,16 @@ while [ -L "$self" ]; do
   esac
 done
 root=$(cd -P "$(dirname "$self")/.." && pwd -P)
-exec "$root/python/bin/python3" -I -m ardia_cli "$@"
+exec "$root/python/bin/python3" -I -m voyager_cli "$@"
 EOF
-chmod 755 "$root/bin/ardia"
+chmod 755 "$root/bin/voyager"
 mkdir "$root/.leases"
-"$root/bin/ardia" --version >/dev/null
+"$root/bin/voyager" --version >/dev/null
 find "$root" -name __pycache__ -type d -prune -exec rm -rf {} +
 
-tarball=ardia-cli-$version-macos-arm64.tar.gz
+tarball=voyager-cli-$version-macos-arm64.tar.gz
 COPYFILE_DISABLE=1 tar --no-mac-metadata --no-xattrs --uid 0 --gid 0 --uname root --gname wheel \
-  -czf "$out/$tarball.part" -C "$work" "ardia-cli-$version"
+  -czf "$out/$tarball.part" -C "$work" "voyager-cli-$version"
 mv "$out/$tarball.part" "$out/$tarball"
 (cd "$out" && shasum -a 256 "$tarball" >"$tarball.sha256")
 printf '%s\n' "$out/$tarball"

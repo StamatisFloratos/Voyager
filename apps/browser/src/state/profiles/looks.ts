@@ -1,4 +1,4 @@
-import type { ThemeBackdropProps } from "@ardia/core";
+import type { ThemeBackdropProps } from "@voyager/core";
 import type { LookSource, ProfileLookFields } from "../../lib/profileLook";
 import type { BackdropTint } from "../../lib/windowTint";
 

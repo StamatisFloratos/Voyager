@@ -11,7 +11,7 @@ final class AppSettings {
     static let colorChoice = "settings.color"
   }
 
-  static let demoSuite = "ardia.demo.settings"
+  static let demoSuite = "voyager.demo.settings"
 
   @ObservationIgnored private let defaults: UserDefaults
 
@@ -45,15 +45,15 @@ final class AppSettings {
 
   static func launch() -> AppSettings {
     let arguments = ProcessInfo.processInfo.arguments
-    let isDemo = arguments.contains("-ArdiaDemo") || UserDefaults.standard.bool(forKey: "ArdiaDemo")
+    let isDemo = arguments.contains("-VoyagerDemo") || UserDefaults.standard.bool(forKey: "VoyagerDemo")
     guard isDemo, let demo = UserDefaults(suiteName: demoSuite) else { return AppSettings(defaults: .standard) }
     demo.removePersistentDomain(forName: demoSuite)
     let settings = AppSettings(
       defaults: demo,
-      finishedOnboarding: !arguments.contains("-ArdiaOnboarding")
+      finishedOnboarding: !arguments.contains("-VoyagerOnboarding")
     )
-    if arguments.contains("-ArdiaRestingStart") { settings.autoOpensKeyboard = false }
-    if let index = arguments.firstIndex(of: "-ArdiaColor"), arguments.indices.contains(index + 1) {
+    if arguments.contains("-VoyagerRestingStart") { settings.autoOpensKeyboard = false }
+    if let index = arguments.firstIndex(of: "-VoyagerColor"), arguments.indices.contains(index + 1) {
       settings.colorChoice = arguments[index + 1]
     }
     return settings

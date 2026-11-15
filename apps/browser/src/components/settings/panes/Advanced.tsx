@@ -16,7 +16,7 @@ import { engineVersion, widevine as widevineComponent } from "../../../state/set
 import { useResource } from "../../../state/settings/resources";
 import { AutomationRules } from "./AutomationRules";
 
-const REPOSITORY = "https://github.com/mantrakp04/ardia";
+const REPOSITORY = "https://github.com/StamatisFloratos/Voyager";
 
 const BATTERY_SAVER_DESCRIPTIONS: Record<BatterySaverWhen, string> = {
   lowBattery: "At 20% battery or less, or in Low Power Mode, busy background tabs pause and animations slow down.",

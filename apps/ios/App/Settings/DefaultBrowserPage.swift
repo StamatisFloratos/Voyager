@@ -1,4 +1,4 @@
-import ArdiaDesign
+import VoyagerDesign
 import SwiftUI
 
 struct DefaultBrowserPage: View {
@@ -28,11 +28,11 @@ struct DefaultBrowserInstructions: View {
       VStack(spacing: Spacing.small) {
         Text("How to change your default browser")
           .font(.system(.title, design: .rounded, weight: .bold))
-          .foregroundStyle(Color.ardiaTitle)
+          .foregroundStyle(Color.voyagerTitle)
           .multilineTextAlignment(.center)
           .fixedSize(horizontal: false, vertical: true)
           .accessibilityAddTraits(.isHeader)
-        Text("Open links from other apps in Ardia.")
+        Text("Open links from other apps in Voyager.")
           .font(.body)
           .foregroundStyle(.secondary)
           .multilineTextAlignment(.center)
@@ -41,9 +41,9 @@ struct DefaultBrowserInstructions: View {
 
       if dynamicTypeSize.isAccessibilitySize {
         VStack(alignment: .leading, spacing: Spacing.small) {
-          Text("1. Open Ardia in Settings")
+          Text("1. Open Voyager in Settings")
           Text("2. Tap on “Default Browser App”")
-          Text("3. Select Ardia")
+          Text("3. Select Voyager")
         }
         .font(.body)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -57,7 +57,7 @@ struct DefaultBrowserInstructions: View {
           app.defaultBrowser.willOpenSystemSettings()
           if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
         } label: {
-          Text("Open Ardia in Settings")
+          Text("Open Voyager in Settings")
             .font(.body.weight(.semibold))
             .frame(maxWidth: .infinity, minHeight: 50)
         }
@@ -68,7 +68,7 @@ struct DefaultBrowserInstructions: View {
         if let onLater {
           Button("Maybe Later", action: onLater)
             .font(.body.weight(.semibold))
-            .foregroundStyle(Color.ardiaTitle)
+            .foregroundStyle(Color.voyagerTitle)
             .frame(minHeight: 44)
         }
       }
@@ -77,7 +77,7 @@ struct DefaultBrowserInstructions: View {
 
   private var stepsCard: some View {
     VStack(spacing: 0) {
-      DefaultBrowserStep(number: 1, text: Text("Open Ardia in Settings")) {
+      DefaultBrowserStep(number: 1, text: Text("Open Voyager in Settings")) {
         Image(systemName: "gear")
           .font(.system(size: 17, weight: .semibold))
           .foregroundStyle(.white)
@@ -92,7 +92,7 @@ struct DefaultBrowserInstructions: View {
           .frame(width: 29, height: 29)
       }
       Divider().padding(.leading, 56)
-      DefaultBrowserStep(number: 3, text: Text("Select Ardia")) {
+      DefaultBrowserStep(number: 3, text: Text("Select Voyager")) {
         AppIconPreview()
       }
     }

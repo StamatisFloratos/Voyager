@@ -117,7 +117,7 @@ export function answerDecision(connection: number, params: Record<string, unknow
   const usable = answer === null || answer === undefined || isFields(answer) || Array.isArray(answer);
   if (!usable) {
     entry.cancel();
-    return { error: "answer must be an object, a list or null; Ardia used its default" };
+    return { error: "answer must be an object, a list or null; Voyager used its default" };
   }
   entry.answer(answer ?? null);
   return { ok: true };

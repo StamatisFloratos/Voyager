@@ -1,6 +1,6 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import VoyagerBrowser
+import VoyagerDesign
+import VoyagerSync
 import SwiftUI
 
 struct SyncedSpacesView: View {

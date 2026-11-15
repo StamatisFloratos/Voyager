@@ -1,4 +1,4 @@
-import type { FetchLike } from "@ardia/core";
+import type { FetchLike } from "@voyager/core";
 import { fetchSearchSuggestions, stopSearchSuggestions } from "../../platform/search";
 import { noteSearchSuggest } from "../telemetry/track";
 import { engineProfile, isIncognitoProfile } from "../browser/model";

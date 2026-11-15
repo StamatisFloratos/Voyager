@@ -1,4 +1,4 @@
-import ArdiaDesign
+import VoyagerDesign
 import CoreImage
 import SwiftUI
 
@@ -119,7 +119,7 @@ private struct SketchQRCode: View {
 private enum SketchQR {
   static let image: CGImage? = {
     guard let filter = CIFilter(name: "CIQRCodeGenerator") else { return nil }
-    filter.setValue(Data("https://ardia.dev".utf8), forKey: "inputMessage")
+    filter.setValue(Data("https://github.com/StamatisFloratos/Voyager".utf8), forKey: "inputMessage")
     filter.setValue("M", forKey: "inputCorrectionLevel")
     guard let output = filter.outputImage else { return nil }
     return CIContext(options: [.useSoftwareRenderer: true]).createCGImage(output, from: output.extent)

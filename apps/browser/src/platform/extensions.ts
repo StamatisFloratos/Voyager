@@ -13,7 +13,7 @@ import {
   type InstalledExtension,
   type SidePanelRequest,
   type TabsRequest,
-} from "@ardia/ardiacore";
+} from "@voyager/ardiacore";
 
 export { extensionSearchEngines };
 export type { ExtensionsSyncApply, InstalledExtension, ActionState, ExtensionPackage, ExtensionInstallPrompt, TabsRequest };

@@ -200,7 +200,7 @@ BOOL TracingPictureInPicture() {
 
 - (void)noteStayedOnAppSwitch {
   if (!_tab || !_visible || _reports.inPictureInPicture || !self.seenByUser || !self.playsForAutoPictureInPicture) return;
-  [self traceAutoPictureInPicture:@"app: the user left Ardia, the window server still shows the tab"];
+  [self traceAutoPictureInPicture:@"app: the user left Voyager, the window server still shows the tab"];
   [self emit:@"autoPictureInPictureKept" payload:@{@"appSwitch" : @YES}];
 }
 

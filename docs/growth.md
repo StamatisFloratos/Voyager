@@ -1,5 +1,7 @@
 # Growth log
 
+> Upstream reference from Ardia 0.2.46. For current Voyager behavior, paths and build instructions, see [the fork notes](voyager.md).
+
 A running log of what we change on ardia.dev (netnyahoo.com before the rename) to get more Mac downloads, and what happened. Newest entry
 at the bottom. Events live in `apps/site/src/scripts/analytics.ts`; since 2026-09-30 they go to our own
 ClickHouse (see **Telemetry** below; before that, PostHog Cloud EU, whose history was copied over).

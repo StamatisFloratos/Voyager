@@ -1,4 +1,4 @@
-import { call, on, type CastDialog, type CastRoute } from "@ardia/ardiacore";
+import { call, on, type CastDialog, type CastRoute } from "@voyager/ardiacore";
 
 export {
   CastMode,
@@ -12,7 +12,7 @@ export {
   type NowPlaying,
   type ControlPress,
   type PictureInPictureState,
-} from "@ardia/ardiacore";
+} from "@voyager/ardiacore";
 
 export const getDisplayMediaSources = () => call("media.displayMediaSources");
 export const screenRecordingAllowed = () => call("media.screenRecordingAllowed");

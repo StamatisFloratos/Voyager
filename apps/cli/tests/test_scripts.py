@@ -10,9 +10,9 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import browsing, cli, endpoint, scripts_store, scripts_test, urlmatch, userscript
-from ardia_cli.scripts_store import Store, StoreError
-from ardia_cli.userscript import Meta, ScriptError, build, parse_meta, url_runs
+from voyager_cli import browsing, cli, endpoint, scripts_store, scripts_test, urlmatch, userscript
+from voyager_cli.scripts_store import Store, StoreError
+from voyager_cli.userscript import Meta, ScriptError, build, parse_meta, url_runs
 
 CHROMIUM_URL_CASES = [
     ("http://*/*", "http://google.com/", True),
@@ -227,7 +227,7 @@ class Matching(unittest.TestCase):
 @unittest.skipUnless(userscript.find_esbuild(), "esbuild isn't available")
 class Confinement(unittest.TestCase):
     def setUp(self):
-        self.work = Path(tempfile.mkdtemp(prefix="ardia-cli-test-")).resolve()
+        self.work = Path(tempfile.mkdtemp(prefix="voyager-cli-test-")).resolve()
         self.tree = self.work / "tree"
         (self.tree / "lib").mkdir(parents=True)
         (self.tree / "lib" / "ok.ts").write_text("export const ok = 1;\n")
@@ -263,12 +263,12 @@ class Confinement(unittest.TestCase):
 
     def test_data_dir_by_identity_not_spelling(self):
         support = self.tree / "support"
-        data = support / "com.ardia.browser"
+        data = support / "com.stamatisfloratos.voyager"
         (data / "Chromium").mkdir(parents=True)
         (data / "Chromium" / "secret.js").write_text("export default 1;\n")
         path = support / "s.user.ts"
-        path.write_text("// ==UserScript==\n// @match https://example.com/*\n// ==/UserScript==\nimport s from \"./COM.ARDIA.BROWSER/Chromium/secret.js\";\nconsole.log(s);\n")
-        if not (support / "COM.ARDIA.BROWSER").exists():
+        path.write_text("// ==UserScript==\n// @match https://example.com/*\n// ==/UserScript==\nimport s from \"./COM.VOYAGER.BROWSER/Chromium/secret.js\";\nconsole.log(s);\n")
+        if not (support / "COM.VOYAGER.BROWSER").exists():
             self.skipTest("case-sensitive file system")
         with self.assertRaisesRegex(ScriptError, "data folder"):
             build(path, data_dirs=[data])
@@ -291,7 +291,7 @@ class Confinement(unittest.TestCase):
 
 class Stores(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="ardia-cli-store-")).resolve()
+        self.root = Path(tempfile.mkdtemp(prefix="voyager-cli-store-")).resolve()
 
     def tearDown(self):
         shutil.rmtree(self.root, ignore_errors=True)
@@ -445,8 +445,8 @@ class Stores(unittest.TestCase):
 
 class ReadOnlyDefaults(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="ardia-cli-default-")).resolve()
-        self.default = self.root / "com.ardia.browser"
+        self.root = Path(tempfile.mkdtemp(prefix="voyager-cli-default-")).resolve()
+        self.default = self.root / "com.stamatisfloratos.voyager"
         self.default.mkdir()
         self.work = self.root / "work"
         self.work.mkdir()
@@ -459,7 +459,7 @@ class ReadOnlyDefaults(unittest.TestCase):
         for patch in patches:
             patch.start()
             self.addCleanup(patch.stop)
-        for name in ("ARDIA_DATA_DIR", "ARDIA_CDP_URL"):
+        for name in ("VOYAGER_DATA_DIR", "VOYAGER_CDP_URL"):
             os.environ.pop(name, None)
 
     def tearDown(self):

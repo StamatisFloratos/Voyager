@@ -1,4 +1,4 @@
-import { classifyPaste, markdownLink, sanitizePaste, searchUrl, type PasteAction } from "@ardia/core";
+import { classifyPaste, markdownLink, sanitizePaste, searchUrl, type PasteAction } from "@voyager/core";
 import { copyText, readText } from "../../platform/clipboard";
 import { showMenu, type MenuItem } from "../../platform/menus";
 import { menuSections, withOptionAlternate, type MenuKey } from "../app/menuSections";

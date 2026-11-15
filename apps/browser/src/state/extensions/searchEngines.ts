@@ -1,4 +1,4 @@
-import type { ExtensionSearchEngine } from "@ardia/core";
+import type { ExtensionSearchEngine } from "@voyager/core";
 import { extensionSearchEngines } from "../../platform/extensions";
 import { useBrowser } from "../browser/store";
 import { useExtensions } from "./actions";

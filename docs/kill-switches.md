@@ -1,5 +1,7 @@
 # Kill switches
 
+> Upstream reference from Ardia 0.2.46. For current Voyager behavior, paths and build instructions, see [the fork notes](voyager.md).
+
 A speed change people can feel ships behind a switch, so a release that turns out slow or broken on some Macs can be
 backed out without another build. `apps/browser/src/platform/killSwitches.ts` is the registry; `apps/site/public/switches.json`
 (served at `https://ardia.dev/switches.json`) says which are off.

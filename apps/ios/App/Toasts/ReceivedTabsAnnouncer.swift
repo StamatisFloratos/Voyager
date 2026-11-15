@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import VoyagerBrowser
 import SwiftUI
 
 struct ReceivedTabsAnnouncer: ViewModifier {

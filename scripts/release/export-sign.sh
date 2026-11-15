@@ -8,14 +8,14 @@ identity="${3:?$usage}"
 cli_sha="${4:?$usage}"
 provisioning_profile="${5:-}"
 . "$(dirname "$0")/lib.sh"
-app="$dist/export/Ardia.app"
+app="$dist/export/Voyager.app"
 
 if [ -n "$provisioning_profile" ]; then
-  app_entitlements="$macos/Ardia-macOS/Ardia.entitlements"
-  grants_browser_passkeys "$provisioning_profile" && app_entitlements="$macos/Ardia-macOS/Ardia-ICloudPasskeys.entitlements"
+  app_entitlements="$macos/Voyager-macOS/Voyager.entitlements"
+  grants_browser_passkeys "$provisioning_profile" && app_entitlements="$macos/Voyager-macOS/Voyager-ICloudPasskeys.entitlements"
   echo "==> Export (Developer ID, $(basename "$provisioning_profile"), $(basename "$app_entitlements"))"
-  "$root/scripts/lib/export-developer-id.sh" "$archive/Products/Applications/Ardia.app" "$app" "$provisioning_profile" \
-    "$app_entitlements" "$identity" com.ardia.browser > "$dist/export.log" 2>&1 || { cat "$dist/export.log" >&2; exit 1; }
+  "$root/scripts/lib/export-developer-id.sh" "$archive/Products/Applications/Voyager.app" "$app" "$provisioning_profile" \
+    "$app_entitlements" "$identity" com.stamatisfloratos.voyager > "$dist/export.log" 2>&1 || { cat "$dist/export.log" >&2; exit 1; }
 else
   echo "==> Export (Developer ID)"
   for attempt in 1 2 3 4 5 6; do
@@ -28,9 +28,9 @@ else
     sleep 10
   done
 fi
-[ "$(lipo -archs "$app/Contents/MacOS/Ardia")" = arm64 ] || die "the app's executable is $(lipo -archs "$app/Contents/MacOS/Ardia"), not arm64"
+[ "$(lipo -archs "$app/Contents/MacOS/Voyager")" = arm64 ] || die "the app's executable is $(lipo -archs "$app/Contents/MacOS/Voyager"), not arm64"
 
-awk '{ print $1 }' "$cli_sha" >"$app/Contents/Resources/ardia-cli.sha256"
+awk '{ print $1 }' "$cli_sha" >"$app/Contents/Resources/voyager-cli.sha256"
 
 echo "==> Licenses"
 licenses="$app/Contents/Resources/Licenses"
@@ -54,7 +54,7 @@ done
 sign_as "$identity" --options restrict,library,kill,runtime "$fwv/Helpers/chrome_crashpad_handler"
 sign_as "$identity" --options restrict,library,kill,runtime "$fwv/Helpers/app_mode_loader"
 [ -e "$fwv/Helpers/web_app_shortcut_copier" ] && sign_as "$identity" --options restrict,library,kill,runtime \
-  --identifier com.ardia.browser.web_app_shortcut_copier "$fwv/Helpers/web_app_shortcut_copier"
+  --identifier com.stamatisfloratos.voyager.web_app_shortcut_copier "$fwv/Helpers/web_app_shortcut_copier"
 sign_as "$identity" "$fw"
 [ -d "$app/Contents/Frameworks/hermes.framework" ] \
   && sign_as "$identity" --preserve-metadata=identifier,entitlements,flags,runtime "$app/Contents/Frameworks/hermes.framework"

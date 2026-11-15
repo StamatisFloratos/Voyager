@@ -1,4 +1,4 @@
-import { nativeModule, type RecordingResult, type ReportEvent, type UploadReply } from "@ardia/shell";
+import { nativeModule, type RecordingResult, type ReportEvent, type UploadReply } from "@voyager/shell";
 
 export type { RecordingResult, ReportEvent, UploadReply };
 

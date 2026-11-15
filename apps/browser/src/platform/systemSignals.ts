@@ -1,5 +1,5 @@
 import type { EventSubscription } from "expo-modules-core";
-import { nativeModule, type MovedDownload, type SystemSignal } from "@ardia/shell";
+import { nativeModule, type MovedDownload, type SystemSignal } from "@voyager/shell";
 
 export type { MovedDownload };
 

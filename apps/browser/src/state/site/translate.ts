@@ -1,4 +1,4 @@
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import { translation } from "../../platform/text";
 import { create } from "zustand";
 import { webviews } from "../../platform/webviews";

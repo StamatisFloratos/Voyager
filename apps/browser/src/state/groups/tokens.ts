@@ -1,4 +1,4 @@
-import { TAB_GROUP_COLORS } from "@ardia/core";
+import { TAB_GROUP_COLORS } from "@voyager/core";
 import type { GroupColor } from "../browser/types";
 
 export type GroupTint = Exclude<GroupColor, "none">;

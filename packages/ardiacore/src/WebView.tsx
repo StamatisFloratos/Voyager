@@ -1,9 +1,9 @@
-import { toAppUrl, toEngineUrl } from "@ardia/core";
+import { toAppUrl, toEngineUrl } from "@voyager/core";
 import { requireNativeViewManager } from "expo-modules-core";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import { findNodeHandle, type NativeSyntheticEvent } from "react-native";
 import type { FaviconImage } from "./favicons";
-import { ArdiaError, ardiaError } from "@ardia/core";
+import { ArdiaError, ardiaError } from "@voyager/core";
 import { deliverPageEvent, isPageEventProp, pageEventOf, type NativeProps, type PageEvent } from "./pageEvents";
 import type { DiscardOutcome, WebViewHandle, WebViewProps } from "./pageTypes";
 import type { PageCookie } from "./webkit";

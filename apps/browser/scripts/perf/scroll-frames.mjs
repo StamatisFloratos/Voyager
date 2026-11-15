@@ -6,8 +6,8 @@
 //   node apps/browser/scripts/perf/scroll-frames.mjs --out <dir> --arm <label>=<app>[,K=V...] [--arm ...] [options]
 //
 //     --arm <label>=<app>[,K=V][,battery]
-//                        repeatable: an app and extra environment for it (ARDIA_SWITCHES=…, ...); battery
-//                        turns Chrome's Battery Saver on, as Ardia does on battery or in Low Power Mode, and needs a copy
+//                        repeatable: an app and extra environment for it (VOYAGER_SWITCHES=…, ...); battery
+//                        turns Chrome's Battery Saver on, as Voyager does on battery or in Low Power Mode, and needs a copy
 //                        with the bench channel (native-bench.mjs --only prepare)
 //     --reps <n>         gestures per case (default 3)
 //     --rounds <n>       default 1; odd rounds run the arms in reverse order
@@ -29,7 +29,7 @@
 // (ProxyImpl::ScheduledActionDraw: drawHz, drawsLate = gaps over 1.5 refresh intervals), its main frames
 // (ProxyMain::BeginMainFrame: mainHz) and stale draws (stalePct: draws with no main-frame activation since the one
 // before, so whatever script or rAF placed shows the old scroll position for that frame), the renderer main thread's
-// busy time (mainBusyMs) and the part of it in Ardia's page script (pageScriptMs, ardia://page-script) and in extension
+// busy time (mainBusyMs) and the part of it in Voyager's page script (pageScriptMs, voyager://page-script) and in extension
 // scripts (extensionMs, uBlock Origin's); from the page, rAF rate and gaps over 12.5 ms, and scroll events per second.
 // A 60 Hz display makes every row 60; the display row says which. --cpu-throttle <n> slows the page's renderer n times
 // (Emulation.setCPUThrottlingRate), so per-frame script costs show as they would on a slower Mac.
@@ -260,7 +260,7 @@ function analyse(events, rep, refreshMs) {
     rafOver12: rafGaps.length ? Math.round((100 * rafGaps.filter((g) => g > 12.5).length) / rafGaps.length) : null,
     scrollHz: rate(scrolls),
     mainBusyMs: Math.round(events.filter((e) => inGesture(e) && e.name === "ThreadControllerImpl::RunTask").reduce((sum, e) => sum + (e.dur ?? 0), 0) / 1000),
-    pageScriptMs: scriptMs((url) => url.startsWith("ardia://page-script")),
+    pageScriptMs: scriptMs((url) => url.startsWith("voyager://page-script")),
     extensionMs: scriptMs((url) => /^chrome-extension:|^extensions::/.test(url)),
   };
 }

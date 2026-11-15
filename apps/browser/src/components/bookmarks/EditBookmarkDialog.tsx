@@ -1,4 +1,4 @@
-import { resolveInput } from "@ardia/core";
+import { resolveInput } from "@voyager/core";
 import { useState } from "react";
 import { currentBookmarkRoots, currentBookmarks, currentSettings } from "../../state/browser/current";
 import { addBookmark, addBookmarkFolder, moveBookmark, updateBookmark } from "../../state/bookmarks/actions";

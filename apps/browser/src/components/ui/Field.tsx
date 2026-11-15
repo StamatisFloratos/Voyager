@@ -1,4 +1,4 @@
-import { OutsidePressArea, showMenu, Symbol, type MenuItem } from "@ardia/shell";
+import { OutsidePressArea, showMenu, Symbol, type MenuItem } from "@voyager/shell";
 import { useEffect, useRef, type Ref } from "react";
 import { Animated, Pressable, StyleSheet, Text, TextInput, View, type DimensionValue, type StyleProp, type ViewStyle } from "react-native";
 import { curve, duration } from "./motion";

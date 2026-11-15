@@ -16,14 +16,14 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli.browse import actions, claims, client, inputs, media, paths, plugins, readurl, snapshot, vault
-from ardia_cli.browse import cli as browse_cli
-from ardia_cli.browse import commands, daemon
-from ardia_cli.browse.errors import BrowseError, ConnectionLost, Gated, OutcomeUnknown, StaleRef, Usage
-from ardia_cli.browse.page import Ring
-from ardia_cli.browse.state import Ref, RestartedBrowser, State
+from voyager_cli.browse import actions, claims, client, inputs, media, paths, plugins, readurl, snapshot, vault
+from voyager_cli.browse import cli as browse_cli
+from voyager_cli.browse import commands, daemon
+from voyager_cli.browse.errors import BrowseError, ConnectionLost, Gated, OutcomeUnknown, StaleRef, Usage
+from voyager_cli.browse.page import Ring
+from voyager_cli.browse.state import Ref, RestartedBrowser, State
 
-SCRATCH = Path.home() / "ardia-scratch"
+SCRATCH = Path.home() / "voyager-scratch"
 
 
 def scratch_dir(test) -> Path:
@@ -473,7 +473,7 @@ class ClaimsTest(unittest.TestCase):
 
 class TabIdsTest(unittest.TestCase):
     def registries(self):
-        from ardia_cli.browse.tabs import Registry
+        from voyager_cli.browse.tabs import Registry
 
         fd = paths.browse_dir(scratch_dir(self))
         self.addCleanup(os.close, fd)
@@ -504,7 +504,7 @@ class TabIdsTest(unittest.TestCase):
         self.assertEqual(two.others("I"), ({}, {}))
 
     def test_a_session_that_died_without_cleaning_up_is_ignored(self):
-        from ardia_cli.browse.tabs import Registry
+        from voyager_cli.browse.tabs import Registry
 
         fd, one, _ = self.registries()
         ghost = Registry(fd, "gone", "ghost")
@@ -519,8 +519,8 @@ class TabIdsTest(unittest.TestCase):
         state.target_infos = {target: {"targetId": target, "url": url, "title": target} for target, url in targets.items()}
         return state
 
-    def test_app_tab_ids_pair_only_by_the_target_ardia_reports(self):
-        from ardia_cli.browse import tabs
+    def test_app_tab_ids_pair_only_by_the_target_voyager_reports(self):
+        from voyager_cli.browse import tabs
 
         rows = [{"id": "tab-a", "url": "http://b/", "targetId": "A", "pageGeneration": 2}, {"id": "tab-b", "url": "http://a/", "targetId": "B"},
                 {"id": "tab-s", "url": "http://s/", "targetId": None}, {"id": "tab-x", "url": "http://x/", "targetId": "GONE"}]
@@ -528,8 +528,8 @@ class TabIdsTest(unittest.TestCase):
         self.assertEqual(tabs.pair_by_target(rows, infos), {"A": {"app": "tab-a", "generation": 2}, "B": {"app": "tab-b", "generation": None}})
         self.assertEqual(tabs.pair_by_target([{"id": "tab-a", "url": "http://a/"}], infos), {})
 
-    def test_tab_accepts_the_app_tab_id_and_explains_asleep_and_old_ardias(self):
-        from ardia_cli.browse import tabs
+    def test_tab_accepts_the_app_tab_id_and_explains_asleep_and_old_voyagers(self):
+        from voyager_cli.browse import tabs
 
         _, one, _ = self.registries()
         state = self.state_with(one, {"A": "http://a/", "B1": "http://b/", "B2": "http://b/"})
@@ -553,7 +553,7 @@ class TabIdsTest(unittest.TestCase):
         self.assertEqual(asyncio.run(state.find_tab(state.tab_id("B2"))), "B2")
 
     def replaced(self, rows, borrowed=False, opened=False):
-        from ardia_cli.browse import tabs
+        from voyager_cli.browse import tabs
 
         _, one, _ = self.registries()
         state = self.state_with(one, {"OLD": "http://a/"})
@@ -580,7 +580,7 @@ class TabIdsTest(unittest.TestCase):
             except BrowseError as error:
                 return state, None, error
 
-    def test_a_session_follows_its_tab_only_where_ardia_says_the_page_went(self):
+    def test_a_session_follows_its_tab_only_where_voyager_says_the_page_went(self):
         state, target, _ = self.replaced([{"id": "tab-a", "url": "http://a/", "targetId": "NEW", "pageGeneration": 3}], borrowed=True)
         self.assertEqual((target, state.current), ("NEW", "NEW"))
         self.assertIn("follows it", state.extras["notice"])
@@ -775,7 +775,7 @@ class RefsTest(unittest.TestCase):
             asyncio.run(state.connect())
 
     def test_ref_parsing(self):
-        from ardia_cli.browse.state import parse_ref
+        from voyager_cli.browse.state import parse_ref
 
         self.assertEqual(parse_ref("@e12"), "e12")
         self.assertEqual(parse_ref("ref=e3"), "e3")
@@ -812,38 +812,38 @@ class RenderTest(unittest.TestCase):
     def test_gate_message_names_the_method(self):
         error = Gated("Fetch.enable", "network route")
         self.assertIn("`network route` needs Fetch.enable", error.message)
-        self.assertIn("isn't allowed for the ardia command", error.message)
+        self.assertIn("isn't allowed for the voyager command", error.message)
         self.assertEqual(error.code, "policy_refused")
 
     def test_a_conditional_refusal_keeps_the_engines_reason(self):
-        from ardia_cli.browse.errors import refusal_reason
+        from voyager_cli.browse.errors import refusal_reason
 
-        said = "Command failed: ardia: Target.attachToTarget to that target isn't allowed for the ardia command (code -32000)"
+        said = "Command failed: voyager: Target.attachToTarget to that target isn't allowed for the voyager command (code -32000)"
         self.assertEqual(refusal_reason(said, "Target.attachToTarget"), "to that target")
-        self.assertEqual(refusal_reason("ardia: Network.getCookies isn't allowed for the ardia command", "Network.getCookies"), "")
-        self.assertEqual(refusal_reason("ardia: Target.getTargetInfo on that target isn't allowed for the ardia command", "Target.getTargetInfo"),
+        self.assertEqual(refusal_reason("voyager: Network.getCookies isn't allowed for the voyager command", "Network.getCookies"), "")
+        self.assertEqual(refusal_reason("voyager: Target.getTargetInfo on that target isn't allowed for the voyager command", "Target.getTargetInfo"),
                          "on that target")
         error = Gated("Target.attachToTarget", reason="to that target")
-        self.assertIn("which Ardia allows for the ardia command, but not to that target", error.message)
-        self.assertIn("(Target.attachToTarget to that target isn't allowed for the ardia command)", error.message)
+        self.assertIn("which Voyager allows for the voyager command, but not to that target", error.message)
+        self.assertIn("(Target.attachToTarget to that target isn't allowed for the voyager command)", error.message)
         self.assertNotIn("once the engine's token policy allows it", error.message)
         self.assertEqual((error.code, error.data), ("policy_refused", {"method": "Target.attachToTarget", "reason": "to that target"}))
-        named = error.during("open", "Ardia has it open as tab-1 at chrome://settings/")
-        self.assertTrue(named.message.startswith("`open` needs Target.attachToTarget, which Ardia allows"))
-        self.assertTrue(named.message.endswith("(Ardia has it open as tab-1 at chrome://settings/)"))
+        named = error.during("open", "Voyager has it open as tab-1 at chrome://settings/")
+        self.assertTrue(named.message.startswith("`open` needs Target.attachToTarget, which Voyager allows"))
+        self.assertTrue(named.message.endswith("(Voyager has it open as tab-1 at chrome://settings/)"))
         self.assertEqual(named.reason, "to that target")
         self.assertEqual(Gated("Fetch.enable").data, {"method": "Fetch.enable", "reason": ""})
 
     def test_a_viewport_refused_on_a_tab_the_command_didnt_open_says_where_it_works(self):
-        from ardia_cli.browse.errors import refusal_reason
+        from voyager_cli.browse.errors import refusal_reason
 
         method = "Emulation.setDeviceMetricsOverride"
-        said = f"ardia: {method} on a tab the ardia command didn't open isn't allowed for the ardia command"
+        said = f"voyager: {method} on a tab the voyager command didn't open isn't allowed for the voyager command"
         reason = refusal_reason(said, method)
-        self.assertEqual(reason, "on a tab the ardia command didn't open")
+        self.assertEqual(reason, "on a tab the voyager command didn't open")
         error = Gated(method, reason=reason).during("set viewport")
-        self.assertTrue(error.message.startswith("`set viewport` needs Emulation.setDeviceMetricsOverride, which Ardia allows"))
-        self.assertIn("only on a tab this command opened: `ardia browse open <url>`", error.message)
+        self.assertTrue(error.message.startswith("`set viewport` needs Emulation.setDeviceMetricsOverride, which Voyager allows"))
+        self.assertIn("only on a tab this command opened: `voyager browse open <url>`", error.message)
         taken = Gated(method, reason="on a tab the user can see").during("set viewport")
         self.assertIn("the viewport is for tabs nobody is looking at", taken.message)
         self.assertNotIn("once the engine's token policy allows it", error.message)
@@ -930,7 +930,7 @@ class VaultTest(unittest.TestCase):
         secret = 'pä ss"w\\ord'
         root = folder / "data"
         root.mkdir()
-        with mock.patch.dict(os.environ, {"ARDIA_BROWSE_KEYCHAIN": str(keychain)}), mock.patch("subprocess.run", spy):
+        with mock.patch.dict(os.environ, {"VOYAGER_BROWSE_KEYCHAIN": str(keychain)}), mock.patch("subprocess.run", spy):
             meta = vault.save(root, "site", {"url": "https://example.com/login", "username": "me", "password_stdin": True}, lambda: secret + "\n")
             self.assertEqual(vault.read_secret("site", meta["utf8"]), secret)
             self.assertEqual(vault.listing(root)[0]["origins"], ["https://example.com"])

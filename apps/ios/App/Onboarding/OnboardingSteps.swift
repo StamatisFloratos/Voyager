@@ -1,4 +1,4 @@
-import ArdiaDesign
+import VoyagerDesign
 import SwiftUI
 
 struct OnboardingBlockingStep: View {
@@ -112,7 +112,7 @@ private struct LinkBubbleIllustration: View {
       .shadow(color: .black.opacity(0.08), radius: 12, y: 6)
       Image(systemName: "arrow.right")
         .font(.title3.weight(.bold))
-        .foregroundStyle(Color.ardiaAccentText)
+        .foregroundStyle(Color.voyagerAccentText)
         .padding(.bottom, 26)
       AppIconPreview(side: 60)
         .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
@@ -189,7 +189,7 @@ private struct AllSetTip: View {
     HStack(alignment: .firstTextBaseline, spacing: Spacing.small) {
       Image(systemName: symbol)
         .font(.body.weight(.semibold))
-        .foregroundStyle(Color.ardiaAccentText)
+        .foregroundStyle(Color.voyagerAccentText)
         .frame(width: width)
         .accessibilityHidden(true)
       Text(text)

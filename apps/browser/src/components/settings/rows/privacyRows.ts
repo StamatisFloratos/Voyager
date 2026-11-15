@@ -1,3 +1,4 @@
+import { telemetryAvailable } from "../../../state/telemetry/transport";
 import { type SettingSection } from "./types";
 import type { SettingsPane } from "../../../state/settings/settingsWindows";
 
@@ -41,9 +42,10 @@ export const privacyRows = {
     {
       section: "Crash reports and usage",
       rows: {
-        shareDiagnostics: { title: "Share anonymous crash reports and usage stats", keywords: ["telemetry", "analytics", "diagnostics", "crash"] },
-        whatsSent: { title: "What's Sent", description: "Every field, and what never leaves this Mac.", keywords: ["telemetry", "data collection", "analytics", "usage data"] },
+        shareDiagnostics: { shown: telemetryAvailable, title: "Share anonymous crash reports and usage stats", keywords: ["telemetry", "analytics", "diagnostics", "crash"] },
+        whatsSent: { shown: telemetryAvailable, title: "What's Sent", description: "Every field, and what never leaves this Mac.", keywords: ["telemetry", "data collection", "analytics", "usage data"] },
         anonymousId: {
+          shown: telemetryAvailable,
           title: "Your anonymous ID",
           description: "The name and colours you appear to us as, and resetting the ID.",
           keywords: ["install id", "identity", "reset id", "avatar", "anonymous name"],
@@ -55,7 +57,7 @@ export const privacyRows = {
       rows: {
         viewData: {
           title: "The last 7 days",
-          description: "Saves the last 7 days Ardia recorded to your Downloads folder.",
+          description: "Saves the last 7 days Voyager recorded to your Downloads folder.",
           keywords: ["view my data", "local copy", "export", "download my data", "telemetry log", "diagnostics", "events"],
         },
       },
@@ -88,11 +90,11 @@ export const privacyRows = {
     { section: "Credit Cards", rows: { cardList: { title: "Credit Cards", keywords: ["add card", "saved cards", "payment"] } } },
   ],
   extensions: [
-    { section: "Extensions", rows: { installed: { title: "Extensions", description: "Add features to Ardia with extensions from the Chrome Web Store. Each profile has its own.", keywords: ["add ons", "plugins", "installed"] } } },
+    { section: "Extensions", rows: { installed: { title: "Extensions", description: "Add features to Voyager with extensions from the Chrome Web Store. Each profile has its own.", keywords: ["add ons", "plugins", "installed"] } } },
     {
       section: "Add extensions",
       rows: {
-        webStore: { title: "Chrome Web Store", description: "Browse the store; its Add to Ardia button installs here.", keywords: ["install extension"] },
+        webStore: { title: "Chrome Web Store", description: "Browse the store; its Add to Voyager button installs here.", keywords: ["install extension"] },
         addLink: { advanced: true, title: "Add from a link", description: "Paste a Chrome Web Store link or extension ID.", keywords: ["install extension", "url"] },
         unpacked: { advanced: true, title: "Load unpacked extension", description: "For developers: load an extension folder with a manifest.json.", keywords: ["developer mode"] },
       },

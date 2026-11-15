@@ -81,7 +81,7 @@ function lazyComponents(): Plugin {
   };
 }
 
-const analyze = !!process.env.ARDIA_DEMO_ANALYZE;
+const analyze = !!process.env.VOYAGER_DEMO_ANALYZE;
 
 export default defineConfig({
   plugins: [
@@ -104,8 +104,8 @@ export default defineConfig({
       { find: /^react-native(-macos)?$/, replacement: `${shims}react-native.tsx` },
       { find: /^expo-modules-core$/, replacement: `${shims}expo-modules-core.ts` },
       { find: /^(?:\.\.\/)+platform\/webDemo$/, replacement: `${shims}webDemo.ts` },
-      { find: /^@ardia\/(shell|ardiacore|shaders|sync|import)$/, replacement: `${shims}$1.tsx` },
-      ...Object.entries(realPackages).map(([name, path]) => ({ find: new RegExp(`^@ardia-real/${name}$`), replacement: path })),
+      { find: /^@voyager\/(shell|ardiacore|shaders|sync|import)$/, replacement: `${shims}$1.tsx` },
+      ...Object.entries(realPackages).map(([name, path]) => ({ find: new RegExp(`^@voyager-real/${name}$`), replacement: path })),
     ],
   },
   optimizeDeps: {

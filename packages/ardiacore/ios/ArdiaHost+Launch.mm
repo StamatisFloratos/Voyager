@@ -119,7 +119,7 @@ static NSString *AppDataDirectory() {
   NSString *dir = gScratchDataDir ? [gDataDirectory stringByDeletingLastPathComponent] : nil;
   if (dir) return dir;
   NSURL *support = [NSFileManager.defaultManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
-  return [support URLByAppendingPathComponent:NSBundle.mainBundle.bundleIdentifier ?: @"Ardia"].path;
+  return [support URLByAppendingPathComponent:NSBundle.mainBundle.bundleIdentifier ?: @"Voyager"].path;
 }
 
 static void ParkLaunchLinks(NSArray<NSURL *> *links, NSString *linkProfile) {
@@ -366,7 +366,7 @@ void StartEarlyWindow() {
   gScratchDataDir = config.dataDirectory != nil;
 #if DEBUG
   if (!gScratchDataDir) {
-    fprintf(stderr, "[ardiacore] set ARDIA_DATA_DIR to a scratch directory\n");
+    fprintf(stderr, "[ardiacore] set VOYAGER_DATA_DIR to a scratch directory\n");
     return 1;
   }
 #endif
@@ -472,7 +472,7 @@ void StartEarlyWindow() {
       if (sw.length && !autoAccepts(full.c_str()) && ![sw hasPrefix:@"ardia-"]) extra.push_back(full);
     }
   }
-  std::vector<const char *> args = {argc > 0 && argv[0] ? argv[0] : "Ardia"};
+  std::vector<const char *> args = {argc > 0 && argv[0] ? argv[0] : "Voyager"};
   for (const std::string &s : extra) args.push_back(s.c_str());
   for (int i = 1; mockKeychain && i < argc; i++) {
     const char *arg = argv[i];

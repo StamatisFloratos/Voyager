@@ -5,7 +5,7 @@ import {
   type SiteSettingValue,
   type SiteSettings,
 } from "../../state/site/siteSettings";
-import { displayHost } from "@ardia/core";
+import { displayHost } from "@voyager/core";
 import { showMenu } from "../../state/app/system";
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";

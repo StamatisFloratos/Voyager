@@ -1,5 +1,5 @@
 import { tabTitle } from "../../state/browser/model";
-import { recentTabSuggestions, type Suggestion } from "@ardia/core";
+import { recentTabSuggestions, type Suggestion } from "@voyager/core";
 import { useMemo } from "react";
 import { useSettings, useTab, useWindow } from "../../state/browser/hooks";
 import { useProfileHistory } from "../../state/history/hooks";

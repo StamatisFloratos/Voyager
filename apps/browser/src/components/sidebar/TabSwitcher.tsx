@@ -1,7 +1,7 @@
 import { tabTitle } from "../../state/browser/model";
 import { useEffect } from "react";
 import { Pressable, View } from "react-native";
-import { displayUrl } from "@ardia/core";
+import { displayUrl } from "@voyager/core";
 import { concentric, FadeLabel, font, hairline, Panel, radius, space } from "../ui";
 import { SectionLabel } from "./SectionLabel";
 import { useTheme } from "../ui/theme";

@@ -36,10 +36,10 @@ public enum ShellScripting {
 
   static func perform(_ body: [String: Any], transform: @escaping ([String: Any]) -> Any? = { _ in nil }) -> Any? {
     #if DEBUG
-    if !Thread.isMainThread { NSLog("Ardia: an Apple event is being handled off the main thread") }
+    if !Thread.isMainThread { NSLog("Voyager: an Apple event is being handled off the main thread") }
     #endif
     guard ShellEvents.isAttached(.scriptCommand) else {
-      NSScriptCommand.current()?.setError("Ardia isn't ready yet.")
+      NSScriptCommand.current()?.setError("Voyager isn't ready yet.")
       return nil
     }
     seq += 1
@@ -56,14 +56,14 @@ public enum ShellScripting {
       if refused { command?.refuseJavaScriptFromAppleEvents() }
       let value = error == nil && !refused ? transform(answer) : nil
       if let failure = ArdiaTryCatch({ command?.resumeExecution(withResult: value) }) {
-        NSLog("Ardia: AppleScript reply failed: \(failure)")
+        NSLog("Voyager: AppleScript reply failed: \(failure)")
       }
     }
     var request = body
     request["id"] = id
     ShellEvents.send(.scriptCommand, request)
     DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
-      reply(id, result: nil, error: "Ardia didn't respond in time.")
+      reply(id, result: nil, error: "Voyager didn't respond in time.")
     }
     return nil
   }

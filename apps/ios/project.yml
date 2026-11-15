@@ -1,6 +1,6 @@
-name: Ardia
+name: Voyager
 options:
-  bundleIdPrefix: com.ardia
+  bundleIdPrefix: com.stamatisfloratos.voyager
   deploymentTarget:
     iOS: "27.0"
   createIntermediateGroups: true
@@ -8,7 +8,6 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    DEVELOPMENT_TEAM: U5L5T3NGVV
     CODE_SIGN_STYLE: Automatic
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
@@ -18,122 +17,122 @@ settings:
     STRING_CATALOG_GENERATE_SYMBOLS: YES
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
 packages:
-  ArdiaKit:
-    path: Packages/ArdiaKit
+  VoyagerKit:
+    path: Packages/VoyagerKit
 targets:
-  Ardia:
+  Voyager:
     type: application
     platform: iOS
     sources:
       - path: App
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaShared
-      - package: ArdiaKit
-        product: ArdiaSync
-      - package: ArdiaKit
-        product: ArdiaBrowser
-      - package: ArdiaKit
-        product: ArdiaDesign
-      - target: ArdiaWidgets
-      - target: ArdiaShare
-      - target: ArdiaOpen
+      - package: VoyagerKit
+        product: VoyagerShared
+      - package: VoyagerKit
+        product: VoyagerSync
+      - package: VoyagerKit
+        product: VoyagerBrowser
+      - package: VoyagerKit
+        product: VoyagerDesign
+      - target: VoyagerWidgets
+      - target: VoyagerShare
+      - target: VoyagerOpen
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ardia.browser.ios
-        PRODUCT_NAME: Ardia
+        PRODUCT_BUNDLE_IDENTIFIER: com.stamatisfloratos.voyager.ios
+        PRODUCT_NAME: Voyager
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_FILE: Config/Ardia-Info.plist
-        CODE_SIGN_ENTITLEMENTS: $(ARDIA_ENTITLEMENTS_$(ARDIA_DEFAULT_BROWSER))
-        ARDIA_DEFAULT_BROWSER: NO
-        ARDIA_ENTITLEMENTS_NO: Config/Ardia.entitlements
-        ARDIA_ENTITLEMENTS_YES: Config/Ardia-DefaultBrowser.entitlements
+        INFOPLIST_FILE: Config/Voyager-Info.plist
+        CODE_SIGN_ENTITLEMENTS: $(VOYAGER_ENTITLEMENTS_$(VOYAGER_DEFAULT_BROWSER))
+        VOYAGER_DEFAULT_BROWSER: NO
+        VOYAGER_ENTITLEMENTS_NO: Config/Voyager.entitlements
+        VOYAGER_ENTITLEMENTS_YES: Config/Voyager-DefaultBrowser.entitlements
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        INFOPLIST_KEY_CFBundleDisplayName: Ardia
+        INFOPLIST_KEY_CFBundleDisplayName: Voyager
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
-        INFOPLIST_KEY_NSCameraUsageDescription: "Ardia uses the camera to scan the sync code your Mac shows, and for websites that ask to use it."
-        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Ardia uses the microphone when you search with your voice, and for websites that ask to use it."
-        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Ardia turns what you say into a search when you use Voice Search."
+        INFOPLIST_KEY_NSCameraUsageDescription: "Voyager uses the camera to scan the sync code your Mac shows, and for websites that ask to use it."
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Voyager uses the microphone when you search with your voice, and for websites that ask to use it."
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Voyager turns what you say into a search when you use Voice Search."
         INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Websites you visit may ask for your location."
-        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Ardia saves images you choose to your photo library."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Voyager saves images you choose to your photo library."
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
         INFOPLIST_KEY_UIFileSharingEnabled: YES
         INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
-  ArdiaWidgets:
+  VoyagerWidgets:
     type: app-extension
     platform: iOS
     sources:
       - path: Widgets
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaBrowser
-      - package: ArdiaKit
-        product: ArdiaDesign
+      - package: VoyagerKit
+        product: VoyagerBrowser
+      - package: VoyagerKit
+        product: VoyagerDesign
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ardia.browser.ios.widgets
-        PRODUCT_NAME: ArdiaWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: com.stamatisfloratos.voyager.ios.widgets
+        PRODUCT_NAME: VoyagerWidgets
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Config/Widgets-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/Widgets.entitlements
         TARGETED_DEVICE_FAMILY: "1"
-        INFOPLIST_KEY_CFBundleDisplayName: Ardia
+        INFOPLIST_KEY_CFBundleDisplayName: Voyager
         SKIP_INSTALL: YES
-  ArdiaShare:
+  VoyagerShare:
     type: app-extension
     platform: iOS
     sources:
       - path: Share
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaBrowser
-      - package: ArdiaKit
-        product: ArdiaDesign
+      - package: VoyagerKit
+        product: VoyagerBrowser
+      - package: VoyagerKit
+        product: VoyagerDesign
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ardia.browser.ios.share
-        PRODUCT_NAME: ArdiaShare
+        PRODUCT_BUNDLE_IDENTIFIER: com.stamatisfloratos.voyager.ios.share
+        PRODUCT_NAME: VoyagerShare
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Config/Share-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/Share.entitlements
         TARGETED_DEVICE_FAMILY: "1"
-        INFOPLIST_KEY_CFBundleDisplayName: Ardia
+        INFOPLIST_KEY_CFBundleDisplayName: Voyager
         SKIP_INSTALL: YES
-  ArdiaOpen:
+  VoyagerOpen:
     type: app-extension
     platform: iOS
     sources:
       - path: Action
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaDesign
+      - package: VoyagerKit
+        product: VoyagerDesign
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ardia.browser.ios.open
-        PRODUCT_NAME: ArdiaOpen
+        PRODUCT_BUNDLE_IDENTIFIER: com.stamatisfloratos.voyager.ios.open
+        PRODUCT_NAME: VoyagerOpen
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Config/Open-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/Open.entitlements
         TARGETED_DEVICE_FAMILY: "1"
-        INFOPLIST_KEY_CFBundleDisplayName: Open in Ardia
+        INFOPLIST_KEY_CFBundleDisplayName: Open in Voyager
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SKIP_INSTALL: YES
 schemes:
-  Ardia:
+  Voyager:
     build:
       targets:
-        Ardia: all
+        Voyager: all
     run:
       config: Debug
     archive:

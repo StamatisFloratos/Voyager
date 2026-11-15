@@ -2,8 +2,8 @@
 
 End-to-end-encrypted sync with no server, no account and no Apple entitlement. Every Mac reads
 and writes sealed files in a folder the user picks; any service that syncs a folder carries them
-between Macs. The default is `iCloud Drive › Ardia Sync`
-(`~/Library/Mobile Documents/com~apple~CloudDocs/Ardia Sync`: iCloud Drive syncs any folder
+between Macs. The default is `iCloud Drive › Voyager Sync`
+(`~/Library/Mobile Documents/com~apple~CloudDocs/Voyager Sync`: iCloud Drive syncs any folder
 under it, with no CloudKit container and no entitlement). Dropbox, a NAS or a USB drive work
 the same way. A Mac that turned sync on before the rename keeps `Netnyahoo Sync`, and one setting up after it is
 offered that folder while it holds the data (`SyncModule.defaultFolder`).
@@ -51,7 +51,7 @@ Apple, Dropbox, whoever has the NAS or finds the USB drive, malware that reads c
   (CRIME-style).
 
 What they do see (metadata): how many profiles sync (one folder each) and how many devices; when
-and how much each writes (file count, times, sizes to 1 KiB); and that it's Ardia sync data
+and how much each writes (file count, times, sizes to 1 KiB); and that it's Voyager sync data
 (the `NNS1` magic and `.nns` extension).
 
 What they can do: delete or withhold files (denial of service). Withheld files show as
@@ -63,9 +63,9 @@ within a file, or move data between profiles.
 Not protected against:
 - Someone with the phrase. The phrase is the key, like Dia's.
 - Someone with the unlocked Mac. They have the data in the clear anyway.
-- A compromised Ardia binary.
+- A compromised Voyager binary.
 
-The phrase's entropy is in each Mac's login Keychain (`Ardia Sync Key`, this device only,
+The phrase's entropy is in each Mac's login Keychain (`Voyager Sync Key`, this device only,
 never iCloud Keychain). Losing every Mac and the Recovery Kit loses the synced data. There's no
 reset by email, because there's no one to email.
 
@@ -85,10 +85,10 @@ reset by email, because there's no one to email.
   - `name-key` (HMAC-SHA256) names folders: the chain tag is `HMAC("chain")` and a scope's tag
     is `HMAC("scope/<scope id>")`, each cut to 128 bits and written in base32.
   - The phrase already has 256 bits of entropy, so no password stretching is needed.
-- Where the entropy is kept: the login Keychain, as a generic password (`Ardia Sync Key`,
+- Where the entropy is kept: the login Keychain, as a generic password (`Voyager Sync Key`,
   account = this device's sync id, `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`, not
   synchronizable).
-  - Test instances (`ARDIA_DATA_DIR`) keep it in a 0600 file in their data folder instead,
+  - Test instances (`VOYAGER_DATA_DIR`) keep it in a 0600 file in their data folder instead,
     as Chrome's mock keychain does for them.
   - A Debug build can't read an item an earlier build saved (no prompt, by design). Sync then
     shows "not syncing" with Enter Recovery Phrase…, and the same device carries on.
@@ -99,8 +99,8 @@ reset by email, because there's no one to email.
   authentication (Touch ID or the login password). A success is good for 60 s, like the
   Passwords pane; Stop Syncing ends it early. Cancelling returns nothing and changes nothing.
   The kit preview in the sheet is drawn with dots instead of the words. Hidden test instances
-  never prompt: `ARDIA_TEST=reauth=granted` grants, anything else denies (#241).
-- The temporary kit for Copy and Share (`$TMPDIR/Ardia Recovery Kit/`) is deleted at launch.
+  never prompt: `VOYAGER_TEST=reauth=granted` grants, anything else denies (#241).
+- The temporary kit for Copy and Share (`$TMPDIR/Voyager Recovery Kit/`) is deleted at launch.
 
 A wrong phrase is caught in one of two ways. A typo fails the checksum. A valid but different
 phrase derives a chain tag that isn't in the folder: "This recovery phrase doesn’t match the
@@ -304,7 +304,7 @@ Profiles).
 | `share:<sync id>` | app | `{ o }`: the sync id of the profile whose data this one shares | its own key, not a field of `prof:`, so Macs before 0.2.39 keep it untouched instead of republishing `prof:` without it on every cycle; written once, while both sync; never deleted |
 | `dev:<device id>` | app | `{ n (name), k (kind: "mac" or "phone"), f (what it takes: ["send"]) }` | removed when it stops syncing. `k` and `f` are new (the iPhone, and Macs on this build, which republish their record once); a record without them is a Mac that takes no sent tabs, and older Macs read only `n` |
 | `bm:<sync key>` | profile | `{ k, p (parent: its sync key, "bar" or "other"), t, u, a (added), pos }` | Bookmarks are Chrome's (BookmarkModel). A node's sync key is its Chrome UUID, or, for a bookmark synced before 0.2.20, its old id (`bm-…`, kept on Chrome's node as meta info `ac_sync_key`); every Mac makes an old key the node `bookmarkUuidFor` gives it, so Macs on either version name a bookmark alike (no renames, no duplicates; tested). Favicons stay local. A node whose folder was deleted elsewhere lands in Other Bookmarks; a cycle from two concurrent moves is broken the same way on every Mac (tested). Nothing is published or applied until the tree has been read from Chrome |
-| `h:<url>` | profile | `{ t, n (visits), vt (last 50 visit times) }` for pages visited in the last 90 days | History is Chrome's (HistoryService). Applying a record adds the visits Chrome lacks; a local edit is a visit the record doesn't have, so Macs settle on the union of their visits (tested). Not deletions: older history (it stays on the Mac that has it and is dropped from snapshots), Chrome's 90-day expiry, URLs past the newest 5,000 the app reads, and pages Chrome doesn't keep (`ardia://`) |
+| `h:<url>` | profile | `{ t, n (visits), vt (last 50 visit times) }` for pages visited in the last 90 days | History is Chrome's (HistoryService). Applying a record adds the visits Chrome lacks; a local edit is a visit the record doesn't have, so Macs settle on the union of their visits (tested). Not deletions: older history (it stays on the Mac that has it and is dropped from snapshots), Chrome's 90-day expiry, URLs past the newest 5,000 the app reads, and pages Chrome doesn't keep (`voyager://`) |
 | `tabs:<device id>` | profile | `{ n (device name), k?, tabs: [{ u, t }] }`: that device's 30 most recent open tabs | only its device writes it. It feeds the overflow menu's "Your Devices". The iPhone adds `k: "phone"`; Macs leave it out and read the kind from `dev:` |
 | `send:<uuid>` | profile | `{ u, t, to (device id), from (device id), at (ms) }`: a tab sent to another device | Send Tab to Device; see below |
 | `pin:t:<tab id>`, `pin:g:<group id>` | profile | pinned tabs `{ g, u, t, i, ti, pos }` and pinned groups `{ n, i, c, pos }` (Dia's pinned container) | they arrive as unloaded tiles in the window showing the profile and load when selected; when no window shows the profile they join its parked pins. A pinned group's members always live in the group's window, and sync never moves a tab between two open windows: a pin synced into a parked group is parked with it, a parked member joins a group open in a window, a group whose member is open in another window moves to that page's window (the mirror then gives the profile's other windows unloaded copies), and a member open in a third window stays there as a regular tab while the group gets an unloaded copy. A key resolves to the profile's pinned tab or pinned-group member; only when there is none does it fall back to a regular tab that still carries the key (a pin unpinned on this Mac, kept open), preferring one with a page, so another Mac's re-pin takes that page back instead of adding a second tab. A tab sync pins as a tile or row leaves any regular group it was in, as pinning it here would. A member whose pinned group has a tombstone (unpinned or deleted elsewhere) becomes a standalone pin, even if a regular group with that id is still here; one whose group has no record yet (its batch hasn't arrived) shows as a standalone pin meanwhile, its record keeps that group and position while local edits to its other fields (a rename, a new icon) still publish, and it joins the group when the group arrives. A missing group counts as not arrived only when this Mac never had it, has no record of it, and first saw the wait less than 90 days ago, by its own clock (the deadline is saved with the session), as long as a gap holds tombstones (Compaction). Past it the member publishes as a standalone pin, checked on every sync, so an idle Mac gets there too (tested). A tombstone removes only what is still in the pinned container: a group or tab this Mac already kept as regular stays. A pinned group record for a group this Mac keeps as regular (it unpinned it, and another Mac restyled or re-pinned the pinned one) becomes a separate pinned group, so the regular group keeps its name, style and tabs (tested); a member record that names such a group while its pinned group has a tombstone leaves the regular member where it is. One conflict is left: a page change on a member made while another Mac unpins its group can win the member's record. Depending on which Mac syncs first, the member then either follows the unpin, or stays pinned on its own and the unpinning Mac's regular group goes if that was its only tab; both Macs agree and the tab is kept (tested). Settling it needs placement times in the records. Pinning, unpinning into or out of a pinned group, moving a tab between tiles, rows and groups, re-pinning a group or moving a pin to another profile records a pending placement choice (`pinChoices`, like the row choices), so the next sync republishes that record with a fresh timestamp even when its value is unchanged and a later explicit choice outranks an older edit still in transit. A pin's page is published as 0.2.38 does: a member sends the page its copy shows, a tile sends its home URL, both send the copy's title, and applying a record sets the page of a copy that isn't loaded. The copy published is the one in the profile's frontmost window. Known residual: two Macs with the same pin loaded at different pages keep sending their own page on each sync, so the record moves back and forth between them (tested). Nothing is lost, and it stops once either copy unloads or both show the same page. Earlier builds held a page back until it changed locally, but every version of that (a per-copy baseline) let a real navigation go unsent in some case, so it's gone. The group a member waits for and its deadline live in `pinSync`, a side table by profile and pin key saved with the session and pruned like `pinChoices`, so parking, reopening, mirroring and relaunching keep them. Unpinning on one Mac removes the tile on the others. A record's key is matched only to that profile's tabs and groups: when the id is already another profile's tab or group on this Mac (a pin moved between profiles), the pin gets a new local id with the key kept as `pinKey`, so neither profile's records touch the other's pin. A group's `c`, here and in a nested pinned group's `pinn:g:` record, is `null` for Neutral or one of Chrome's nine colours, the values every released version can draw; a group set to None (no background or outline, issue #206) sends `null` there and its None in a `pgc:` record |
@@ -340,7 +340,7 @@ What Chrome Sync does for extensions, through our folder (`packages/sync/src/ext
 `apps/browser/src/state/sync/extensions.ts`, Chrome's side in `engine/chromium/…/ardia/ac_extensions_sync.cc`).
 - **What syncs.** Extensions from the Chrome Web Store that Chrome itself would sync (`sync_util::ShouldSync`:
   installed by the user from the store, not by default, policy or a component, not blocklisted, no other update
-  URL), and not themes or apps. Unpacked extensions, Ardia Scripts and uBlock Origin (bundled) stay on their Mac. Per
+  URL), and not themes or apps. Unpacked extensions, Voyager Scripts and uBlock Origin (bundled) stay on their Mac. Per
   extension: on or off (the user's choice, Chrome's `DISABLE_USER_ACTION`), allowed in private windows, pinned to
   the toolbar (Chrome's saved pin, not whether it shows now). Not synced: its data and settings (`storage.sync`
   included), site access.
@@ -405,7 +405,7 @@ Saved passwords are Chrome's (its password manager).
   `sealLocal` and `write` refuse for the rest of the session, so the files on disk and the
   folder stay as they were and sync shows an error instead of saving a rebuilt state over them.
 - **Writing.** Writes go through Chrome's API (`ArdiaServices.savePassword` from the sync module,
-  `deletePassword` in `@ardia/ardiacore`), so Chrome's in-memory store and autofill see them at
+  `deletePassword` in `@voyager/ardiacore`), so Chrome's in-memory store and autofill see them at
   once. A changed password is a delete plus an add, done natively only after the sealed value
   opens: the update API needs the device check.
 - **Safety.**
@@ -435,7 +435,7 @@ Settings › Sync. Dia puts sync in Account › Sync, with the section icon
     lose access to this device.", with "another" underlined.
   - A preview of the page.
   - Buttons: Save…, Close, and Other Options (Copy, Share…, Save as Text…).
-  - The PDF is "Ardia Recovery Kit.pdf", US Letter as Dia's, with the 24 words and a QR code.
+  - The PDF is "Voyager Recovery Kit.pdf", US Letter as Dia's, with the 24 words and a QR code.
 - **Connect with Recovery Phrase.**
   - Dia's copy: "Enter your 24-word recovery phrase to sync with another device.", the
     placeholder "Enter your 24-word recovery phrase", the "%d/%d words" counter, "too many
@@ -487,7 +487,7 @@ bookmark, settings, profile or group edit, and on Sync Now. A cycle:
 
 ## Tests
 
-- `pnpm --filter @ardia/sync test` runs four things:
+- `pnpm --filter @voyager/sync test` runs four things:
   - `swift test` (`packages/sync/tests`):
     - `SyncCoreTests`: BIP39 reference vectors; tampering and truncation are detected; the wrong phrase opens nothing;
       the folder holds no plaintext in names or contents; deleting one chain leaves another; a missing scope reads
@@ -498,7 +498,7 @@ bookmark, settings, profile or group edit, and on Sync Now. A cycle:
     - `SyncKeyStoreTests`: saving again replaces the key; a save the keychain refuses keeps the key it would have
       replaced; a test instance's key file is never wider than 0600 and nothing is left beside it.
     - `SharedFolderDirectoryTests`: the shared folders' reads and writes (symlinks, conflicts, size caps, permissions).
-    - `LegacyMigrationTests`, `LegacyKeychainTests`, `LegacyDockTileTests`: the Netnyahoo → Ardia migration.
+    - `LegacyMigrationTests`, `LegacyKeychainTests`, `LegacyDockTileTests`: the Netnyahoo → Voyager migration.
   - `node --test` (`packages/sync/src/**/*.test.ts`):
     - `scope.test.ts`, `fileHealth.test.ts`: concurrent edits converge in any order; deletes, re-adds and
       edit-after-delete; clock skew; late, out-of-order, half-copied and given-up files; an edit during a read; an
@@ -514,7 +514,7 @@ bookmark, settings, profile or group edit, and on Sync Now. A cycle:
     - `companion/companion.test.ts`: the iPhone's adapters and cycle.
   - `apps/ios/scripts/bundle-shared.mjs --check`: the iPhone's bundle of this code is up to date.
   - `scripts/legacy-migration-e2e.mjs`: the migration tool run end to end on a scratch install.
-- `pnpm --filter @ardia/browser test` runs `src/state/sync/adapters.test.mjs` (4 tests against the real
+- `pnpm --filter @voyager/browser test` runs `src/state/sync/adapters.test.mjs` (4 tests against the real
   store: delete versus add, concurrent moves that would make a cycle, parked pinned tabs, passwords
   both ways), `src/state/sync/send.test.mjs` (sent tabs: one addressed elsewhere is never touched; it opens once and
   is deleted by its receiver; dropped by its sender after 7 days; waits while it can't open; a crash opens it twice
@@ -566,7 +566,7 @@ bookmark, settings, profile or group edit, and on Sync Now. A cycle:
 
 ## iPhone
 
-Ardia for iPhone is one more device in the same chain, with the same file format: it writes `dev:` (`k: "phone"`),
+Voyager for iPhone is one more device in the same chain, with the same file format: it writes `dev:` (`k: "phone"`),
 `tabs:`, history visits by the union rule, bookmarks it adds to Other Bookmarks and `send:` records, and keeps every
 other record untouched. It never compacts. Its side is in `docs/ios.md`.
 

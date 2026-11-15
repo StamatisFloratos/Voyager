@@ -4,7 +4,7 @@
 #   scripts/release-ios.sh <build number> [--no-upload] [--default-browser] [--out <dir>]
 #   scripts/release-ios.sh -h | --help
 #
-# Archives the Ardia scheme in Release with <build number> as every target's build number, then exports
+# Archives the Voyager scheme in Release with <build number> as every target's build number, then exports
 # it signed for App Store Connect and uploads it. --no-upload stops at the signed .ipa. The version is
 # MARKETING_VERSION in apps/ios/project.yml. Output and logs go to dist/ios/<version>-<build>, or --out.
 #
@@ -12,11 +12,11 @@
 # signs and uploads with that App Store Connect API key; without them it uses the account Xcode is signed
 # in to.
 #
-# --default-browser builds with ARDIA_DEFAULT_BROWSER=YES: the app signs with
-# Config/Ardia-DefaultBrowser.entitlements, which carries com.apple.developer.web-browser, and offers
+# --default-browser builds with VOYAGER_DEFAULT_BROWSER=YES: the app signs with
+# Config/Voyager-DefaultBrowser.entitlements, which carries com.apple.developer.web-browser, and offers
 # its default browser steps in onboarding and Settings. Use it only once Apple has granted that
 # entitlement to the App ID; until then signing fails with it. Without the flag the app signs with
-# Config/Ardia.entitlements, iOS doesn't list it as a browser, and the app hides those steps.
+# Config/Voyager.entitlements, iOS doesn't list it as a browser, and the app hides those steps.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
@@ -48,7 +48,7 @@ version="$(sed -n 's/^ *MARKETING_VERSION: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "
 out="${out:-$root/dist/ios/$version-$build}"
 mkdir -p "$out"
 out="$(cd "$out" && pwd -P)"
-archive="$out/Ardia.xcarchive"
+archive="$out/Voyager.xcarchive"
 
 auth=()
 if [ -n "${ASC_KEY:-}" ]; then
@@ -76,28 +76,28 @@ run_logged() {
   fi
 }
 
-echo "Ardia for iPhone $version ($build), default browser $default_browser"
+echo "Voyager for iPhone $version ($build), default browser $default_browser"
 
 rm -rf "$archive" "$out/export"
 run_logged archive xcodebuild archive \
-  -project "$ios/Ardia.xcodeproj" -scheme Ardia -configuration Release \
+  -project "$ios/Voyager.xcodeproj" -scheme Voyager -configuration Release \
   -destination "generic/platform=iOS" \
   -archivePath "$archive" -derivedDataPath "$out/dd" \
   -allowProvisioningUpdates ${auth[@]+"${auth[@]}"} \
   CURRENT_PROJECT_VERSION="$build" \
-  ARDIA_DEFAULT_BROWSER="$default_browser" \
+  VOYAGER_DEFAULT_BROWSER="$default_browser" \
   COMPILER_INDEX_STORE_ENABLE=NO
 
-app="$archive/Products/Applications/Ardia.app"
-[ -d "$app" ] || die "the archive has no Ardia.app"
+app="$archive/Products/Applications/Voyager.app"
+[ -d "$app" ] || die "the archive has no Voyager.app"
 plist_value() { /usr/libexec/PlistBuddy -c "Print :$2" "$1/Info.plist"; }
-[ "$(plist_value "$app" CFBundleIdentifier)" = com.ardia.browser.ios ] || die "the archive is $(plist_value "$app" CFBundleIdentifier)"
+[ "$(plist_value "$app" CFBundleIdentifier)" = com.stamatisfloratos.voyager.ios ] || die "the archive is $(plist_value "$app" CFBundleIdentifier)"
 for bundle in "$app" "$app"/PlugIns/*.appex; do
   [ "$(plist_value "$bundle" CFBundleVersion)" = "$build" ] || die "$(basename "$bundle") is build $(plist_value "$bundle" CFBundleVersion), not $build"
   [ "$(plist_value "$bundle" CFBundleShortVersionString)" = "$version" ] || die "$(basename "$bundle") is version $(plist_value "$bundle" CFBundleShortVersionString), not $version"
 done
 [ "$(find "$app/PlugIns" -maxdepth 1 -name '*.appex' | wc -l | tr -d ' ')" = 3 ] || die "the archive should hold three extensions"
-[ "$(plist_value "$app" ArdiaDefaultBrowser)" = "$default_browser" ] || die "the app offers the default browser steps: $(plist_value "$app" ArdiaDefaultBrowser), expected $default_browser"
+[ "$(plist_value "$app" VoyagerDefaultBrowser)" = "$default_browser" ] || die "the app offers the default browser steps: $(plist_value "$app" VoyagerDefaultBrowser), expected $default_browser"
 signed=NO
 if codesign -d --entitlements - --xml "$app" 2>/dev/null | plutil -extract 'com\.apple\.developer\.web-browser' raw -o - - 2>/dev/null | grep -qx true; then signed=YES; fi
 [ "$signed" = "$default_browser" ] || die "the app's signature carries the default browser entitlement: $signed, expected $default_browser"
@@ -113,7 +113,7 @@ run_logged "$step" xcodebuild -exportArchive \
   -allowProvisioningUpdates ${auth[@]+"${auth[@]}"}
 
 if [ "$upload" = 1 ]; then
-  echo "Uploaded Ardia for iPhone $version ($build) to App Store Connect."
+  echo "Uploaded Voyager for iPhone $version ($build) to App Store Connect."
 else
   ipa="$(find "$out/export" -maxdepth 1 -name '*.ipa' | head -1)"
   [ -n "$ipa" ] || die "the export wrote no .ipa"

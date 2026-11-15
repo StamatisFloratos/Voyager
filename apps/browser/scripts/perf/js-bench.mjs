@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// JS/React benchmark for Ardia on a production (Hermes) bundle: what each interaction costs the JS thread
+// JS/React benchmark for Voyager on a production (Hermes) bundle: what each interaction costs the JS thread
 // (React commits and renders, store updates, native→JS tasks, timers, document writes), counted by the opt-in probe
 // in src/state/app/perfProbe.ts. Gate recipe and the other benches: docs/perf/README.md.
 //
@@ -7,7 +7,7 @@
 //       Builds the production JS bundle of the current tree (metro, --dev false) and compiles it with
 //       hermesc, as the Release build does. Prints sizes and the biggest packages. --profiling 1 bundles
 //       React's profiling renderer, which times each component's render (render-bench.mjs uses it).
-//   node js-bench.mjs run --app <Release Ardia.app> --bundle <main.jsbundle> --label <name> [flags]
+//   node js-bench.mjs run --app <Release Voyager.app> --bundle <main.jsbundle> --label <name> [flags]
 //       Clones the app (APFS clone), swaps in the bundle, and for each run seeds a fresh data folder
 //       (seed.mjs: 200 tabs, 5000 history entries, 1000 bookmarks), launches a hidden instance, runs
 //       the scenarios of bench-app.js through the dev harness and quits it. Writes <out>/<label>.json.
@@ -249,12 +249,12 @@ export function writeSwitches(dataDir, text) {
 
 export async function launch(app, dataDir, port) {
   const binary = binaryOf(realpathSync(app));
-  writeSwitches(dataDir, process.env.ARDIA_SWITCHES);
+  writeSwitches(dataDir, process.env.VOYAGER_SWITCHES);
   if (pidsOf(binary).length) throw new Error(`an instance of ${app} is already running`);
   const launchedAt = Date.now();
   const env = appEnv(app, {
-    ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: dataDir, ARDIA_REMOTE_DEBUGGING_PORT: String(port),
-    ...(process.env.ARDIA_SWITCHES ? { ARDIA_SWITCHES: process.env.ARDIA_SWITCHES } : {}),
+    VOYAGER_BACKGROUND: "1", VOYAGER_DATA_DIR: dataDir, VOYAGER_REMOTE_DEBUGGING_PORT: String(port),
+    ...(process.env.VOYAGER_SWITCHES ? { VOYAGER_SWITCHES: process.env.VOYAGER_SWITCHES } : {}),
   });
   execFileSync("open", ["-g", "-n", ...Object.entries(env).flatMap(([k, v]) => ["--env", `${k}=${v}`]), app]);
   for (let i = 0; i < 200; i++) {
@@ -368,7 +368,7 @@ async function run() {
   console.log(`\nwrote ${file}`);
 }
 
-const HOST = /^(View|Text|Pressable|Image|ScrollView|TextInput|InternalTextInput|Animated\(.*\)|(Ardia|Netnyahoo).*|Surface|Symbol|MouseArea|ContextMenuArea|FadeLabel|VirtualizedList.*|CellRenderer.*)$/;
+const HOST = /^(View|Text|Pressable|Image|ScrollView|TextInput|InternalTextInput|Animated\(.*\)|(Voyager|Netnyahoo).*|Surface|Symbol|MouseArea|ContextMenuArea|FadeLabel|VirtualizedList.*|CellRenderer.*)$/;
 const appOnly = (counter) => Object.fromEntries(Object.entries(counter ?? {}).filter(([k]) => !HOST.test(k)));
 
 const top = (counter, n = 6) =>

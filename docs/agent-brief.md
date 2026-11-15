@@ -1,5 +1,7 @@
 # Agent brief (read first)
 
+> Upstream reference from Ardia 0.2.46. For current Voyager behavior, paths and build instructions, see [the fork notes](voyager.md).
+
 You are one of several engineers working **in parallel in the same working tree** on
 Ardia, a macOS browser that must reach **full feature and visual parity with Dia**
 (The Browser Company). The feature checklist is `docs/dia-feature-parity.md`; the

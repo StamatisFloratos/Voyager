@@ -1,4 +1,4 @@
-import { suggestionKey, type SearchScope, type Suggestion } from "@ardia/core";
+import { suggestionKey, type SearchScope, type Suggestion } from "@voyager/core";
 import { useLayoutEffect, useRef } from "react";
 import type { Disposition } from "../../state/omnibox/openFromBar";
 import type { BarEvent } from "./barText";

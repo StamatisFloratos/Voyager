@@ -15,8 +15,8 @@ key="${SPARKLE_KEY_FILE:?$usage}"
 echo "==> Appcast"
 updates="$dist/updates"
 mkdir -p "$updates"
-cp "$dist/Ardia-$version.zip" "$updates/"
-{ printf '**%s**\n\n' "$headline"; cat "$body"; } > "$updates/Ardia-$version.md"
+cp "$dist/Voyager-$version.zip" "$updates/"
+{ printf '**%s**\n\n' "$headline"; cat "$body"; } > "$updates/Voyager-$version.md"
 [ -s "$base_feed" ] && cp "$base_feed" "$updates/appcast.xml"
 phased_args=()
 [ -n "$phased" ] && phased_args=(--phased-rollout-interval "$phased")

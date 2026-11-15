@@ -1,6 +1,6 @@
 import { onExtensionInstallPrompt, resolveExtensionInstallPrompt } from "../../platform/extensions";
 import { webviews } from "../../platform/webviews";
-import { webStoreExtensionId } from "@ardia/core";
+import { webStoreExtensionId } from "@voyager/core";
 import { useBrowser, type BrowserState } from "../browser/store";
 import { changedIds } from "../browser/changes";
 import { extensionProfile, findExtension, removeExtension, showInstallPrompt } from "./actions";
@@ -28,8 +28,8 @@ if (!g.__ardiaStore) {
     for (const el of document.querySelectorAll("button, button *")) {
       if (el.childElementCount) continue;
       const t = el.textContent;
-      if (t === "Add to Chrome") el.textContent = "Add to Ardia";
-      else if (t === "Remove from Chrome") el.textContent = "Remove from Ardia";
+      if (t === "Add to Chrome") el.textContent = "Add to Voyager";
+      else if (t === "Remove from Chrome") el.textContent = "Remove from Voyager";
     }
   };
   relabel();

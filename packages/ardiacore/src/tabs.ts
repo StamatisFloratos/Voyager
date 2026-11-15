@@ -1,4 +1,4 @@
-import type { TabGroupColor } from "@ardia/core";
+import type { TabGroupColor } from "@voyager/core";
 import { call } from "./engine/call";
 
 export type StripTab = {

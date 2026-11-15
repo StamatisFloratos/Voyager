@@ -1,5 +1,5 @@
-import ArdiaDesign
-import ArdiaSync
+import VoyagerDesign
+import VoyagerSync
 import SwiftUI
 
 struct RecoveryPhraseEntryPage: View {

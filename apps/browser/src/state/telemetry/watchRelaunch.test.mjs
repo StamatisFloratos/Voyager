@@ -31,7 +31,7 @@ const client = await import("./client.ts");
 const watch = await import("./watch.ts");
 const state = () => JSON.parse(stub.docs.get("telemetry.json"));
 
-test("a watch that ended while Ardia was closed turns sharing off at the next launch and leaves one notice", () => {
+test("a watch that ended while Voyager was closed turns sharing off at the next launch and leaves one notice", () => {
   client.startClient();
   watch.startWatchChecks();
   assert.equal(state().sharing, false);

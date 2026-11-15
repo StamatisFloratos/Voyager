@@ -7,7 +7,7 @@ import {
   type SiteSettings,
   type SiteSettingType,
   type SiteSettingValue,
-} from "@ardia/ardiacore";
+} from "@voyager/ardiacore";
 
 export { WEBKIT_SITE_SETTINGS };
 export type { ExternalAppRequest, SiteSettingType, SiteSettingValue, SiteSettings, ClearSiteDataResult };

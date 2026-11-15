@@ -9,9 +9,9 @@ from types import SimpleNamespace
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ardia_cli import hooks
-from ardia_cli.hook_decide import Decider, parse_answer
-from ardia_cli.hook_schedule import Scheduler, next_at
+from voyager_cli import hooks
+from voyager_cli.hook_decide import Decider, parse_answer
+from voyager_cli.hook_schedule import Scheduler, next_at
 from test_automation import Base, event, wait_for
 
 ANSWERING = r"""
@@ -132,15 +132,15 @@ class Subscribing(unittest.TestCase):
 
     def test_notification_text_stays_out_of_the_environment(self):
         env = hooks.hook_env(event("notification.shown", title="secret", url="https://a/", origin="https://a"), base={})
-        self.assertNotIn("ARDIA_TITLE", env)
-        self.assertNotIn("ARDIA_URL", env)
+        self.assertNotIn("VOYAGER_TITLE", env)
+        self.assertNotIn("VOYAGER_URL", env)
 
 
 class _scratch:
     def __enter__(self):
         import tempfile
 
-        self.path = tempfile.mkdtemp(prefix="hk", dir=Path.home() / "ardia-scratch" if (Path.home() / "ardia-scratch").is_dir() else None)
+        self.path = tempfile.mkdtemp(prefix="hk", dir=Path.home() / "voyager-scratch" if (Path.home() / "voyager-scratch").is_dir() else None)
         return self.path
 
     def __exit__(self, *exc):

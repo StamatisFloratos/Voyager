@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaDesign
+import VoyagerBrowser
+import VoyagerDesign
 import QuartzCore
 import SwiftUI
 import UIKit

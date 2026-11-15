@@ -1,4 +1,4 @@
-import { breadcrumb } from "@ardia/core";
+import { breadcrumb } from "@voyager/core";
 import { WindowBackdrop, ink, Panel, PinchArea, pinchFollow, pinchSettle, reduceMotion, reduceMotionKnown, type PinchMotion } from "../ui";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Animated, Pressable, StyleSheet, View } from "react-native";

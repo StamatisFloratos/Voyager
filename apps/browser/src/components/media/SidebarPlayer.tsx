@@ -29,7 +29,7 @@ import {
   useTicker,
   type Session,
 } from "../../state/media/media";
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import { Marquee, useMarqueeGroup } from "./Marquee";
 import { TimeBar } from "./MiniPlayer";
 import { useMediaTokens } from "./tokens";

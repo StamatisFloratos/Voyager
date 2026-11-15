@@ -1,4 +1,4 @@
-import { ardiaError } from "@ardia/core";
+import { ardiaError } from "@voyager/core";
 import { applySafari, emptyCounts, importBookmarks, type ImportKind } from "./apply";
 import { finishImport, importNow, importSignal, NO_EXTENSIONS, patchImport, startProgress, updateStatus } from "./flow";
 import { importModule } from "./importApi";
@@ -40,7 +40,7 @@ export async function importSafariDirect() {
     patchImport({
       step: {
         name: "safari",
-        error: code === "locked" ? "Ardia still doesn't have Full Disk Access. Grant it above, or use the export file below." : "Couldn't read Safari's data. Try the export file below.",
+        error: code === "locked" ? "Voyager still doesn't have Full Disk Access. Grant it above, or use the export file below." : "Couldn't read Safari's data. Try the export file below.",
       },
       fullDiskAccess: api.safariHasFullDiskAccess(),
     });

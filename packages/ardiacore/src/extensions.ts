@@ -1,4 +1,4 @@
-import type { ExtensionSearchEngine } from "@ardia/core";
+import type { ExtensionSearchEngine } from "@voyager/core";
 import { call } from "./engine/call";
 
 export type SiteAccess = "ON_ALL_SITES" | "ON_SPECIFIC_SITES" | "ON_CLICK";

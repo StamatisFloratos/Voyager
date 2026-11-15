@@ -23,7 +23,7 @@ async function shared(share, from = tab) {
 test("the page menu's Share… on a blank part shares the page as the toolbar's Share does: clean link and title, at the click", async () => {
   assert.deepEqual(await shared({ kind: "page", url: tab.url, title: "Story" }), [["share", "https://news.example/story?id=7", "Story", "w1", anchor]]);
   assert.deepEqual(await shared({ kind: "page" }, { ...tab, customTitle: "Renamed" }), [["share", "https://news.example/story?id=7", "Renamed", "w1", anchor]]);
-  assert.deepEqual(await shared({ kind: "page" }, { ...tab, url: "ardia://settings" }), []);
+  assert.deepEqual(await shared({ kind: "page" }, { ...tab, url: "voyager://settings" }), []);
 });
 
 test("a selection shares its text, a link its clean URL with the link's text, a video its source", async () => {
@@ -35,7 +35,7 @@ test("a selection shares its text, a link its clean URL with the link's text, a 
 });
 
 test("an image shares the picture's file, and its address only when the picture couldn't be read", async () => {
-  const fileUrl = "file:///var/folders/x/T/Ardia%20Shared%20Images/1/cat.png";
+  const fileUrl = "file:///var/folders/x/T/Voyager%20Shared%20Images/1/cat.png";
   assert.deepEqual(await shared({ kind: "image", fileUrl, url: "https://img.example/cat.png", title: "A cat" }), [["share", fileUrl, "A cat", "w1", anchor]]);
   assert.deepEqual(await shared({ kind: "image", url: "https://img.example/cat.png" }), [["share", "https://img.example/cat.png", null, "w1", anchor]]);
   assert.deepEqual(await shared({ kind: "image" }), []);

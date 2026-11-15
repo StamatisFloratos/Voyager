@@ -1,5 +1,5 @@
-import { call, on, type CliControlStatus } from "@ardia/ardiacore";
-import { nativeModule, type CliInstallResult } from "@ardia/shell";
+import { call, on, type CliControlStatus } from "@voyager/ardiacore";
+import { nativeModule, type CliInstallResult } from "@voyager/shell";
 
 export type { CliControlStatus, CliInstallResult };
 

@@ -1,4 +1,4 @@
-import { nativeModule, type CalendarAccessRequest, type CalendarAuthorization, type CalendarParticipant, type SystemCalendar, type SystemCalendarEvent } from "@ardia/shell";
+import { nativeModule, type CalendarAccessRequest, type CalendarAuthorization, type CalendarParticipant, type SystemCalendar, type SystemCalendarEvent } from "@voyager/shell";
 
 export type { CalendarAccessRequest, CalendarAuthorization, SystemCalendar, SystemCalendarEvent, CalendarParticipant };
 

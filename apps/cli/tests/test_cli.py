@@ -15,10 +15,10 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import automation_cli, browsing, cli, endpoint
+from voyager_cli import automation_cli, browsing, cli, endpoint
 
-SCRATCH = Path.home() / "ardia-scratch"
-ENV_NAMES = ("ARDIA_PORT", "ARDIA_WS", "ARDIA_CDP_URL", "ARDIA_DATA_DIR", "AGENT_BROWSER_CDP")
+SCRATCH = Path.home() / "voyager-scratch"
+ENV_NAMES = ("VOYAGER_PORT", "VOYAGER_WS", "VOYAGER_CDP_URL", "VOYAGER_DATA_DIR", "AGENT_BROWSER_CDP")
 
 
 def scratch_dir() -> Path:
@@ -88,7 +88,7 @@ class SharedFlags(unittest.TestCase):
             seen["args"] = args
             return 0
 
-        from ardia_cli import scripts_cli
+        from voyager_cli import scripts_cli
 
         with clean_env(), mock.patch.object(scripts_cli, "run", capture):
             status, _, err = run_cli("--port", "9351", "--ws", "ws://h/devtools/browser/x", "--json", "scripts", "test", "a.user.ts")
@@ -117,7 +117,7 @@ class Browse(unittest.TestCase):
             seen["argv"] = argv
             return 0
 
-        from ardia_cli.browse import cli as browse_cli
+        from voyager_cli.browse import cli as browse_cli
 
         with clean_env(**env), mock.patch.object(browse_cli, "main", capture):
             status, _, err = run_cli(*argv)
@@ -130,23 +130,23 @@ class Browse(unittest.TestCase):
         self.assertEqual(self.browse("--json", "--data-dir", "/d", "browse", "get", "url"), ["--json", "--data-dir", "/d", "get", "url"])
 
     def test_env_fills_in_when_no_flag(self):
-        self.assertEqual(self.browse("browse", "snapshot", ARDIA_PORT="9351"), ["--port", "9351", "snapshot"])
-        self.assertEqual(self.browse("browse", "snapshot", ARDIA_WS="ws://h/devtools/browser/x", ARDIA_PORT="9351"), ["--ws", "ws://h/devtools/browser/x", "snapshot"])
+        self.assertEqual(self.browse("browse", "snapshot", VOYAGER_PORT="9351"), ["--port", "9351", "snapshot"])
+        self.assertEqual(self.browse("browse", "snapshot", VOYAGER_WS="ws://h/devtools/browser/x", VOYAGER_PORT="9351"), ["--ws", "ws://h/devtools/browser/x", "snapshot"])
 
     def test_flag_beats_env(self):
         for argv in (["--port", "1", "browse", "snapshot"], ["browse", "snapshot", "--port", "1"], ["browse", "--cdp", "1", "snapshot"], ["browse", "--ws", "ws://h/devtools/browser/x", "snapshot"]):
-            got = self.browse(*argv, ARDIA_PORT="9351", ARDIA_WS="ws://e/devtools/browser/y")
+            got = self.browse(*argv, VOYAGER_PORT="9351", VOYAGER_WS="ws://e/devtools/browser/y")
             self.assertNotIn("9351", got, argv)
             self.assertNotIn("ws://e/devtools/browser/y", got, argv)
 
     def test_command_owned_port_is_not_the_endpoint(self):
-        self.assertEqual(self.browse("browse", "stream", "enable", "--port", "9000", ARDIA_PORT="9351"), ["--port", "9351", "stream", "enable", "--port", "9000"])
+        self.assertEqual(self.browse("browse", "stream", "enable", "--port", "9000", VOYAGER_PORT="9351"), ["--port", "9351", "stream", "enable", "--port", "9000"])
 
     def test_flags_browse_doesnt_take(self):
         with clean_env():
             status, _, err = run_cli("--timeout", "5", "browse", "snapshot")
         self.assertEqual(status, 1)
-        self.assertIn("ardia browse doesn't take --timeout", err)
+        self.assertIn("voyager browse doesn't take --timeout", err)
 
 
 class Resolve(unittest.TestCase):
@@ -155,17 +155,17 @@ class Resolve(unittest.TestCase):
             return endpoint.resolve(ws=ws, port=port)
 
     def test_precedence(self):
-        env = {"ARDIA_WS": "ws://e", "ARDIA_PORT": "2", "ARDIA_CDP_URL": "ws://c"}
+        env = {"VOYAGER_WS": "ws://e", "VOYAGER_PORT": "2", "VOYAGER_CDP_URL": "ws://c"}
         self.assertEqual(self.resolved(ws="ws://f", **env), ("ws", "ws://f", "--ws"))
         self.assertEqual(self.resolved(port=1, **env), ("port", 1, "--port"))
-        self.assertEqual(self.resolved(**env), ("ws", "ws://e", "ARDIA_WS"))
-        self.assertEqual(self.resolved(ARDIA_PORT="2", ARDIA_CDP_URL="ws://c"), ("port", 2, "ARDIA_PORT"))
-        self.assertEqual(self.resolved(ARDIA_CDP_URL="ws://c"), ("ws", "ws://c", "ARDIA_CDP_URL"))
+        self.assertEqual(self.resolved(**env), ("ws", "ws://e", "VOYAGER_WS"))
+        self.assertEqual(self.resolved(VOYAGER_PORT="2", VOYAGER_CDP_URL="ws://c"), ("port", 2, "VOYAGER_PORT"))
+        self.assertEqual(self.resolved(VOYAGER_CDP_URL="ws://c"), ("ws", "ws://c", "VOYAGER_CDP_URL"))
 
     def test_bad_env_port(self):
         with self.assertRaises(endpoint.EndpointError) as caught:
-            self.resolved(ARDIA_PORT="nine")
-        self.assertIn("ARDIA_PORT must be a port number", str(caught.exception))
+            self.resolved(VOYAGER_PORT="nine")
+        self.assertIn("VOYAGER_PORT must be a port number", str(caught.exception))
 
 
 class RemovedExec(unittest.TestCase):
@@ -175,7 +175,7 @@ class RemovedExec(unittest.TestCase):
                 status, out, err = run_cli(*argv)
             self.assertEqual(status, 2, argv)
             self.assertIn("unknown command 'exec'", err)
-            self.assertIn("ardia browse", err)
+            self.assertIn("voyager browse", err)
             self.assertEqual(out, "")
 
     def test_other_unknown_command(self):
@@ -185,15 +185,15 @@ class RemovedExec(unittest.TestCase):
         self.assertIn("unknown command 'nope'", err)
 
     def test_runner_is_gone(self):
-        self.assertIsNone(importlib.util.find_spec("ardia_cli.runner"))
+        self.assertIsNone(importlib.util.find_spec("voyager_cli.runner"))
 
 
 class Notes(unittest.TestCase):
     def test_passes_the_rest_through(self):
         seen = {}
-        fake = types.ModuleType("ardia_cli.notes")
+        fake = types.ModuleType("voyager_cli.notes")
         fake.main = lambda argv: seen.setdefault("argv", argv) and 7
-        with clean_env(), mock.patch.dict(sys.modules, {"ardia_cli.notes": fake}):
+        with clean_env(), mock.patch.dict(sys.modules, {"voyager_cli.notes": fake}):
             status, _, _ = run_cli("--data-dir", "/d", "notes", "add", "--json", "hi")
         self.assertEqual(status, 7)
         self.assertEqual(seen["argv"], ["--data-dir", "/d", "add", "--json", "hi"])
@@ -250,7 +250,7 @@ class BrowsingCommands(unittest.TestCase):
         connection.close()
 
     def cli(self, *argv):
-        with clean_env(ARDIA_DATA_DIR=str(self.data)):
+        with clean_env(VOYAGER_DATA_DIR=str(self.data)):
             return run_cli(*argv)
 
     def test_pinned_json(self):

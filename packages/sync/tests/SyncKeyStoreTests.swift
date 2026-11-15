@@ -37,7 +37,7 @@ private final class FakeKeychainCalls: KeychainCalls {
 final class SyncKeyStoreTests: XCTestCase {
   func testSavingAgainReplacesTheKey() {
     let keychain = FakeKeychainCalls()
-    let store = KeychainKeyStore(service: "Ardia Sync Key", calls: keychain)
+    let store = KeychainKeyStore(service: "Voyager Sync Key", calls: keychain)
     XCTAssertTrue(store.save(Data("first".utf8), account: "device"))
     XCTAssertTrue(store.save(Data("second".utf8), account: "device"))
     XCTAssertEqual(store.load(account: "device"), Data("second".utf8))
@@ -47,7 +47,7 @@ final class SyncKeyStoreTests: XCTestCase {
 
   func testASaveThatFailsKeepsTheKeyItReplaces() {
     let keychain = FakeKeychainCalls()
-    let store = KeychainKeyStore(service: "Ardia Sync Key", calls: keychain)
+    let store = KeychainKeyStore(service: "Voyager Sync Key", calls: keychain)
     let kept = Data("the key in use".utf8)
     XCTAssertTrue(store.save(kept, account: "device"))
     keychain.refuseWrites = true

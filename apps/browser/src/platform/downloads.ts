@@ -1,4 +1,4 @@
-import { call, on, type Download, type DownloadSettings } from "@ardia/ardiacore";
+import { call, on, type Download, type DownloadSettings } from "@voyager/ardiacore";
 
 export type { Download, DownloadSettings };
 

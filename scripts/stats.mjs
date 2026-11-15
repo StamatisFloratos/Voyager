@@ -13,7 +13,7 @@ import {
 
 const USAGE = `usage: node scripts/stats.mjs [--since <when>] [--json] [--no-save]
 
-Ardia's numbers in one report: users and installs, the site, phones, GitHub and errors, for a window
+Voyager's numbers in one report: users and installs, the site, phones, GitHub and errors, for a window
 ending now, plus what changed since the last run. Writes the visual as an SVG and prints its path.
 
   --since <when>   start of the window (default 24h): 6h, 90m, 2d, 1w, "8:30pm IST", "20:30",
@@ -21,8 +21,8 @@ ending now, plus what changed since the last run. Writes the visual as an SVG an
   --json           print the data as JSON instead of the report
   --no-save        don't record this run as the last check`;
 
-const STATE = join(homedir(), ".local/state/ardia/stats-last.json");
-const SVG_DIR = "/tmp/ardia-stats";
+const STATE = join(homedir(), ".local/state/voyager/stats-last.json");
+const SVG_DIR = "/tmp/voyager-stats";
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const args = process.argv.slice(2);
@@ -122,7 +122,7 @@ const headline = () =>
            FROM telemetry.otel_logs FINAL WHERE ${DAILY} AND Timestamp > now() - INTERVAL 40 DAY))`);
 
 const [rows, head, gitHub] = await Promise.all([
-  hasTelemetryEnv() ? attempt("telemetry (window)", windowRows) : (problems.push("telemetry: ~/.config/ardia/telemetry.env is missing (docs/growth.md, Telemetry)"), null),
+  hasTelemetryEnv() ? attempt("telemetry (window)", windowRows) : (problems.push("telemetry: ~/.config/voyager/telemetry.env is missing (docs/growth.md, Telemetry)"), null),
   hasTelemetryEnv() ? attempt("telemetry (headline)", headline) : null,
   attempt("github", () => github({ now, since })),
 ]);
@@ -281,7 +281,7 @@ function trendLine(b) {
 
 function report() {
   const out = [];
-  out.push(`**Ardia since ${whenLabel(since)} ${zoneName}** (${duration(span)}, as of ${clock(now)})`);
+  out.push(`**Voyager since ${whenLabel(since)} ${zoneName}** (${duration(span)}, as of ${clock(now)})`);
   if (data.headline || gitHub) {
     out.push("", "**Users**");
     if (gitHub) out.push(`- DMG downloads ${n(gitHub.dmg)} all time; ${gitHub.latest?.version} has ${n(gitHub.latest?.dmg)} DMG, ${n(gitHub.latest?.zip)} update zips (${n(gitHub.zips)} zips all time)`);
@@ -361,7 +361,7 @@ function svg() {
   const text = (x, y, s, { size = 12, color = C.muted, weight = 400, anchor = "start" } = {}) =>
     parts.push(`<text x="${x}" y="${y}" font-family="${FONT}" font-size="${size}" font-weight="${weight}" fill="${color}" text-anchor="${anchor}">${esc(s)}</text>`);
   let y = P;
-  text(P, y + 14, `Ardia since ${whenLabel(since)} ${zoneName} · ${duration(span)} · as of ${clock(now)}`, { size: 13, color: C.text, weight: 600 });
+  text(P, y + 14, `Voyager since ${whenLabel(since)} ${zoneName} · ${duration(span)} · as of ${clock(now)}`, { size: 13, color: C.text, weight: 600 });
   y += 30;
   const s = data.site, g = gitHub;
   const tiles = [

@@ -12,13 +12,13 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import redact
-from ardia_cli.browse import actions, capture, client, commands, daemon, inputs, paths, snapshot
-from ardia_cli.browse.errors import BrowseError, CdpError, CdpTimeout, ConnectionLost, Gated, OutcomeUnknown, StaleRef, Unreachable
-from ardia_cli.browse.page import Page
-from ardia_cli.browse.state import State
+from voyager_cli import redact
+from voyager_cli.browse import actions, capture, client, commands, daemon, inputs, paths, snapshot
+from voyager_cli.browse.errors import BrowseError, CdpError, CdpTimeout, ConnectionLost, Gated, OutcomeUnknown, StaleRef, Unreachable
+from voyager_cli.browse.page import Page
+from voyager_cli.browse.state import State
 
-SCRATCH = Path.home() / "ardia-scratch"
+SCRATCH = Path.home() / "voyager-scratch"
 
 
 def scratch(test) -> Path:
@@ -61,7 +61,7 @@ class DeadLinkIsTerminal(unittest.TestCase):
             async def send(self, method, params=None, session=None, timeout=30):
                 return {"targetInfos": []}
 
-        with mock.patch("ardia_cli.browse.state.Browser", FakeBrowser):
+        with mock.patch("voyager_cli.browse.state.Browser", FakeBrowser):
             run(state.connect())
         self.assertEqual(opened, [1])
 
@@ -516,7 +516,7 @@ class MutationsCarryUnknownOutcomes(unittest.TestCase):
         async def fake_dispatch(ctx, name, argv):
             seen.append(name)
             if name == "click":
-                raise OutcomeUnknown("click", "Ardia didn't answer")
+                raise OutcomeUnknown("click", "Voyager didn't answer")
             return commands.Result({"ok": True})
 
         ctx = commands.Ctx(SimpleNamespace(), {}, "/", {}, None, "batch")
@@ -692,7 +692,7 @@ class FocusReplacementIsFollowed(unittest.TestCase):
     def test_the_vault_never_follows_a_replacement(self):
         import inspect
 
-        from ardia_cli.browse import vault
+        from voyager_cli.browse import vault
 
         source = inspect.getsource(vault.login)
         self.assertNotIn("settle_focus", source)
@@ -701,7 +701,7 @@ class FocusReplacementIsFollowed(unittest.TestCase):
 
 class AnnotateListsOnlyWhatIsInTheImage(unittest.TestCase):
     def test_legend_skips_boxes_outside_the_viewport(self):
-        from ardia_cli.browse import media
+        from voyager_cli.browse import media
 
         region = (0, 0, 1280, 577)
         self.assertTrue(media.in_image({"x": 8, "y": 21, "width": 100, "height": 37}, region))
@@ -718,7 +718,7 @@ class BrokenPipeIsQuiet(unittest.TestCase):
         read, write = os.pipe()
         os.close(read)
         try:
-            done = subprocess.run([sys.executable, "-m", "ardia_cli", "browse", "--help"], stdout=write, stderr=subprocess.PIPE,
+            done = subprocess.run([sys.executable, "-m", "voyager_cli", "browse", "--help"], stdout=write, stderr=subprocess.PIPE,
                                   env=dict(os.environ, PYTHONPATH=str(Path(__file__).resolve().parents[1])), timeout=60)
         finally:
             os.close(write)

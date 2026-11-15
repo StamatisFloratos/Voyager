@@ -1,4 +1,4 @@
-import { anonymousIdentity, type AnonymousAvatar } from "@ardia/core";
+import { anonymousIdentity, type AnonymousAvatar } from "@voyager/core";
 import { capture, ensureInstallId, replaceInstallId } from "./client";
 import { savedChoice, sessionId } from "./choice";
 import { uuidv4 } from "./ids";

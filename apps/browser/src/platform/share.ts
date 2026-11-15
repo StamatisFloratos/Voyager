@@ -1,7 +1,7 @@
-import { nativeModule, type ShareAnchor } from "@ardia/shell";
+import { nativeModule, type ShareAnchor } from "@voyager/shell";
 
 export type { ShareAnchor };
-export type { PageShare } from "@ardia/ardiacore";
+export type { PageShare } from "@voyager/ardiacore";
 
 const App = nativeModule("ArdiaApp");
 

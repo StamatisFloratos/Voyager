@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaSync
+import VoyagerBrowser
+import VoyagerSync
 import Foundation
 import Observation
 import SwiftData
@@ -46,8 +46,8 @@ final class AppModel {
 
   init(isDemo: Bool) {
     self.isDemo = isDemo
-    let defaults = isDemo ? (UserDefaults(suiteName: "ardia.demo") ?? .standard) : .standard
-    if isDemo { defaults.removePersistentDomain(forName: "ardia.demo") }
+    let defaults = isDemo ? (UserDefaults(suiteName: "voyager.demo") ?? .standard) : .standard
+    if isDemo { defaults.removePersistentDomain(forName: "voyager.demo") }
     let container: ModelContainer
     do {
       container = try BrowserStore.makeContainer(isDemo ? .inMemory : .appGroup)
@@ -60,7 +60,7 @@ final class AppModel {
     blocker = ContentBlocker(
       settings: blocking,
       directory: URL.cachesDirectory.appending(path: "Blocking", directoryHint: .isDirectory),
-      filterLists: isDemo ? .demo(directory: URL.temporaryDirectory.appending(path: "ArdiaDemoFilters", directoryHint: .isDirectory), defaults: defaults) : nil
+      filterLists: isDemo ? .demo(directory: URL.temporaryDirectory.appending(path: "VoyagerDemoFilters", directoryHint: .isDirectory), defaults: defaults) : nil
     )
     preferences = BrowsingPreferences(defaults: defaults)
     web = WebEngine(tabs: tabs, blocker: blocker, preferences: preferences)
@@ -72,6 +72,6 @@ final class AppModel {
   }
 
   static func launch() -> AppModel {
-    AppModel(isDemo: ProcessInfo.processInfo.arguments.contains("-ArdiaDemo") || UserDefaults.standard.bool(forKey: "ArdiaDemo"))
+    AppModel(isDemo: ProcessInfo.processInfo.arguments.contains("-VoyagerDemo") || UserDefaults.standard.bool(forKey: "VoyagerDemo"))
   }
 }

@@ -1,16 +1,16 @@
 # Config files
 
-Ardia can be set up from plain files, dotfiles style, and from the `ardia` command (`docs/cli.md`). Closes #716.
+Voyager can be set up from plain files, dotfiles style, and from the `voyager` command (`docs/cli.md`). Closes #716.
 
 ## Where
 
-The config folder is `~/.config/ardia/`. An instance started with `ARDIA_DATA_DIR` uses `<data dir>/config` instead,
+The config folder is `~/.config/voyager/`. An instance started with `VOYAGER_DATA_DIR` uses `<data dir>/config` instead,
 so test instances never read the owner's files. No other environment variable picks it (a Finder-launched app never
 sees the shell's `XDG_CONFIG_HOME`, so honouring it would make the app and the CLI disagree). The app resolves it in
-`ArdiaLaunchConfig`; the CLI resolves it the same way from `--data-dir` / `$ARDIA_DATA_DIR`.
+`ArdiaLaunchConfig`; the CLI resolves it the same way from `--data-dir` / `$VOYAGER_DATA_DIR`.
 
 ```
-~/.config/ardia/
+~/.config/voyager/
   config.json          settings and the theme choice
   hooks.json           automation hooks (docs/automation.md)
   themes/<name>.json   colour overrides
@@ -18,7 +18,7 @@ sees the shell's `XDG_CONFIG_HOME`, so honouring it would make the app and the C
   theme.schema.json    written by the app
 ```
 
-Ardia never creates the folder. `ardia config init` does, or the user does.
+Voyager never creates the folder. `voyager config init` does, or the user does.
 
 ## config.json
 
@@ -48,10 +48,10 @@ Ardia never creates the folder. `ardia config init` does, or the user does.
   whatever it has. Fixed commands can't be rebound. The app translates to its stored form (`[key, ...modifiers]`); a
   command's own default shortcut drops its override. Each entry stands alone: a bad one is reported and skipped, the
   others apply.
-- `launchActions` is a list of up to 20 Ardia command ids (`"newTab"`, or `"selectTab:2"` for a variant) that the app
+- `launchActions` is a list of up to 20 Voyager command ids (`"newTab"`, or `"selectTab:2"` for a variant) that the app
   runs itself, once per launch, after the session is restored and the first window is up, in the focused window: no
   CLI control and no LaunchAgent needed. `"launchActions": ["newTab"]` keeps your tabs and lands on a new tab.
-  Only commands the ardia command may run (`docs/automation.md`) are accepted; an unknown id or variant makes the
+  Only commands the voyager command may run (`docs/automation.md`) are accepted; an unknown id or variant makes the
   whole setting invalid, with a message naming it (`config.json: launchActions: fooBar isn't a command`). Actions
   from the safe list (`newTab`, `newWindow`, `newLittleArdia`, `focusCommandBar`, `toggleSidebar`, `nextTab`,
   `previousTab`, `selectTab`, `selectLastTab`) run at once; any other waits for approval in Settings › Advanced ›
@@ -89,20 +89,20 @@ row in it) is reported and skipped, the others apply.
   address.
 - `title` names the provider on its chip and on each of its rows (default: the template's host).
 
-**Approval.** A `suggest` endpoint and every global provider stay off until approved in Ardia. The approval is for
+**Approval.** A `suggest` endpoint and every global provider stay off until approved in Voyager. The approval is for
 the exact definition: editing the entry needs a new one. Static keyword lists and URL templates send nothing and
 need none. Pending ones appear in Settings › Advanced › Automation; in code they're `pendingOmniboxProviders()` and
 `approveOmniboxProvider(key)` (`apps/browser/src/state/omnibox/`); approvals are kept in the app's data dir with
 the other automation approvals and listed in Settings › Advanced › Automation (`docs/automation.md` › Approvals).
 
-**Safety.** Rows only open `http` and `https` URLs (never `javascript:`, `data:`, `file:`, `chrome:` or Ardia's own
+**Safety.** Rows only open `http` and `https` URLs (never `javascript:`, `data:`, `file:`, `chrome:` or Voyager's own
 pages). Titles are capped at 120 characters and subtitles at 160, with control and bidi characters removed, and each
-row shows the destination's host and the provider's title, which Ardia sets. Icons are `https` URLs or
+row shows the destination's host and the provider's title, which Voyager sets. Icons are `https` URLs or
 `data:image` (png, jpeg, gif, webp, ico) up to 16 KB. Suggestion requests carry only what you typed: no cookies,
 referrer, page, history or profile. They go only to `https` URLs on a plain DNS hostname: no IP
 literal of any form (dotted, short, octal, hex or decimal IPv4, IPv6), no percent-encoding, user info or backslash,
 a canonical port, and not `localhost` or a private suffix (`.local`, `.internal`, `.lan`, `.home.arpa`, `.test`,
-`.onion`…). A DNS name that resolves to a private or loopback address is not blocked: Ardia checks the URL, not
+`.onion`…). A DNS name that resolves to a private or loopback address is not blocked: Voyager checks the URL, not
 what the name resolves to. They wait 120 ms after the last key, are cancelled by the next key, give up after 1.5 s, keep at most 4
 requests in flight, and are cached for 5 minutes per profile. A reply over 128 KB (by its Content-Length, or as soon
 as JS sees more than that arrive) is aborted and dropped. That's early cancellation, not a hard memory bound:
@@ -112,8 +112,8 @@ isn't allowed is dropped. Remote, program and extension providers never run in a
 templates do. A test instance (`docs/agent-brief.md` › Launch variables) may also use `http://127.0.0.1` (written
 exactly so) endpoints, for fixtures; other builds refuse them.
 
-**Extensions' `chrome.omnibox` keywords** don't reach Ardia's bar yet. The engine lists them (`ac_search_engines.cc`,
-`isOmniboxExtension`), but Ardia's location bar has no `OmniboxController`, so nothing calls
+**Extensions' `chrome.omnibox` keywords** don't reach Voyager's bar yet. The engine lists them (`ac_search_engines.cc`,
+`isOmniboxExtension`), but Voyager's location bar has no `OmniboxController`, so nothing calls
 `ExtensionOmniboxEventRouter::OnInputStarted/OnInputChanged/OnInputCancelled/OnInputEntered` or listens to
 `OmniboxSuggestionsWatcher`. Wiring them needs engine calls (`ac_omnibox_input_*` wrapping those statics, plus an
 `extensions.omniboxSuggestions` event from the watcher and the stored default suggestion). Accepting a row would also
@@ -132,38 +132,38 @@ you type. It has no Settings row: plugins (github.com/mantrakp04/ardia-plugins) 
 - `openTabs.hidePinned` leaves out pinned tabs (the sidebar's pinned rows), `openTabs.hideTopApps` leaves out Top Apps
   (the tiles). Typing still finds every open tab.
 - `openTabs.limit` (0–20, default 8) is how many open tabs it lists; 0 lists none.
-- Any other key, or a value of the wrong type, makes the whole setting invalid. `{}` is Ardia's default.
+- Any other key, or a value of the wrong type, makes the whole setting invalid. `{}` is Voyager's default.
 - Code: `state/omnibox/commandBarStart.ts`, used by `useOpenTabsStart` (`components/omnibox/dropdownStart.ts`).
   Telemetry: `settings_snapshot` carries `setting_commandBarStart_hidePinned`, `_hideTopApps` and `_limit` with their
   defaults.
 
 ### The file wins
 
-`config.json` is read-only to the app. Ardia never writes it, so there is nothing to race with.
+`config.json` is read-only to the app. Voyager never writes it, so there is nothing to race with.
 
-- At launch, and every time `config.json` or the active theme changes on disk, Ardia applies every file setting
+- At launch, and every time `config.json` or the active theme changes on disk, Voyager applies every file setting
   whose value is valid and differs from the current one, through `updateSettings` (so it syncs like a change made in
   Settings).
 - A change made in the app, or one that arrives from device sync, stands until the next launch or the next change to
   the file, which puts the file's value back. Sync arrivals don't trigger a re-apply, so two Macs with different
   files can't ping-pong.
-- Taking a key out of the file stops the file from setting it; Ardia keeps the current value. To go back to the
+- Taking a key out of the file stops the file from setting it; Voyager keeps the current value. To go back to the
   default, set the default value.
 - Applying is idempotent: a change event means "read the file again and reconcile", never "something changed once".
-  Several Ardia instances can share the folder.
+  Several Voyager instances can share the folder.
 
 ### Files and links
 
 The config folder, `config.json`, `themes/` and theme files may be symlinks (a dotfiles repo); reads follow them.
-Ardia reads only regular files (checked after resolving), at most 1 MB, opened non-blocking so a FIFO can't hang the
+Voyager reads only regular files (checked after resolving), at most 1 MB, opened non-blocking so a FIFO can't hang the
 watcher. The watcher re-resolves the folder when it changes and notices it appearing after launch.
 
 ### Errors
 
-A file that doesn't parse, an unknown key, a wrong value or a missing theme never breaks anything: Ardia applies what
+A file that doesn't parse, an unknown key, a wrong value or a missing theme never breaks anything: Voyager applies what
 is valid, skips the rest (a bad value skips that whole setting), logs it and shows one toast per distinct problem
 ("config.json: selectedTabGlow must be full, soft or off"). An unparseable theme file keeps the last good version of
-that theme. `ardia config check` reports the same problems.
+that theme. `voyager config check` reports the same problems.
 
 ## Themes
 
@@ -178,12 +178,12 @@ that theme. `ardia config check` reports the same problems.
 - `dark` and `light` take any colour role of `colorRoles` (`apps/browser/src/components/ui/tokens.ts`) except
   `dark` itself. Colours are `#RGB`, `#RRGGBB`, `#RRGGBBAA`, `rgb(r,g,b)` or `rgba(r,g,b,a)` (r, g, b integers 0–255,
   a 0–1). Number roles are finite: `grain` and the `…Opacity` roles 0–1, the `…Radius` roles 0–100.
-  `tabSelectedBorder` takes two colours. A role left out, or a bad one, uses Ardia's value. Keys other than `$schema`,
+  `tabSelectedBorder` takes two colours. A role left out, or a bad one, uses Voyager's value. Keys other than `$schema`,
   `dark` and `light`, and names that aren't roles, are reported (the schema has `additionalProperties: false`).
-- The file's roles replace Ardia's in the base palettes, before anything else. Profile colours and custom profile
+- The file's roles replace Voyager's in the base palettes, before anything else. Profile colours and custom profile
   themes keep adding what they add today (backdrop, tint, accent); incognito uses the dark palette, with the file's
   dark roles, plus its tint.
-- `theme: null`, no `theme` key, a missing theme file or no `config.json` means Ardia's own palette.
+- `theme: null`, no `theme` key, a missing theme file or no `config.json` means Voyager's own palette.
 - Picking a theme, or editing the active theme's file, restyles every window at once, no restart. The effective base
   palette carries a revision, and every cache and snapshot built from roles depends on it.
 
@@ -194,45 +194,45 @@ every launch, and into the config folder whenever it exists, rewriting only when
 rename, replacing a symlinked schema rather than writing through it). They are generated from the allowlisted
 `SETTING_SPECS` entries (each spec carries its schema; a test checks schema and validator agree on samples and
 defaults), the command catalog (the property names of `shortcuts`) and `colorRoles` (each role's `default` is
-Ardia's dark or light value), so they never drift. They help editors and the CLI; the app always validates with its
+Voyager's dark or light value), so they never drift. They help editors and the CLI; the app always validates with its
 own code.
 
-They use only this subset, which `ardia` checks itself without a JSON Schema library (other keywords are ignored):
+They use only this subset, which `voyager` checks itself without a JSON Schema library (other keywords are ignored):
 `type` (one or a list), `enum`, `const`, `default`, `description`, `minimum`, `maximum`, `exclusiveMinimum`,
 `pattern`, `items`, `prefixItems`, `minItems`, `maxItems`, `properties`, `additionalProperties` (boolean or schema),
 `propertyNames`, `required`, `anyOf`.
 
-## The ardia command
+## The voyager command
 
-None of these need Ardia running; they read and write the files, and a running Ardia picks the change up at once.
+None of these need Voyager running; they read and write the files, and a running Voyager picks the change up at once.
 Keys, values and defaults come from the schemas in the config folder, else `<data dir>/config-schema/` (the
-`--data-dir` / `$ARDIA_DATA_DIR` one, else the installed app's). With neither, `set` writes without checking and says
+`--data-dir` / `$VOYAGER_DATA_DIR` one, else the installed app's). With neither, `set` writes without checking and says
 so. Exit codes: 0 done, 1 a check failed or the input is wrong.
 
-- `ardia config path` prints the config folder.
-- `ardia config init` creates the folder, a `config.json` (`$schema`, `theme: null`, `settings: {}`) and the schemas
+- `voyager config path` prints the config folder.
+- `voyager config init` creates the folder, a `config.json` (`$schema`, `theme: null`, `settings: {}`) and the schemas
   it can find. It never overwrites a file.
-- `ardia config get [KEY] [--json]` prints one setting from the file (exit 1 if the file doesn't set it), or the whole
+- `voyager config get [KEY] [--json]` prints one setting from the file (exit 1 if the file doesn't set it), or the whole
   file. KEY is a setting name, or `shortcuts.<command id>`.
-- `ardia config set KEY VALUE` parses VALUE as JSON, else takes it as a string (also when the JSON value fails the
+- `voyager config set KEY VALUE` parses VALUE as JSON, else takes it as a string (also when the JSON value fails the
   check and the string passes), checks it, and writes it, creating `config.json` first if needed. It rewrites
-  the file even when the value is already there, so a running Ardia re-applies it. An unknown
+  the file even when the value is already there, so a running Voyager re-applies it. An unknown
   key names the closest ones; a wrong value names what's allowed. The left-out settings are refused with or
   without a schema, and `cmd+shift+t` shortcuts are parsed (modifier and key names) so typos fail; glyph
   shortcuts pass if the schema allows them.
-- `ardia config unset KEY` removes it from the file. Ardia keeps the current value. A key the file doesn't set
+- `voyager config unset KEY` removes it from the file. Voyager keeps the current value. A key the file doesn't set
   is a no-op (exit 0); a name that isn't a setting is an error.
-- `ardia config list [--json]` lists every key with its type or allowed values, default and file value.
-- `ardia config edit` opens `config.json` (created first if needed) in `$VISUAL`, `$EDITOR` (split like a shell
+- `voyager config list [--json]` lists every key with its type or allowed values, default and file value.
+- `voyager config edit` opens `config.json` (created first if needed) in `$VISUAL`, `$EDITOR` (split like a shell
   word list), else `vi` (as git does), waits for the editor to exit, then runs `check`.
-- `ardia config check [--json]` checks `config.json` and the theme it names. Theme problems use the app's wording;
+- `voyager config check [--json]` checks `config.json` and the theme it names. Theme problems use the app's wording;
   the theme schema supplies the role names and each role's kind (from its `default`). `--json` prints
   `{"ok", "files": [{"file", "problems": [{"key", "message"}]}], "warnings"}`.
-- `ardia theme new NAME [--from THEME]` writes `themes/NAME.json` with every role, from Ardia's defaults or from
+- `voyager theme new NAME [--from THEME]` writes `themes/NAME.json` with every role, from Voyager's defaults or from
   another theme. It never overwrites.
-- `ardia theme use NAME|none` sets `theme` in `config.json`, creating it first if needed.
-- `ardia theme list [--json]` lists the themes and marks the active one.
-- `ardia theme check [NAME|FILE] [--json]` checks a theme (default: the active one).
+- `voyager theme use NAME|none` sets `theme` in `config.json`, creating it first if needed.
+- `voyager theme list [--json]` lists the themes and marks the active one.
+- `voyager theme check [NAME|FILE] [--json]` checks a theme (default: the active one).
 
 `set`, `unset` and `theme use` refuse to touch a `config.json` that doesn't parse or whose root or `settings` isn't an
 object. Writes keep the file's key order and other keys, use 2-space indents and a final newline, and go through an

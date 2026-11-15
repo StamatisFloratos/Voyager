@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-usage="usage: token-smoke.sh <Ardia.app> <ardia command> [metro host:port]
-Runs ardia browse read, open and a refused command against a hidden instance of <Ardia.app> over the real token
-connection (no DevTools port), with the given ardia command. A Debug build needs its Metro as the third argument."
+usage="usage: token-smoke.sh <Voyager.app> <voyager command> [metro host:port]
+Runs voyager browse read, open and a refused command against a hidden instance of <Voyager.app> over the real token
+connection (no DevTools port), with the given voyager command. A Debug build needs its Metro as the third argument."
 case "${1:-}" in -h | --help | "") echo "$usage"; [ -n "${1:-}" ] && exit 0 || exit 64 ;; esac
 app="$(cd "$1" && pwd -P)"
 cli="${2:?$usage}"
@@ -35,33 +35,33 @@ field() {
 port="$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')"
 python3 -m http.server "$port" --bind 127.0.0.1 --directory "$root/apps/cli/tests/fixtures/browse" >/dev/null 2>&1 &
 server=$!
-open -g -n --env ARDIA_BACKGROUND=1 --env "ARDIA_DATA_DIR=$data" ${metro:+--env "ARDIA_INSTANCE=jsLocation=$metro"} \
+open -g -n --env VOYAGER_BACKGROUND=1 --env "VOYAGER_DATA_DIR=$data" ${metro:+--env "VOYAGER_INSTANCE=jsLocation=$metro"} \
   --stdout "$data/app.out.log" --stderr "$data/app.out.log" "$app"
 control="$data/Chromium/ArdiaControl.json"
 for _ in $(seq 1 300); do [ -s "$control" ] && break; sleep 0.2; done
-[ -s "$control" ] || { echo "FAIL  the ardia command's token server starts  (no $control after 60 s)"; exit 1; }
+[ -s "$control" ] || { echo "FAIL  the voyager command's token server starts  (no $control after 60 s)"; exit 1; }
 pid="$(field pid <"$control")"
 browse() { "$cli" --data-dir "$data" browse --session smoke "$@" 2>&1 || true; }
 page="http://127.0.0.1:$port/login.html"
 
 read="$(browse read "$page" --json)"
 [ "$(field success <<<"$read")" = true ] && [ "$(field data.pages.0.title <<<"$read")" = "Fixture Login" ] && ok=1 || ok=0
-check "ardia browse read <url> reads a page over the token connection" $ok "$(head -c 300 <<<"$read")"
+check "voyager browse read <url> reads a page over the token connection" $ok "$(head -c 300 <<<"$read")"
 opened="$(browse open "$page" --json)"
 [ "$(field success <<<"$opened")" = true ] && ok=1 || ok=0
-check "ardia browse open <url> opens a tab over the token connection" $ok "$(head -c 300 <<<"$opened")"
+check "voyager browse open <url> opens a tab over the token connection" $ok "$(head -c 300 <<<"$opened")"
 again="$(browse read --json)"
 [ "$(field success <<<"$again")" = true ] && ok=1 || ok=0
-check "ardia browse read reads the session's tab" $ok "$(head -c 300 <<<"$again")"
+check "voyager browse read reads the session's tab" $ok "$(head -c 300 <<<"$again")"
 shot="$work/shot.png"
 browse screenshot "$shot" >/dev/null
 [ "$(head -c 4 "$shot" 2>/dev/null | tail -c 3)" = PNG ] && ok=1 || ok=0
-check "ardia browse screenshot pictures the session's background tab" $ok
+check "voyager browse screenshot pictures the session's background tab" $ok
 viewport="$(browse set viewport 390 844 --json)"
 sized="$(browse eval "innerWidth + 'x' + innerHeight" --json)"
 [ "$(field code <<<"$viewport")" = policy_refused ] && [ "$(field data.method <<<"$viewport")" = Emulation.setDeviceMetricsOverride ] &&
   [ "$(field data.result <<<"$sized")" != 390x844 ] && ok=1 || ok=0
-check "ardia browse set viewport is gated over the token connection" $ok "$(head -c 300 <<<"$viewport")"
+check "voyager browse set viewport is gated over the token connection" $ok "$(head -c 300 <<<"$viewport")"
 refused="$(browse cookies --json)"
 [ "$(field code <<<"$refused")" = policy_refused ] && [ "$(field data.method <<<"$refused")" = Network.getCookies ] && ok=1 || ok=0
 check "a method off the policy's list is refused by name" $ok "$(head -c 300 <<<"$refused")"

@@ -61,7 +61,7 @@ final class ChannelUserDriver: NSObject, SPUUserDriver {
   }
 
   private func drop(_ item: SUAppcastItem, staged: Bool, answering reply: (SPUUserUpdateChoice) -> Void) {
-    NSLog("Ardia: dropping update \(item.displayVersionString) (build \(item.versionString)): its channel isn't this copy's any more")
+    NSLog("Voyager: dropping update \(item.displayVersionString) (build \(item.versionString)): its channel isn't this copy's any more")
     UpdatePrewarm.stop()
     if staged { cancelledInstaller(item) }
     SkippedUpdateDefaults.unchanged { reply(.skip) }
@@ -106,7 +106,7 @@ final class ChannelUserDriver: NSObject, SPUUserDriver {
 
   func showUpdaterError(_ error: Error, acknowledgement: @escaping () -> Void) {
     guard !quietCheck else {
-      NSLog("Ardia: the check after a channel switch failed: \(error.localizedDescription)")
+      NSLog("Voyager: the check after a channel switch failed: \(error.localizedDescription)")
       return acknowledgement()
     }
     standard.showUpdaterError(error, acknowledgement: acknowledgement)

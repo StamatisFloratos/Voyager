@@ -1,4 +1,4 @@
-import { nativeModule, type LocationPermission } from "@ardia/shell";
+import { nativeModule, type LocationPermission } from "@voyager/shell";
 
 export type { LocationPermission };
 

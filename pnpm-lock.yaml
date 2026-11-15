@@ -22,22 +22,22 @@ importers:
 
   apps/browser:
     dependencies:
-      '@ardia/ardiacore':
+      '@voyager/ardiacore':
         specifier: workspace:*
         version: link:../../packages/ardiacore
-      '@ardia/core':
+      '@voyager/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@ardia/import':
+      '@voyager/import':
         specifier: workspace:*
         version: link:../../packages/import
-      '@ardia/shaders':
+      '@voyager/shaders':
         specifier: workspace:*
         version: link:../../packages/shaders
-      '@ardia/shell':
+      '@voyager/shell':
         specifier: workspace:*
         version: link:../../packages/shell
-      '@ardia/sync':
+      '@voyager/sync':
         specifier: workspace:*
         version: link:../../packages/sync
       expo:
@@ -89,7 +89,7 @@ importers:
 
   packages/ardiacore:
     dependencies:
-      '@ardia/core':
+      '@voyager/core':
         specifier: workspace:*
         version: link:../core
 
@@ -101,22 +101,22 @@ importers:
 
   packages/demo:
     dependencies:
-      '@ardia/ardiacore':
+      '@voyager/ardiacore':
         specifier: workspace:*
         version: link:../ardiacore
-      '@ardia/core':
+      '@voyager/core':
         specifier: workspace:*
         version: link:../core
-      '@ardia/import':
+      '@voyager/import':
         specifier: workspace:*
         version: link:../import
-      '@ardia/shaders':
+      '@voyager/shaders':
         specifier: workspace:*
         version: link:../shaders
-      '@ardia/shell':
+      '@voyager/shell':
         specifier: workspace:*
         version: link:../shell
-      '@ardia/sync':
+      '@voyager/sync':
         specifier: workspace:*
         version: link:../sync
       lucide-react:
@@ -180,13 +180,13 @@ importers:
 
   packages/import:
     dependencies:
-      '@ardia/core':
+      '@voyager/core':
         specifier: workspace:*
         version: link:../core
 
   packages/shaders:
     dependencies:
-      '@ardia/core':
+      '@voyager/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

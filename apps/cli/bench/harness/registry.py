@@ -6,7 +6,7 @@ from pathlib import Path
 
 BENCH_DIR = Path(__file__).resolve().parent.parent
 REGISTRY = Path(os.environ.get("BENCH_REGISTRY", BENCH_DIR / "tasks.json"))
-HOME = Path(os.environ.get("BENCH_HOME", Path.home() / "ardia-scratch/bench-proper"))
+HOME = Path(os.environ.get("BENCH_HOME", Path.home() / "voyager-scratch/bench-proper"))
 STATE_DIR = HOME / "state"
 
 

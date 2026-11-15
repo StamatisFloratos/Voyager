@@ -1,4 +1,4 @@
-import { THEME_TEXTURES, type ThemeBackdropProps, type ThemeMode, type ThemeTexture } from "@ardia/core";
+import { THEME_TEXTURES, type ThemeBackdropProps, type ThemeMode, type ThemeTexture } from "@voyager/core";
 import { hslToRgb, parseColor, rgbToHsl, toHex } from "./color";
 import { numberOr } from "./decode";
 

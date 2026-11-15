@@ -1,5 +1,5 @@
 import AppIntents
-import ArdiaBrowser
+import VoyagerBrowser
 import CoreSpotlight
 import Foundation
 import SwiftData
@@ -61,7 +61,7 @@ final class SpotlightIndexer {
     }
     defaults.set(current, forKey: Self.fingerprintsKey)
     if !changed.isEmpty || !removed.isEmpty {
-      ArdiaShortcuts.updateAppShortcutParameters()
+      VoyagerShortcuts.updateAppShortcutParameters()
     }
   }
 

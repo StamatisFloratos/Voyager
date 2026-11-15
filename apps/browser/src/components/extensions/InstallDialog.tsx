@@ -1,4 +1,4 @@
-import { permissionWarnings } from "@ardia/core";
+import { permissionWarnings } from "@voyager/core";
 import { Image, Pressable, ScrollView } from "react-native";
 import { cancelInstall, closePinDialog, confirmInstall, setPinned, useWindowExtensions, type InstallRequest } from "../../state/extensions/actions";
 import { useExtensionProfile } from "../../state/extensions/hooks";

@@ -1,4 +1,4 @@
-import { PROVIDER_CONFIG_LIMITS, PROVIDER_LIMITS, QUERY_SLOT } from "@ardia/core";
+import { PROVIDER_CONFIG_LIMITS, PROVIDER_LIMITS, QUERY_SLOT } from "@voyager/core";
 import type { JsonSchema } from "../../lib/jsonSchema";
 
 const WEB_URL = "^https?://[^\\s/?#@]+([/?#]\\S*)?$";
@@ -22,7 +22,7 @@ export const PROVIDERS_SCHEMA: JsonSchema = {
   description:
     `Address bar providers. With a keyword, typing it then Space or Tab enters that provider; without one, its rows join the list (global). ` +
     `rows: a static list. url: a template, ${QUERY_SLOT} is what you type. suggest: an https endpoint answering OpenSearch suggestions or [{title, url}]. ` +
-    `A suggest endpoint or a global provider only runs once approved in Ardia.`,
+    `A suggest endpoint or a global provider only runs once approved in Voyager.`,
   items: {
     type: "object",
     properties: {

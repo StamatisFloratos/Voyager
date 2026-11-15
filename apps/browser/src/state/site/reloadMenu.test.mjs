@@ -16,7 +16,7 @@ const render = (items, depth = 0) =>
 
 const SITE = ["Site Settings [gearshape] ›", "  Clear Cookies and Site Data… [trash]", "  ---", "  Site Controls…"];
 
-test("the reload button's menu: the site's ad blocker as a checkmark, then Site Settings with the actions Ardia has", () => {
+test("the reload button's menu: the site's ad blocker as a checkmark, then Site Settings with the actions Voyager has", () => {
   assert.deepEqual(render(reloadMenuItems({ blocker: "on" })), ["✓ Block Ads & Trackers [hand.raised]", "---", ...SITE]);
   assert.deepEqual(render(reloadMenuItems({ blocker: "off" }))[0], "Block Ads & Trackers [hand.raised]");
   assert.deepEqual(render(reloadMenuItems({ blocker: "offInSettings" }))[0], "Block Ads & Trackers [hand.raised]");
@@ -25,7 +25,7 @@ test("the reload button's menu: the site's ad blocker as a checkmark, then Site 
 
 test("only web pages have a site to configure", () => {
   assert.equal(siteOrigin("https://a.com/x?y"), "https://a.com");
-  assert.equal(siteOrigin("ardia://newtab"), null);
+  assert.equal(siteOrigin("voyager://newtab"), null);
   assert.equal(siteOrigin("not a url"), null);
 });
 

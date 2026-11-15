@@ -1,4 +1,4 @@
-import { GlassEffect, GlassGroup as NativeGlassGroup, isLiquidGlass } from "@ardia/shell";
+import { GlassEffect, GlassGroup as NativeGlassGroup, isLiquidGlass } from "@voyager/shell";
 import { createContext, memo, useContext, type ReactNode } from "react";
 import { View, type StyleProp, type ViewStyle } from "react-native";
 import { useTheme, type Theme } from "./theme";

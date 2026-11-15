@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import VoyagerBrowser
 import UIKit
 import WebKit
 

@@ -1,4 +1,4 @@
-import { nativeModule, type NotificationOptions, type NotificationResponse } from "@ardia/shell";
+import { nativeModule, type NotificationOptions, type NotificationResponse } from "@voyager/shell";
 
 export type { NotificationResponse };
 

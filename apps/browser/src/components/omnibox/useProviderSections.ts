@@ -1,4 +1,4 @@
-import type { ProviderSection, SearchScope } from "@ardia/core";
+import type { ProviderSection, SearchScope } from "@voyager/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useActiveProviders } from "../../state/omnibox/activeProviders";
 import type { ActiveProvider } from "../../state/omnibox/configProviders";

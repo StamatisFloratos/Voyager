@@ -1,7 +1,7 @@
 import type { BrowserCommand } from "../../platform/commands";
 import type { BrowserState } from "../browser/store";
 import { automationCommands, automationDecision, isCatalogCommand, variantsOf } from "./automationCommands";
-import { COMMANDS, LITTLE_ARDIA_PAGE_COMMANDS } from "../commands/commandCatalog";
+import { COMMANDS, LITTLE_VOYAGER_PAGE_COMMANDS } from "../commands/commandCatalog";
 import { eligibleKind, isEligibleTab, lastFocusedEligibleWindow } from "./automationWindows";
 import { AUTOMATION_EVENTS, MIN_IDLE_SECONDS, NAMED_ONLY_EVENTS, type AutomationEventName } from "./eventNames";
 
@@ -40,7 +40,7 @@ export function parseRequest(line: string): ParsedRequest | { id: RequestId; err
   return { id, method: doc.method, params: (doc.params as Record<string, unknown> | undefined) ?? {} };
 }
 
-export const hello = (version: string) => ({ app: "Ardia", version, protocol: PROTOCOL });
+export const hello = (version: string) => ({ app: "Voyager", version, protocol: PROTOCOL });
 
 export const commands = automationCommands;
 
@@ -63,7 +63,7 @@ export function planRun(s: RunState, params: Record<string, unknown>): RunPlan |
   if (typeof command !== "string" || !command) return failure("bad_request", "run needs a command id.");
   if (!isCatalogCommand(command)) return failure("unknown_command", `There's no command ${command}.`);
   const decision = automationDecision(command);
-  if (decision !== "run") return failure("refused", `${command} ${REFUSALS[decision]}, so the ardia command can't run it.`);
+  if (decision !== "run") return failure("refused", `${command} ${REFUSALS[decision]}, so the voyager command can't run it.`);
   if (arg !== undefined && arg !== null) {
     const variants = variantsOf(command);
     if (typeof arg !== "string" || !variants?.includes(arg)) {
@@ -72,23 +72,23 @@ export function planRun(s: RunState, params: Record<string, unknown>): RunPlan |
   }
   const given = (arg as string | null | undefined) ?? null;
   if (tab !== undefined && tab !== null) {
-    if (typeof tab !== "string" || !isEligibleTab(s, tab)) return failure("no_window", `There's no tab ${String(tab)} the ardia command can use.`);
+    if (typeof tab !== "string" || !isEligibleTab(s, tab)) return failure("no_window", `There's no tab ${String(tab)} the voyager command can use.`);
     if (scopeOf(command) !== "page" && !TAB_COMMANDS.has(command)) return failure("bad_request", `${command} doesn't act on a tab, so it takes no tab.`);
     const windowId = s.tabs[tab]!.windowId;
-    if (eligibleKind(s, windowId) === "little" && command !== "closeTab" && !LITTLE_ARDIA_PAGE_COMMANDS.has(command)) {
-      return failure("bad_request", `${command} doesn't work on a Little Ardia tab.`);
+    if (eligibleKind(s, windowId) === "little" && command !== "closeTab" && !LITTLE_VOYAGER_PAGE_COMMANDS.has(command)) {
+      return failure("bad_request", `${command} doesn't work on a Little Voyager tab.`);
     }
     if (window !== undefined && window !== null && window !== windowId) return failure("no_window", `Tab ${tab} isn't in window ${String(window)}.`);
     return { command, arg: given, windowId, tabId: tab };
   }
   if (window !== undefined && window !== null) {
-    if (typeof window !== "string" || !eligibleKind(s, window)) return failure("no_window", `There's no window ${String(window)} the ardia command can use.`);
+    if (typeof window !== "string" || !eligibleKind(s, window)) return failure("no_window", `There's no window ${String(window)} the voyager command can use.`);
     return { command, arg: given, windowId: window, tabId: null };
   }
   const target = lastFocusedEligibleWindow(s);
   if (target) return { command, arg: given, windowId: target, tabId: null };
   if (s.windowOrder.length === 0) return { command, arg: given, windowId: null, tabId: null };
-  return failure("no_window", "No window the ardia command can use is open.");
+  return failure("no_window", "No window the voyager command can use is open.");
 }
 
 const KNOWN_EVENTS: ReadonlySet<string> = new Set(AUTOMATION_EVENTS);

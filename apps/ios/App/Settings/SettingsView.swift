@@ -1,6 +1,6 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import VoyagerBrowser
+import VoyagerDesign
+import VoyagerSync
 import SwiftUI
 
 struct SettingsView: View {
@@ -29,7 +29,7 @@ struct SettingsView: View {
           route.destination.settingsChrome()
         }
     }
-    .tint(Color.ardiaAccentText)
+    .tint(Color.voyagerAccentText)
     .toggleStyle(SettingsSwitchStyle())
     .onAppear {
       #if DEBUG
@@ -78,7 +78,7 @@ enum SettingsRoute: String, Hashable {
 
   static var launchScrollAnchor: UnitPoint? {
     #if DEBUG
-    ProcessInfo.processInfo.arguments.contains("-ArdiaSettingsBottom") ? .bottom : nil
+    ProcessInfo.processInfo.arguments.contains("-VoyagerSettingsBottom") ? .bottom : nil
     #else
     nil
     #endif
@@ -86,7 +86,7 @@ enum SettingsRoute: String, Hashable {
 
   static var launchRoute: SettingsRoute? {
     let arguments = ProcessInfo.processInfo.arguments
-    guard let index = arguments.firstIndex(of: "-ArdiaSettingsPage"), arguments.indices.contains(index + 1) else { return nil }
+    guard let index = arguments.firstIndex(of: "-VoyagerSettingsPage"), arguments.indices.contains(index + 1) else { return nil }
     return SettingsRoute(rawValue: arguments[index + 1])
   }
 }
@@ -176,7 +176,7 @@ private struct SettingsRootList: View {
           }
           .tint(.primary)
           NavigationLink(value: SettingsRoute.about) {
-            SettingsRowLabel("About Ardia", systemImage: "info", tint: SettingsTint.neutral)
+            SettingsRowLabel("About Voyager", systemImage: "info", tint: SettingsTint.neutral)
           }
         } footer: {
           Text(AppVersion.footer)
@@ -264,7 +264,7 @@ private struct ExportTabsRow: View {
       }
       .tint(.primary)
     } else {
-      ShareLink(item: urls.map(\.absoluteString).joined(separator: "\n"), subject: Text("Open Tabs from Ardia"), preview: SharePreview("Open Tabs from Ardia")) {
+      ShareLink(item: urls.map(\.absoluteString).joined(separator: "\n"), subject: Text("Open Tabs from Voyager"), preview: SharePreview("Open Tabs from Voyager")) {
         SettingsRowLabel("Export Open Tabs", systemImage: "square.and.arrow.up.fill", tint: SettingsTint.export)
       }
       .tint(.primary)
@@ -285,7 +285,7 @@ enum AppVersion {
     let info = Bundle.main.infoDictionary
     let version = info?["CFBundleShortVersionString"] as? String ?? "1.0"
     let build = info?["CFBundleVersion"] as? String ?? "1"
-    return String(localized: "Ardia \(version) (\(build))")
+    return String(localized: "Voyager \(version) (\(build))")
   }
 }
 

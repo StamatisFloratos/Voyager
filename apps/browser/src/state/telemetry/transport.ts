@@ -1,16 +1,18 @@
 import { systemInfo, type SystemInfo } from "../../platform/app";
 import { devTestValue } from "../../platform/launchConfig";
-import { APP_INGEST_KEY, INGEST_KEY_HEADER } from "@ardia/core";
-import { DEV_SEND_TEST_KEY, LOGS_URL } from "./config";
+import { APP_INGEST_KEY, INGEST_KEY_HEADER } from "@voyager/core";
+import { DEV_SEND_TEST_KEY } from "./config";
 import { logRequest, type RequestLogEntry } from "./requestLog";
 
 let app: SystemInfo | null = null;
 export const appInfo = () => (app ??= systemInfo());
 
+export const telemetryAvailable = () => Boolean(appInfo().telemetryURL);
+
 const devSendAllowed = () => devTestValue(DEV_SEND_TEST_KEY) === "1";
 
 export const mayPost = (kind: RequestLogEntry["kind"]) =>
-  kind === "daily" ? devSendAllowed() || (!__DEV__ && appInfo().isolatedInstance === false) : !__DEV__ || devSendAllowed();
+  telemetryAvailable() && (kind === "daily" ? devSendAllowed() || (!__DEV__ && appInfo().isolatedInstance === false) : !__DEV__ || devSendAllowed());
 
 const posted = { bytes: 0, failed: 0, requests: 0 };
 
@@ -23,13 +25,14 @@ export function takePostStats() {
 export const POST_HEADERS: Readonly<Record<string, string>> = { "Content-Type": "application/json", [INGEST_KEY_HEADER]: APP_INGEST_KEY };
 
 export async function post(kind: RequestLogEntry["kind"], body: string, count: number, signal?: AbortSignal): Promise<number> {
-  const entry: RequestLogEntry = { at: new Date().toISOString(), kind, url: LOGS_URL, count, bytes: body.length, status: null };
+  const url = appInfo().telemetryURL ?? "";
+  const entry: RequestLogEntry = { at: new Date().toISOString(), kind, url, count, bytes: body.length, status: null };
   if (!mayPost(kind)) {
     logRequest({ ...entry, dryRun: true }, body);
     return 200;
   }
   try {
-    const response = await fetch(LOGS_URL, { method: "POST", headers: POST_HEADERS, body, signal });
+    const response = await fetch(url, { method: "POST", headers: POST_HEADERS, body, signal });
     entry.status = response.status;
   } catch {
     entry.status = 0;

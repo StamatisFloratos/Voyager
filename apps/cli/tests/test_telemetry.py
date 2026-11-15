@@ -17,16 +17,16 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ardia_cli import cli, command_metrics, endpoint, telemetry, telemetry_scrub
-from ardia_cli.browse import daemon
-from ardia_cli.browse.errors import StaleRef
+from voyager_cli import cli, command_metrics, endpoint, telemetry, telemetry_scrub
+from voyager_cli.browse import daemon
+from voyager_cli.browse.errors import StaleRef
 
 REAL_SPAWN = telemetry.spawn_flusher
-SCRATCH = Path.home() / "ardia-scratch"
+SCRATCH = Path.home() / "voyager-scratch"
 INSTALL_ID = "0b6f4c1e-8d2a-4f3b-9c5d-1e2f3a4b5c6d"
 CLEARED = (
-    "ARDIA_PORT", "ARDIA_WS", "ARDIA_CDP_URL", "ARDIA_DATA_DIR", "AGENT_BROWSER_CDP", "DO_NOT_TRACK", "ARDIA_TELEMETRY",
-    telemetry.TEST_URL_ENV, "ARDIA_FEEDBACK_URL",
+    "VOYAGER_PORT", "VOYAGER_WS", "VOYAGER_CDP_URL", "VOYAGER_DATA_DIR", "AGENT_BROWSER_CDP", "DO_NOT_TRACK", "VOYAGER_TELEMETRY",
+    telemetry.TEST_URL_ENV, "VOYAGER_FEEDBACK_URL",
 )
 
 
@@ -87,7 +87,7 @@ class TelemetryCase(unittest.TestCase):
         self.stub = Stub()
         self.addCleanup(self.stub.close)
         env = {k: v for k, v in os.environ.items() if k not in CLEARED}
-        env.update({"ARDIA_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
+        env.update({"VOYAGER_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
         for patch in (
             mock.patch.dict(os.environ, env, clear=True),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.root / "not-the-installed-app"),
@@ -147,11 +147,11 @@ class ConsentTest(TelemetryCase):
         cases = [
             ({"DO_NOT_TRACK": "1"}, ["config", "path"]),
             ({"DO_NOT_TRACK": "true"}, ["config", "path"]),
-            ({"ARDIA_TELEMETRY": "0"}, ["config", "path"]),
-            ({"ARDIA_TELEMETRY": "off"}, ["config", "path"]),
-            ({"ARDIA_PORT": "9222"}, ["config", "path"]),
-            ({"ARDIA_WS": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
-            ({"ARDIA_CDP_URL": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
+            ({"VOYAGER_TELEMETRY": "0"}, ["config", "path"]),
+            ({"VOYAGER_TELEMETRY": "off"}, ["config", "path"]),
+            ({"VOYAGER_PORT": "9222"}, ["config", "path"]),
+            ({"VOYAGER_WS": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
+            ({"VOYAGER_CDP_URL": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
             ({"AGENT_BROWSER_CDP": "9222"}, ["config", "path"]),
             ({telemetry.TEST_URL_ENV: "https://example.com/v1/logs"}, ["config", "path"]),
             ({}, ["--port", "1", "windows"]),
@@ -169,7 +169,7 @@ class ConsentTest(TelemetryCase):
         os.environ.pop(telemetry.TEST_URL_ENV)
         self.assertIsNone(telemetry.logs_url(os.environ))
         with mock.patch.object(telemetry, "__version__", "0.2.45"):
-            self.assertEqual(telemetry.logs_url(os.environ), telemetry.LOGS_URL)
+            self.assertIsNone(telemetry.logs_url(os.environ))
 
     def test_the_data_dir_flag_picks_the_consent_file(self):
         other = scratch_dir()
@@ -287,7 +287,7 @@ class CommandEventTest(TelemetryCase):
         self.assertNotIn("Secret", self.spool_text())
 
     def test_render_counts_snapshot_size_batches_and_truncation(self):
-        from ardia_cli.browse.commands import Result
+        from voyager_cli.browse.commands import Result
 
         request = {"argv": ["snapshot"], "options": {}}
 
@@ -338,7 +338,7 @@ class ExceptionTest(TelemetryCase):
         frames = entry["stacktrace"]["frames"]
         self.assertTrue(frames)
         self.assertEqual(set(frames[0]), {"platform", "lang", "function", "module", "filename", "lineno", "colno", "resolved", "in_app"})
-        self.assertIn("ardia_cli.telemetry", [f["module"] for f in frames])
+        self.assertIn("voyager_cli.telemetry", [f["module"] for f in frames])
         self.assertEqual(records[1]["properties"]["error_code"], "unhandled_exception")
         text = self.spool_text()
         for leak in ("someone", "Secret", "/Users", str(Path.home()), Path.home().name, __file__):
@@ -447,12 +447,12 @@ class FlushTest(TelemetryCase):
         body = self.stub.bodies[0]
         self.assertEqual(list(body), ["resourceLogs"])
         resource = {a["key"]: a["value"] for a in body["resourceLogs"][0]["resource"]["attributes"]}
-        self.assertEqual(resource["service.name"], {"stringValue": "ardia-cli"})
+        self.assertEqual(resource["service.name"], {"stringValue": "voyager-cli"})
         self.assertEqual(resource["deployment.environment"], {"stringValue": "development"})
         self.assertEqual(resource["os.type"], {"stringValue": "darwin"})
         self.assertIn("host.arch", resource)
         scope = body["resourceLogs"][0]["scopeLogs"][0]
-        self.assertEqual(scope["scope"], {"name": "ardia.analytics"})
+        self.assertEqual(scope["scope"], {"name": "voyager.analytics"})
         record = scope["logRecords"][0]
         self.assertEqual(set(record), {"timeUnixNano", "severityNumber", "severityText", "body", "attributes"})
         self.assertEqual((record["severityNumber"], record["severityText"]), (9, "INFO"))
@@ -461,7 +461,7 @@ class FlushTest(TelemetryCase):
         self.assertEqual([a["key"] for a in record["attributes"][:3]], ["event", "uuid", "distinct_id"])
         attrs = attributes(record)
         self.assertEqual(attrs["distinct_id"], INSTALL_ID)
-        self.assertEqual(attrs["$lib"], "ardia-cli")
+        self.assertEqual(attrs["$lib"], "voyager-cli")
         self.assertEqual(attrs["subcommand"], "session")
         self.assertIs(attrs["$geoip_disable"], True)
         exit_code = next(a for a in record["attributes"] if a["key"] == "exit_code")
@@ -634,7 +634,7 @@ class ReviewFindingsTest(TelemetryCase):
             "import os, sys, time\n"
             f"sys.path.insert(0, {str(Path(__file__).resolve().parents[1])!r})\n"
             "from pathlib import Path\n"
-            "from ardia_cli import telemetry\n"
+            "from voyager_cli import telemetry\n"
             "read = telemetry.read_state\n"
             "telemetry.read_state = lambda fd: (read(fd), time.sleep(0.3))[0]\n"
             "telemetry.spawn_flusher = lambda where: open(sys.argv[2], 'a').write('x')\n"

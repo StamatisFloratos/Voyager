@@ -114,7 +114,7 @@ function SignIn({ blocked, requesting, failure }: { blocked: boolean; requesting
     return (
       <View style={NOTE_WRAP}>
         <Text tone="textSecondary" style={liveType.detail}>
-          {failure ?? "Allow Ardia in System Settings › Privacy & Security › Calendars to see your meetings here."}
+          {failure ?? "Allow Voyager in System Settings › Privacy & Security › Calendars to see your meetings here."}
         </Text>
         <OpenSystemSettings />
       </View>

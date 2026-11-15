@@ -1,5 +1,5 @@
 import type { Tab } from "../browser/types";
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 
 type Member = Pick<Tab, "url" | "title">;
 

@@ -1,4 +1,4 @@
-import * as shell from "@ardia/shell";
+import * as shell from "@voyager/shell";
 import { readDocument, writeDocument } from "../../src/platform/documents";
 import * as actions from "../../src/state/browser/actions";
 import { runCommand } from "../../src/state/commands/commands";

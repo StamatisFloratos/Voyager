@@ -11,7 +11,7 @@ export function prepareApp(app, dir, { bundle = null, entitlements: extra = [] }
   if (installed(resolve(app))) throw new Error(`${app} is installed in /Applications: pass a build or a copy`);
   const source = realpathSync(resolve(app));
   if (installed(source)) throw new Error(`${app} is installed in /Applications: pass a build or a copy`);
-  const copy = join(dir, "Ardia.app");
+  const copy = join(dir, "Voyager.app");
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   execFileSync("cp", ["-cR", source, copy]);

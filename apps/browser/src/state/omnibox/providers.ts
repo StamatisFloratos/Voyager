@@ -1,4 +1,4 @@
-import { isProviderKeyword } from "@ardia/core";
+import { isProviderKeyword } from "@voyager/core";
 import { create } from "zustand";
 
 export type ProviderRow = { title: string; url: string; subtitle?: string; icon?: string | null; badge?: string };

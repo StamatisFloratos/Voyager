@@ -8,8 +8,8 @@ enum MainMenu {
   static var profiles = NSMenu(title: "Profiles")
   private static var profilesItem = NSMenuItem(title: "Profiles", action: nil, keyEquivalent: "")
   private static var profilesSeparator = NSMenuItem.separator()
-  private static var littleArdiaInProfile = NSMenu(title: "New Little Ardia Window in Profile")
-  private static var littleArdiaInProfileItem = NSMenuItem(title: "New Little Ardia Window in Profile", action: nil, keyEquivalent: "")
+  private static var littleArdiaInProfile = NSMenu(title: "New Little Voyager Window in Profile")
+  private static var littleArdiaInProfileItem = NSMenuItem(title: "New Little Voyager Window in Profile", action: nil, keyEquivalent: "")
   private static var bookmarks = NSMenu(title: "Bookmarks")
   private static var bookmarksFixedCount = 0
   private static var bookmarkItems: [NSMenuItem] = []
@@ -26,7 +26,7 @@ enum MainMenu {
     bookmarkToFolder = NSMenu(title: "Add Bookmark to Folder")
     profiles = NSMenu(title: "Profiles")
     profilesSeparator = NSMenuItem.separator()
-    littleArdiaInProfile = NSMenu(title: "New Little Ardia Window in Profile")
+    littleArdiaInProfile = NSMenu(title: "New Little Voyager Window in Profile")
 
     func std(_ title: String, _ action: Selector) -> StandardItem { StandardItem(title, action) }
     func sub(_ title: String, _ items: [NSMenuItem], menu: NSMenu? = nil) -> NSMenuItem {
@@ -78,7 +78,7 @@ enum MainMenu {
       quit,
     ])
 
-    littleArdiaInProfileItem = sub("New Little Ardia Window in Profile", [], menu: littleArdiaInProfile)
+    littleArdiaInProfileItem = sub("New Little Voyager Window in Profile", [], menu: littleArdiaInProfile)
     _ = top("File", [
       cmd(.newTab),
       cmd(.newTabInGroup),
@@ -437,11 +437,11 @@ enum MainMenu {
     let incognito = CommandItem("New Incognito Window", "newIncognitoWindow")
     incognito.windowless = true
     menu.addItem(incognito)
-    let small = CommandItem("New Little Ardia Window", "newLittleArdia")
+    let small = CommandItem("New Little Voyager Window", "newLittleArdia")
     small.windowless = true
     menu.addItem(small)
     if state.profiles.count > 1 {
-      let inProfile = NSMenu(title: "New Little Ardia Window in Profile")
+      let inProfile = NSMenu(title: "New Little Voyager Window in Profile")
       for p in state.profiles {
         let item = CommandItem(p.title, "newLittleArdia", arg: p.id)
         item.windowless = true

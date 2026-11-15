@@ -1,4 +1,4 @@
-import { BUILT_IN_ENGINES } from "@ardia/core";
+import { BUILT_IN_ENGINES } from "@voyager/core";
 import { JSON_SCHEMA_DIALECT, schemaJson, type JsonSchema } from "../../lib/jsonSchema";
 import { THEME_NAME, themeSchema, type RolePalettes } from "../../lib/themeFile";
 import { CONFIG_SETTING_KEYS } from "../settings/configAllowlist";
@@ -23,7 +23,7 @@ function settingSchema(key: (typeof CONFIG_SETTING_KEYS)[number]): JsonSchema {
       items: { type: "string", enum: launchActionIds() },
       maxItems: MAX_LAUNCH_ACTIONS,
       default: [],
-      description: "Commands Ardia runs in the focused window after it restores the session, like [\"newTab\"]. Command ids, or id:variant.",
+      description: "Commands Voyager runs in the focused window after it restores the session, like [\"newTab\"]. Command ids, or id:variant.",
     };
   }
   const spec = SETTING_SPECS[key];
@@ -35,11 +35,11 @@ function settingSchema(key: (typeof CONFIG_SETTING_KEYS)[number]): JsonSchema {
 export function configSchema(): object {
   return {
     $schema: JSON_SCHEMA_DIALECT,
-    description: "Ardia's config.json. Ardia applies it at launch and whenever it changes; it never writes it.",
+    description: "Voyager's config.json. Voyager applies it at launch and whenever it changes; it never writes it.",
     type: "object",
     properties: {
       $schema: { type: "string" },
-      theme: { type: ["string", "null"], pattern: THEME_NAME.source, description: "A theme in themes/<name>.json, or null for Ardia's own", default: null },
+      theme: { type: ["string", "null"], pattern: THEME_NAME.source, description: "A theme in themes/<name>.json, or null for Voyager's own", default: null },
       settings: {
         type: "object",
         properties: Object.fromEntries(CONFIG_SETTING_KEYS.map((key) => [key, settingSchema(key)])),

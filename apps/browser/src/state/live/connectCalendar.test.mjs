@@ -50,7 +50,7 @@ test("Connect when access was already denied opens the Calendars pane instead of
   assert.equal(await connectCalendar(), false);
   assert.equal(asked, 0);
   assert.deepEqual(opened, [PRIVACY]);
-  assert.match(useCalendar.getState().requestError ?? "", /Turn on Ardia/);
+  assert.match(useCalendar.getState().requestError ?? "", /Turn on Voyager/);
 });
 
 test("add-only access opens the Calendars pane and asks for Full Access", async () => {
@@ -75,7 +75,7 @@ test("a request macOS fails shows its error", async () => {
   assert.equal(useCalendar.getState().requesting, false);
 });
 
-test("a request macOS sent to the app that opened Ardia says to reopen Ardia, without opening System Settings", async () => {
+test("a request macOS sent to the app that opened Voyager says to reopen Voyager, without opening System Settings", async () => {
   stage({ status: "notDetermined", responsible: "other" });
   await connectCalendar();
   assert.deepEqual(opened, []);
@@ -87,7 +87,7 @@ test("a launcher-attributed request macOS refused keeps its error and only sugge
   await connectCalendar();
   const message = useCalendar.getState().requestError ?? "";
   assert.match(message, /Missing entitlement/);
-  assert.match(message, /may have checked the app that opened Ardia/);
+  assert.match(message, /may have checked the app that opened Voyager/);
 });
 
 test("a denial just chosen in macOS's prompt explains it but leaves System Settings closed", async () => {

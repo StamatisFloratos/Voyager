@@ -1,5 +1,5 @@
-import ArdiaDesign
-import ArdiaSync
+import VoyagerDesign
+import VoyagerSync
 import SwiftUI
 
 struct SyncSettingsPage: View {
@@ -88,7 +88,7 @@ struct SyncSettingsPage: View {
       Section {
         Button("Choose Folder…") { isChoosingFolder = true }
       } footer: {
-        Text("Choose the Ardia Sync folder again.")
+        Text("Choose the Voyager Sync folder again.")
       }
     case .phrase, .reset:
       Section {
@@ -143,7 +143,7 @@ struct SyncSettingsPage: View {
         Text("Devices")
       } footer: {
         if sync.devicesThatReceiveTabs.isEmpty {
-          Text("Update Ardia on your Mac to send tabs to it.")
+          Text("Update Voyager on your Mac to send tabs to it.")
         }
       }
     }
@@ -159,7 +159,7 @@ struct SyncSettingsPage: View {
     }
 
     Section {
-      LabeledContent("Folder", value: sync.folderName ?? String(localized: "Ardia Sync"))
+      LabeledContent("Folder", value: sync.folderName ?? String(localized: "Voyager Sync"))
       Button("Change Folder…") { isChoosingFolder = true }
     } header: {
       Text("Sync Folder")

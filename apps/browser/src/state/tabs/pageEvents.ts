@@ -1,4 +1,4 @@
-import { hostOf } from "@ardia/core";
+import { hostOf } from "@voyager/core";
 import type { PageEngine } from "../../platform/tabs";
 import { dismissPermissions } from "../site/permissions";
 import { answerExternalApp } from "../site/prompts";

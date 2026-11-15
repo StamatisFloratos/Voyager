@@ -78,7 +78,7 @@ export async function startRecording() {
   const started = await startWindowRecording(s.windowId, includePages, path, RECORDING_MAX_SECONDS).catch(() => false);
   if (!started) {
     void finishTrace();
-    return patchReport({ recording: { phase: "failed", message: "Ardia couldn't record this window." } });
+    return patchReport({ recording: { phase: "failed", message: "Voyager couldn't record this window." } });
   }
   patchReport({ recording: { phase: "recording", seconds: 0, includePages } });
 }

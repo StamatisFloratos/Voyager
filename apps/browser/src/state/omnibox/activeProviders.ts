@@ -1,4 +1,4 @@
-import type { ProviderEntry } from "@ardia/core";
+import type { ProviderEntry } from "@voyager/core";
 import { useMemo } from "react";
 import { isIncognitoProfile } from "../browser/model";
 import { useBrowser, type BrowserState } from "../browser/store";

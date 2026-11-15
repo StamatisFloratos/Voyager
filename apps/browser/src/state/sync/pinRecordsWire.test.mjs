@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { test } from "node:test";
 const { useBrowser } = await import("../browser/store.ts");
 const folders = await import("../pins/tileFolders.ts");
-const { Clock, emptyScope, syncScope } = await import("@ardia/sync");
+const { Clock, emptyScope, syncScope } = await import("@voyager/sync");
 const pinnedArea = await import("./pinned.ts");
 
 const GOLDEN = new URL("./fixtures/pin-records.json", import.meta.url);

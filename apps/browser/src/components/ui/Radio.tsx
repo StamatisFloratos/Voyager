@@ -1,4 +1,4 @@
-import { Symbol } from "@ardia/shell";
+import { Symbol } from "@voyager/shell";
 import { memo } from "react";
 import { View } from "react-native";
 import { Dot } from "./Dot";

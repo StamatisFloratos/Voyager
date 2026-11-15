@@ -28,7 +28,7 @@ export const COMMANDS = {
   newTab: { title: "New Tab", symbol: "plus", keys: ["⌘T"] },
   newWindow: { title: "New Window", symbol: "macwindow", keys: ["⌘N"] },
   newIncognitoWindow: { title: "New Incognito Window", symbol: "eyeglasses", keys: ["⇧⌘N"] },
-  newLittleArdia: { title: "New Little Ardia Window", keys: ["⌥⌘N"] },
+  newLittleArdia: { title: "New Little Voyager Window", keys: ["⌥⌘N"] },
   toggleOpenLinksInLittleArdia: { title: "Open Links from Other Apps in Main Window" },
   reopenClosedTab: { title: "Reopen Closed Tab", symbol: "arrow.uturn.backward", keys: ["⇧⌘T"], littleArdia: "page" },
   reopenClosedWindow: { title: "Reopen Closed Window" },
@@ -209,8 +209,8 @@ const commandsWhere = (test: (spec: CommandSpec) => boolean) => ALL_COMMANDS.fil
 export const PAGE_COMMANDS = commandsWhere((c) => c.scope === "page");
 export const PAGE_COMMANDS_OFF_INTERNAL_PAGES = commandsWhere((c) => c.scope === "page" && !c.onInternalPages);
 export const WINDOW_COMMANDS = commandsWhere((c) => c.scope !== undefined);
-export const LITTLE_ARDIA_DISABLED_COMMANDS = commandsWhere((c) => c.littleArdia === "off");
-export const LITTLE_ARDIA_PAGE_COMMANDS: ReadonlySet<string> = new Set(commandsWhere((c) => c.littleArdia === "page"));
+export const LITTLE_VOYAGER_DISABLED_COMMANDS = commandsWhere((c) => c.littleArdia === "off");
+export const LITTLE_VOYAGER_PAGE_COMMANDS: ReadonlySet<string> = new Set(commandsWhere((c) => c.littleArdia === "page"));
 
 const APP_COMMANDS: ReadonlySet<string> = new Set(commandsWhere((c) => !!c.app));
 export const isAppCommand = (command: BrowserCommand): command is AppCommand => APP_COMMANDS.has(command);

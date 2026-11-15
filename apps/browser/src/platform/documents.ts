@@ -1,4 +1,4 @@
-import { nativeModule, type BangListReply } from "@ardia/shell";
+import { nativeModule, type BangListReply } from "@voyager/shell";
 
 const Documents = nativeModule("ArdiaDocuments");
 

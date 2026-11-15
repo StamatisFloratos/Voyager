@@ -11,15 +11,15 @@ export {
   type UpdateChannel,
   type AppIcon,
   type HardwareInfo,
-} from "@ardia/shell";
-import { call } from "@ardia/ardiacore";
-import { nativeModule, type AppEvent, type AppearanceMode, type OpenURLSource, type UpdateChannel } from "@ardia/shell";
+} from "@voyager/shell";
+import { call } from "@voyager/ardiacore";
+import { nativeModule, type AppEvent, type AppearanceMode, type OpenURLSource, type UpdateChannel } from "@voyager/shell";
 
 export type { OpenURLSource };
 
 export { replyToTerminate } from "./windows";
 
-export { WIDEVINE_COMPONENT_ID } from "@ardia/ardiacore";
+export { WIDEVINE_COMPONENT_ID } from "@voyager/ardiacore";
 
 export const engineInfo = () => call("engine.info");
 export const listComponents = () => call("engine.components");

@@ -35,8 +35,8 @@ test("a native crash names its exception and the app's images at the top level, 
       exceptionName: "RCTFatalException",
       exceptionReason: "Unhandled JS Exception: moved to \"native\" earlier, js engine: hermes, stack:\nGroupBlock@1:2",
       frames: [{ image: "Chromium Framework", symbol: "ArdiaCoreMain", symbolOffset: 66417332, offset: 0x41a36e8 }],
-      exceptionFrames: [{ image: "Ardia", offset: 0x38eab8 }],
-      images: [{ name: "Ardia", uuid: "1c77ef99-77d4-3de8-9ba2-6929e276bc60" }],
+      exceptionFrames: [{ image: "Voyager", offset: 0x38eab8 }],
+      images: [{ name: "Voyager", uuid: "1c77ef99-77d4-3de8-9ba2-6929e276bc60" }],
     },
   ];
   await reportNativeCrashes();
@@ -46,8 +46,8 @@ test("a native crash names its exception and the app's images at the top level, 
   assert.deepEqual(props.$exception_types, ["RCTFatalException", "EXC_CRASH"]);
   assert.deepEqual(props.$exception_values, ["Uncaught RCTFatalException", "EXC_CRASH (SIGABRT)"]);
   assert.equal(JSON.stringify(queued().at(-1)).includes("GroupBlock"), false);
-  assert.deepEqual(props.crash_images, [{ name: "Ardia", uuid: "1c77ef99-77d4-3de8-9ba2-6929e276bc60" }]);
-  assert.equal(props.$exception_list[0].stacktrace.frames[0].function, "Ardia + 0x38eab8");
+  assert.deepEqual(props.crash_images, [{ name: "Voyager", uuid: "1c77ef99-77d4-3de8-9ba2-6929e276bc60" }]);
+  assert.equal(props.$exception_list[0].stacktrace.frames[0].function, "Voyager + 0x38eab8");
   assert.equal(props.$exception_list[1].stacktrace.frames[0].function, "Chromium Framework + 0x41a36e8");
   assert.equal(props.$geoip_disable, true);
 });

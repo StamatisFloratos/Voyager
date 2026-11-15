@@ -1,5 +1,5 @@
-import ArdiaDesign
-import ArdiaSync
+import VoyagerDesign
+import VoyagerSync
 
 extension AppModel {
   var look: ProfileLook {

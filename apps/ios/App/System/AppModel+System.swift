@@ -1,11 +1,11 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import VoyagerBrowser
+import VoyagerDesign
+import VoyagerSync
 import Foundation
 
 extension AppModel {
   var systemStore: SystemStore? {
-    isDemo ? SystemStore(directory: URL.temporaryDirectory.appending(path: "ArdiaDemoSystem", directoryHint: .isDirectory)) : SystemStore.shared
+    isDemo ? SystemStore(directory: URL.temporaryDirectory.appending(path: "VoyagerDemoSystem", directoryHint: .isDirectory)) : SystemStore.shared
   }
 
   func handle(_ link: SystemLink) {

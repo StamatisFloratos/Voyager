@@ -1,1 +1,1 @@
-export { call, on } from "@ardia/ardiacore";
+export { call, on } from "@voyager/ardiacore";
