@@ -7,7 +7,7 @@ permissions:
   contents: read
 concurrency:
   group: voyager-macos-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 env:
   TURBO_TELEMETRY_DISABLED: 1
 jobs:
