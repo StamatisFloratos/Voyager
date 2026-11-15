@@ -46,7 +46,7 @@ export const recordDefaultBrowserCheckInDone = () => saveOnboarding({ defaultBro
 
 export const onboardingCompletedAt = () => readSaved()?.completedAt ?? null;
 
-export const introMusicMuted = () => readSaved()?.introMusicMuted ?? false;
+export const introMusicMuted = () => readSaved()?.introMusicMuted ?? true;
 export const saveIntroMusicMuted = (muted: boolean) => saveOnboarding({ introMusicMuted: muted });
 
 export const forgetOnboardingProgress = () =>
