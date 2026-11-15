@@ -217,7 +217,7 @@ final class LegacyMigrationTests: XCTestCase {
     let prefs = PreferencesDomain(id: newPrefs.path).all()
     XCTAssertEqual(prefs["ACAppIcon"] as? String, "plum")
     XCTAssertNil(prefs[oldDefault("ACAppIcon")])
-    XCTAssertEqual(prefs["NSWindow Frame ArdiaSettings"] as? String, "10 10 800 600")
+    XCTAssertEqual(prefs["NSWindow Frame VoyagerSettings"] as? String, "10 10 800 600")
     XCTAssertEqual(prefs["NSUserKeyEquivalents"] as? [String: String], ["New Little Voyager Window": "@~n", "Quit Voyager": "@q"])
     XCTAssertEqual(prefs["SUAutomaticallyUpdate"] as? Bool, false)
     XCTAssertEqual(prefs["SULastCheckTime"] as? Date, Date(timeIntervalSince1970: 1_800_000_000))
