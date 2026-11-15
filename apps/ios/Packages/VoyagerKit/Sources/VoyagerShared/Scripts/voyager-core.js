@@ -1989,7 +1989,7 @@ const APP_INGEST_KEY = "ak_app_41b5d0762fd8ade6949ac2ac";
 const CLI_INGEST_KEY = "ak_cli_67adb8ebc49841125eda860e";
 const SITE_INGEST_KEY = "ak_site_6b26588b3764ae7d0f6d63d7";
 
-const INGEST_KEY_HEADER = "X-Voyager-Key";
+const INGEST_KEY_HEADER = "X-Ardia-Key";
 
                                                   
 

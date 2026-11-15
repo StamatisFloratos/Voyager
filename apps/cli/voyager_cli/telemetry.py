@@ -8,7 +8,7 @@ from pathlib import Path
 
 from voyager_cli import __version__
 
-INGEST_KEY_HEADER = "X-Voyager-Key"
+INGEST_KEY_HEADER = "X-Ardia-Key"
 CLI_INGEST_KEY = "ak_cli_67adb8ebc49841125eda860e"
 TEST_URL_ENV = "VOYAGER_TELEMETRY_URL"
 EVENTS_SCOPE = "voyager.analytics"

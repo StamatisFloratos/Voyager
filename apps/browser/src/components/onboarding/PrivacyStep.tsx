@@ -114,7 +114,7 @@ export function Receipt({ on }: { on: boolean }) {
       }}
     >
       <Text size="caption" weight="bold" color={colors.title} style={[mono, { letterSpacing: tracking.wide, textAlign: "center" }]}>
-        ARDIA
+        VOYAGER
       </Text>
       <Text color={colors.subtitle} style={[mono, onboardingType.receiptSmall, { textAlign: "center", marginTop: space.xs }]}>
         ITEMIZED. UNLIKE SOME EXPENSES.

@@ -542,7 +542,7 @@ The runner fires them and passes a `schedule.fired` event (it never comes from V
   interval, it fires one catch-up and restarts the interval; it never bursts.
 - No overlapping runs: if the hook's previous run is still going or waiting, that firing is skipped and logged.
 
-- `hooks install` writes the user LaunchAgent `dev.ardia.hooks` (`ProgramArguments` = the installed `voyager` launcher's
+- `hooks install` writes the user LaunchAgent `dev.voyager.hooks` (`ProgramArguments` = the installed `voyager` launcher's
   stable path, `$VOYAGER_CLI_HOME/current/bin/ardia`, then `hooks run --log ~/Library/Logs/Voyager/hooks.log`;
   `RunAtLoad`, `KeepAlive`, `ProcessType` `Background`; `WorkingDirectory` the home folder; `EnvironmentVariables`
   with the installing shell's `PATH` and `VOYAGER_DATA_DIR` set to empty) and loads it with `launchctl bootout` then

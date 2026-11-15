@@ -267,8 +267,8 @@ class Confinement(unittest.TestCase):
         (data / "Chromium").mkdir(parents=True)
         (data / "Chromium" / "secret.js").write_text("export default 1;\n")
         path = support / "s.user.ts"
-        path.write_text("// ==UserScript==\n// @match https://example.com/*\n// ==/UserScript==\nimport s from \"./COM.VOYAGER.BROWSER/Chromium/secret.js\";\nconsole.log(s);\n")
-        if not (support / "COM.VOYAGER.BROWSER").exists():
+        path.write_text("// ==UserScript==\n// @match https://example.com/*\n// ==/UserScript==\nimport s from \"./COM.STAMATISFLORATOS.VOYAGER/Chromium/secret.js\";\nconsole.log(s);\n")
+        if not (support / "COM.STAMATISFLORATOS.VOYAGER").exists():
             self.skipTest("case-sensitive file system")
         with self.assertRaisesRegex(ScriptError, "data folder"):
             build(path, data_dirs=[data])

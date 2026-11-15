@@ -28,8 +28,8 @@ if (!g.__ardiaStore) {
     for (const el of document.querySelectorAll("button, button *")) {
       if (el.childElementCount) continue;
       const t = el.textContent;
-      if (t === "Add to Chrome") el.textContent = "Add to Voyager";
-      else if (t === "Remove from Chrome") el.textContent = "Remove from Voyager";
+      if (t === "Add to Chrome" || t === "Add to Ardia") el.textContent = "Add to Voyager";
+      else if (t === "Remove from Chrome" || t === "Remove from Ardia") el.textContent = "Remove from Voyager";
     }
   };
   relabel();

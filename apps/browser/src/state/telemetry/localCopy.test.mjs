@@ -44,7 +44,7 @@ test("every event and log line carries the session id, queued and in the local c
 test("posts send the app's ingest key", async () => {
   await client.flush();
   assert.ok(requests.length > 0);
-  for (const r of requests) assert.equal(r.headers["X-Voyager-Key"], APP_INGEST_KEY);
+  for (const r of requests) assert.equal(r.headers["X-Ardia-Key"], APP_INGEST_KEY);
 });
 
 test("local writes are batched: nothing reaches the store until 10 s pass, then one append per day", (t) => {

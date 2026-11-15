@@ -212,7 +212,7 @@ writeDocument(DOC, versionedJson(data, VERSION));
 
 ## Names
 
-- App-side ObjC classes and their files are `Voyager<Thing>`; Swift types use plain names (the module namespaces them).
+- App-side ObjC classes and their files are `Ardia<Thing>`; Swift types use plain names (the module namespaces them).
 - The engine's exported ObjC API is `ArdiaCore*`; engine C/C++ is `ac_*`.
 - No `Cef*`/`CEF`/`cef` names, no `AC*` or app-side `ArdiaCore*` classes in `packages/*/ios`.
 - No `Netnyahoo` or `NN*` names outside migration code (`LegacyMigration.swift`, `legacy.ts`, `*Migration.swift`,
@@ -235,7 +235,7 @@ writeDocument(DOC, versionedJson(data, VERSION));
 - **One `PageEngine` protocol** for the Chromium and WebKit page engines: same method names, one event table.
 - **One Expo module per domain** (`ArdiaTabs`, `ArdiaDownloads`, `ArdiaExtensions`, `ArdiaProfiles`,
   `ArdiaPermissions`, `ArdiaWindows`, `ArdiaMenus`, `ArdiaSystem`, …), each in `<Domain>Module.swift`, registered as
-  `Voyager<Domain>`.
+  `Ardia<Domain>`.
 - ArdiaShell links ArdiaCore directly and calls it with types: no selector strings or string notifications between
   them.
 - **One authority per rule:** the engine's off-the-record flag alone decides private profiles; one helper builds
@@ -266,7 +266,7 @@ still counts:
 | `VOYAGER_SWITCHES` | `name=on,…` | The only feature toggle, backed by the registry `platform/killSwitches.ts`: kill switches (on by default, at most 8) and experiments (off by default), each with an owner and `removeBy` |
 | `VOYAGER_TRACE` | `pip,visibility,…` | Trace logging per area |
 | `VOYAGER_TEST` | `keychain=file,reauth=granted,…` | All test fakes and fixtures |
-| `VOYAGER_FEEDBACK_URL` | URL | Where Report a Problem sends (`https://ardia.dev/api/feedback` otherwise); the `voyager` CLI reads the same variable (`docs/feedback.md`) |
+| `VOYAGER_FEEDBACK_URL` | URL | Optional local feedback service for the CLI; no Voyager upload service is configured by default |
 
 - `VOYAGER_TEST` and `VOYAGER_TRACE` work only in a test instance (not signed for distribution, a scratch data dir, the
   mock keychain); a release build ignores them and logs that once. CDP, argv and extra switches reach Chrome only with

@@ -131,7 +131,7 @@ class Browser:
         try:
             response = await self.link.execute_command(command, timeout=timeout)
         except CommandFailed as error:
-            text = str(error)
+            text = str(error).replace("the ardia command", "the voyager command")
             if POLICY_REFUSAL in text:
                 raise Gated(method, reason=refusal_reason(text, method)) from None
             detail = text.split(": ", 1)[1] if ": " in text else text

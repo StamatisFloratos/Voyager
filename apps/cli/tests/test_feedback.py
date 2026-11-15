@@ -362,7 +362,7 @@ class SendingTest(FeedbackCase):
         self.assertEqual(status, 0)
         self.assertEqual(self.service.steps(), ["create", "upload", "complete"])
         for request in self.service.requests:
-            self.assertEqual(request["headers"]["X-Voyager-Key"], telemetry.CLI_INGEST_KEY)
+            self.assertEqual(request["headers"]["X-Ardia-Key"], telemetry.CLI_INGEST_KEY)
         upload, complete = self.service.requests[1], self.service.requests[2]
         self.assertEqual(upload["path"], "/api/feedback/FB-7K2Q/files/attachment-1.png")
         self.assertEqual(upload["headers"]["Authorization"], "Bearer FB-7K2Q.1999999999.sig")
@@ -564,7 +564,7 @@ class TelemetrySessionAndKeyTest(unittest.TestCase):
         self.run_cli("config", "path")
         self.assertEqual(telemetry.flush(self.root, self.stub.url, "test"), "done")
         self.assertTrue(self.stub.headers)
-        self.assertTrue(all(headers["X-Voyager-Key"] == telemetry.CLI_INGEST_KEY for headers in self.stub.headers))
+        self.assertTrue(all(headers["X-Ardia-Key"] == telemetry.CLI_INGEST_KEY for headers in self.stub.headers))
         sent = attributes(self.stub.records()[-1])
         self.assertTrue(sent["$session_id"])
 

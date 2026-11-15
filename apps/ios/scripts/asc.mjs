@@ -127,7 +127,7 @@ async function findApp() {
 }
 
 function ours(text) {
-  return /voyager|netnyahoo/i.test(text ?? "");
+  return /voyager/i.test(text ?? "");
 }
 
 async function listBuilds(appId, build) {

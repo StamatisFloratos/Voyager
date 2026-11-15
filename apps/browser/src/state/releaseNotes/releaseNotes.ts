@@ -13,22 +13,7 @@ export type ReleaseNotes = {
   items: { title: string; body: string }[];
 };
 
-const RELEASE_NOTES: ReleaseNotes[] = [
-  {
-    version: "1.0",
-    date: "September 2026",
-    title: "Hello, Voyager",
-    summary: "The first release: a calm, fast browser that keeps your tabs, your pages and your focus in one place.",
-    items: [
-      { title: "A command bar for everything", body: "Search, type an address or jump to an open tab from the New Tab page, or from any page with ⌘L." },
-      { title: "Split view", body: "Drag a tab onto the page to see two or three side by side, stacked or in columns." },
-      { title: "Tab groups and pinned tabs", body: "Group related tabs, pin the ones you live in, and let Clean Up Tabs tidy the rest." },
-      { title: "Picture in Picture that stays out of the way", body: "Stash a video at the edge of the screen; click its site name to jump back to the tab." },
-      { title: "Bring everything with you", body: "Import bookmarks, history, passwords and open tabs from Chrome, Safari, Arc and more." },
-      { title: "Profiles with their own colour", body: "Keep work and personal apart, each with its own theme on the New Tab page." },
-    ],
-  },
-];
+const RELEASE_NOTES: ReleaseNotes[] = [];
 
 const POSTCARD_SECONDS = 86_400;
 

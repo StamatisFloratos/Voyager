@@ -3,7 +3,7 @@ import { test } from "node:test";
 
 const { sendReport, uploadUrlsFrom, issueNumberOf, resolveUrl, uploadFraction, isBusy, failureClass, failureMessage, RETRY_DELAYS_MS } = await import("./upload.ts");
 
-const endpoint = { url: "http://127.0.0.1:4319/api/feedback", key: "ak_app_x", keyHeader: "X-Voyager-Key" };
+const endpoint = { url: "http://127.0.0.1:4319/api/feedback", key: "ak_app_x", keyHeader: "X-Ardia-Key" };
 const files = [
   { name: "recording.mp4", path: "/d/recording.mp4", bytes: 1000, type: "video/mp4" },
   { name: "trace.json.gz", path: "/d/trace.json.gz", bytes: 500, type: "application/gzip" },
@@ -51,7 +51,7 @@ test("a report is created, each file uploaded with the bearer token, then comple
   assert.equal(result.sent.issueNumber, 1234);
   assert.equal(result.sent.bytes, 1500);
   assert.deepEqual(server.calls.map((c) => c.kind), ["post", "put", "put", "post"]);
-  assert.equal(server.calls[0].headers["X-Voyager-Key"], "ak_app_x");
+  assert.equal(server.calls[0].headers["X-Ardia-Key"], "ak_app_x");
   assert.equal(server.calls[1].url, "http://127.0.0.1:4319/api/feedback/FB-7KQ2/files/recording.mp4");
   assert.equal(server.calls[2].url, "http://127.0.0.1:4319/api/feedback/FB-7KQ2/files/trace.json.gz");
   assert.equal(server.calls[1].headers.Authorization, "Bearer tok");
