@@ -19,7 +19,7 @@ import { splitOf, splitTabIdsOf } from "../splits/splits";
 
 export type { AutofillPrompt, AutofillPromptAnswer, PasswordPrompt, PasswordPromptAnswer } from "../../platform/tabs";
 
-export type DocumentMesh = { id: number; background: string; colors: readonly string[] };
+export type DocumentMesh = { id: number; background: string; colors: readonly string[]; waitingForFrame?: true };
 
 export type PageState = {
   documentMesh: DocumentMesh | null;

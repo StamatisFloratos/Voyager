@@ -4,6 +4,7 @@ import { test } from "node:test";
 globalThis.__DEV__ = false;
 const { useBrowser } = await import("../browser/store.ts");
 const { launchTab } = await import("./launchTab.ts");
+const { finishTabMount, handOff, hasTabHandOff, restoringTabUrl, startTabPages, takeHandOff } = await import("./tabPages.ts");
 const { loadSession, flushPersistence, startPersistence } = await import("../session/persist.ts");
 const stub = await import("../../test-native/index.ts");
 
@@ -195,4 +196,49 @@ test("accepted ChatGPT conversations keep their exact links and native undo hist
     assert.equal(t.url, url);
     assert.equal(t.page.adopt, "restore:" + id);
   }
+});
+
+test("the saved URL survives a lazy wake and is consumed only on mount or replacement", () => {
+  const ids = ["active", "lazy", "redirect", "closed", "replaced", "internal", "split-a", "split-b", "changed"];
+  const tabs = ids.map(id => tab(id, "w1", id === "internal" ? "voyager://history" : "https://example.org/" + id));
+  tabs[1].engine = "webkit";
+  hydrate([win("w1", ids, "active")], tabs, { focusedWindowId: "w1" });
+  S().createSplit(["split-a", "split-b"]);
+  S().activate("active");
+  startTabPages();
+
+  assert.equal(restoringTabUrl("active"), tabs[0].url);
+  assert.equal(hasTabHandOff("active", "chromium"), true);
+  assert.equal(hasTabHandOff("active", "webkit"), false);
+  assert.equal(hasTabHandOff("active", "chromium"), true);
+  assert.ok(takeHandOff("active", "chromium"));
+  assert.equal(hasTabHandOff("active", "chromium"), false);
+  finishTabMount("active");
+  assert.equal(restoringTabUrl("active"), undefined);
+
+  S().activate("split-a");
+  assert.equal(restoringTabUrl("split-a"), S().tabs["split-a"].url);
+  assert.equal(restoringTabUrl("split-b"), S().tabs["split-b"].url);
+  S().activate("lazy");
+  assert.equal(S().tabs.lazy.page.kind, "loaded");
+  assert.equal(restoringTabUrl("lazy"), tabs[1].url);
+  finishTabMount("lazy");
+  handOff("lazy", "", "webkit");
+  assert.equal(hasTabHandOff("lazy", "webkit"), true);
+  assert.equal(restoringTabUrl("lazy"), undefined);
+  assert.ok(takeHandOff("lazy", "webkit"));
+
+  S().updateTab("redirect", { page: { kind: "loaded", nav: { url: "https://other.org/", seq: 2 } } });
+  assert.equal(S().tabs.redirect.url, tabs[2].url);
+  assert.equal(restoringTabUrl("redirect"), undefined);
+  S().updateTab("redirect", { page: { kind: "idle" } });
+  assert.equal(restoringTabUrl("redirect"), undefined);
+  S().closeTab("closed");
+  S().updateTab("replaced", { createdAt: 42 });
+  S().updateTab("changed", { url: "https://other.org/" });
+  assert.equal(restoringTabUrl("closed"), undefined);
+  assert.equal(restoringTabUrl("replaced"), undefined);
+  assert.equal(restoringTabUrl("changed"), undefined);
+  assert.equal(restoringTabUrl("internal"), undefined);
+  assert.equal(restoringTabUrl(S().newTab("w1", { url: tabs[0].url })), undefined);
 });

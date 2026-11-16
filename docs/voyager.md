@@ -18,7 +18,11 @@ The [Voyager app icon and traced mark](brand/voyager/) supply the browser and it
 
 On a slow fresh navigation, the macOS pane can start its mesh while the new page is still connecting. A page that paints before the mesh starts stays visible as its remaining content loads. This also applies to cached reloads. Once the mesh appears, it covers the web view and its scrollbar, builds over 135 ms and stays opaque for at least 200 ms including its entrance. It dissolves over 185 ms once the viewport is usable. Time spent waiting for the page counts toward the minimum; it does not delay the network or the page.
 
+After a restart, a saved tab that first opens in the foreground mounts an opaque backing with its web view. If the viewport is usable within the first 100 ms, the backing clears immediately. Otherwise it becomes the mesh and uses the same reveal. A tab already handed to the launch window or loaded in the background opens directly on selection.
+
 Visible hero images, video posters and artwork in a gallery's visible cards count toward readiness. Small, read-only color samples update the mesh independently. Below-the-fold assets and background requests can continue after the reveal, and a stalled renderer or missing resource has a bounded wait. Clicks, typing and scrolling pass through to the page throughout. Reduce Motion skips the mesh. Normal reload (⌘R) uses the browser cache.
+
+CSS colors and gradients are sampled without opening a drawing surface in the page. Only a decoded, same-origin photo can use a pixel read, after first contentful paint and within the sampling budget. On supported Chromium GPUs, Voyager enables the separate display compositor to reduce interruptions when a page reads pixels back during a scroll. [Measurements and offline reproduction](perf/first-scroll-readback.md)
 
 ## ChatGPT in the command bar
 

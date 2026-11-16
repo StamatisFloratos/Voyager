@@ -1,5 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Animated, StyleSheet } from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
 import { fieldTiming } from "../../state/telemetry/fieldTiming";
 import { usePage, type DocumentMesh } from "../../state/tabs/pageState";
 import { curve } from "../ui/motion";
@@ -56,10 +56,17 @@ const MeshLayer = memo(function MeshLayer({ palette, transforms, onShown }: {
   );
 });
 
-export function NavigationMesh({ tabId }: { tabId: string }) {
-  const mesh = usePage(tabId, (page) => page.documentMesh);
-  const retained = useRef(mesh);
+export function NavigationMesh({ tabId, currentMesh }: { tabId: string; currentMesh: () => DocumentMesh | null }) {
+  const mesh = usePage(tabId, currentMesh);
+  const retained = useRef<DocumentMesh | null>(null);
   const [removed, setRemoved] = useState<number | null>(null);
+  const waiting = !!mesh?.waitingForFrame;
+  useLayoutEffect(() => {
+    if (waiting) fieldTiming?.markFrame(tabId, "restoreCovered");
+  }, [tabId, waiting]);
+  if (mesh?.waitingForFrame) return (
+    <View pointerEvents="none" accessible={false} accessibilityElementsHidden style={[StyleSheet.absoluteFill, { backgroundColor: mesh.background }]} />
+  );
   if (mesh) retained.current = mesh;
   const frame = mesh ?? retained.current;
   if (!frame || (!mesh && frame.id === removed)) return null;

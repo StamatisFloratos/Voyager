@@ -12,7 +12,7 @@ import { noteTabReady } from "../../state/app/cliControl";
 import { isQuitting } from "../../state/app/quit";
 import { useProfileTheme } from "./ThemeScope";
 import { opaqueCard } from "../ui/opaqueCard";
-import { handOff, takeHandOff, wantsPage } from "../../state/tabs/tabPages";
+import { finishTabMount, handOff, hasTabHandOff, restoringTabUrl, takeHandOff, wantsPage } from "../../state/tabs/tabPages";
 import { noteDiscarded, noteGone, noteReady } from "../../state/tabs/tabLifecycle";
 import { noteWebKitPage, offerWebKit, persistEngine } from "../../state/engines/actions";
 import { webviewRef, webviews } from "../../state/tabs/webviewHandles";
@@ -60,13 +60,18 @@ type TabWebViewProps = { tabId: string; visible: boolean; warm: boolean; peekOf?
 
 export const TabWebView = memo(function TabWebView(props: TabWebViewProps) {
   const engine = useTabEngine(props.tabId);
-  const load = useMemo(() => documentLoad(props.tabId, BLANK_PAGE_CANVAS), [engine, props.tabId]);
   const reduced = useReducedMotion();
   const watch = props.visible && !reduced;
+  const load = useMemo(() => {
+    const url = restoringTabUrl(props.tabId);
+    const covered = watch && !hasTabHandOff(props.tabId, engine);
+    return documentLoad(props.tabId, BLANK_PAGE_CANVAS, url ? { url, covered } : undefined);
+  }, [engine, props.tabId]);
+  useLayoutEffect(() => finishTabMount(props.tabId), [load, props.tabId]);
   return (
     <>
       <EngineWebView key={engine} engine={engine} load={load} watch={watch} {...props} />
-      {watch && <NavigationMesh key={engine + props.tabId} tabId={props.tabId} />}
+      {watch && <NavigationMesh key={engine + props.tabId} tabId={props.tabId} currentMesh={load.currentMesh} />}
     </>
   );
 });

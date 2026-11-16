@@ -8,11 +8,12 @@ import { pageOf } from "./pageState.ts";
 
 const url = "https://example.test/";
 const background = "#ffffff";
-function fixture(t, evaluate) {
+function fixture(t, evaluate, restored) {
   const id = t.name;
   t.mock.timers.enable({ apis: ["setTimeout", "Date"], now: 10000 });
   const register = webviewRef(id);
-  const load = documentLoad(id, background);
+  const load = documentLoad(id, background, restored);
+  const firstRender = load.currentMesh();
   const calls = [];
   const frame = { url, start: 9950, ready: false, painted: false, background };
   const wrapped = load.wrap({
@@ -31,8 +32,155 @@ function fixture(t, evaluate) {
   register(wrapped);
   const hide = load.watchPaint("webkit");
   t.after(() => { hide(); register(null); });
-  return { calls, frame, load, wrapped, register, hide, mesh: () => pageOf(id).documentMesh,
+  return { calls, frame, load, wrapped, register, hide, firstRender, mesh: () => pageOf(id).documentMesh,
     async tick(ms) { t.mock.timers.tick(ms); await nextTurn(); } };
+}
+
+test("a cold restore has one opaque cover from its first render through history adoption and the real first screen", async t => {
+  const f = fixture(t, undefined, { url, covered: true });
+  const initial = f.firstRender;
+  assert.equal(initial.background, background);
+  assert.deepEqual(initial.colors, []);
+  assert.equal(initial.waitingForFrame, true);
+  assert.equal(f.mesh(), initial);
+  assert.deepEqual(f.calls, []);
+
+  f.wrapped.loadUrl(url);
+  f.load.navigation("", 0, background);
+  Object.assign(f.frame, { url: "about:blank", reason: "paint" });
+  f.load.navigation(url, 0);
+  await f.tick(99);
+  assert.equal(f.mesh().waitingForFrame, true);
+  await f.tick(1);
+  assert.equal(f.mesh().id, initial.id);
+  assert.ok(!f.mesh().waitingForFrame);
+  assert.deepEqual(f.calls, ["navigate", "frame"]);
+
+  Object.assign(f.frame, { url, reason: "hero", painted: true, background: "#234567" });
+  const committed = Date.now();
+  f.load.navigation(url, committed);
+  assert.equal(f.load.currentMesh().id, initial.id);
+  await f.tick(0);
+  assert.equal(f.mesh().background, "#234567");
+  assert.equal(f.mesh().id, initial.id);
+  f.frame.ready = true;
+  await f.tick(40);
+  assert.equal(f.mesh(), null);
+  f.load.navigation(url, 0, background);
+  f.load.navigation(url, committed, null);
+  await f.tick(500);
+  assert.equal(f.load.currentMesh(), null);
+  assert.equal(f.mesh(), null);
+});
+
+test("a cached restored first screen clears the pending backing before it becomes an animated mesh", async t => {
+  const f = fixture(t, undefined, { url, covered: true });
+  assert.equal(f.firstRender.waitingForFrame, true);
+  await f.tick(25);
+  Object.assign(f.frame, { ready: true, painted: true });
+  const committed = Date.now();
+  f.load.navigation(url, committed);
+  await f.tick(0);
+  assert.equal(f.mesh(), null);
+  assert.equal(f.load.currentMesh(), null);
+  f.load.navigation(url, committed, null);
+  await f.tick(500);
+  assert.equal(f.mesh(), null);
+  assert.deepEqual(f.calls, ["frame"]);
+});
+
+test("a restore already exposed by the host stays clear across late loading notifications", async t => {
+  const f = fixture(t, undefined, { url, covered: false });
+  assert.equal(f.firstRender, null);
+  f.load.navigation("", 0, background);
+  await f.tick(200);
+  f.load.navigation(url, 0);
+  await f.tick(200);
+  f.load.navigation(url, Date.now());
+  await f.tick(200);
+  f.load.navigation(url, 0, null);
+  await f.tick(200);
+  assert.equal(f.mesh(), null);
+  assert.deepEqual(f.calls, []);
+
+  const next = url + "next";
+  f.wrapped.loadUrl(next);
+  await f.tick(100);
+  const cover = f.mesh();
+  assert.ok(cover);
+  Object.assign(f.frame, { url: next, reason: "hero", painted: true });
+  f.load.navigation(next, Date.now());
+  await f.tick(0);
+  assert.equal(f.mesh().id, cover.id);
+  f.frame.ready = true;
+  await f.tick(40);
+  assert.equal(f.mesh(), null);
+});
+
+test("a cold restore with no native navigation reply eventually releases its initial cover", async t => {
+  const f = fixture(t, undefined, { url, covered: true });
+  assert.equal(f.mesh(), f.firstRender);
+  await f.tick(45000);
+  assert.equal(f.load.currentMesh(), null);
+  f.load.navigation(url, 0, null);
+  await f.tick(500);
+  assert.equal(f.mesh(), null);
+  assert.deepEqual(f.calls, []);
+});
+
+test("a link from an already exposed restored history entry gets the usual slow-navigation cover", async t => {
+  const f = fixture(t, undefined, { url, covered: false });
+  f.load.navigation(url, 0, null);
+  await f.tick(200);
+  const next = url + "article";
+  f.load.approaching(next);
+  await f.tick(100);
+  assert.ok(f.mesh());
+  const first = f.mesh().id;
+  f.frame.url = next;
+  f.load.navigation(next, Date.now());
+  await f.tick(0);
+  assert.equal(f.mesh().id, first);
+  f.frame.ready = true;
+  await f.tick(40);
+  assert.equal(f.mesh(), null);
+});
+
+test("a redirect can paint before the saved history URL updates and keeps the same cover until the new hero is ready", async t => {
+  const f = fixture(t, undefined, { url, covered: true });
+  f.load.navigation(url, 0, null);
+  const redirected = url + "home";
+  Object.assign(f.frame, { url: redirected, reason: "hero", painted: true });
+  await f.tick(100);
+  assert.equal(f.mesh()?.id, f.firstRender.id);
+  f.load.approaching(redirected);
+  const at = Date.now();
+  f.load.navigation(redirected, at);
+  f.load.navigation(url, at - 1);
+  await f.tick(0);
+  assert.equal(f.mesh()?.id, f.firstRender.id);
+  f.frame.ready = true;
+  await f.tick(40);
+  assert.equal(f.mesh(), null);
+});
+
+for (const interrupted of ["hide", "cancel"]) {
+  test(`a pending cold restore stays uncovered after ${interrupted} and a late renderer reply`, async t => {
+    let reply;
+    const f = fixture(t, () => new Promise(resolve => { reply = resolve; }), { url, covered: true });
+    f.load.navigation(url, Date.now());
+    await f.tick(0);
+    assert.equal(f.mesh(), f.firstRender);
+    if (interrupted === "hide") f.hide();
+    else f.load.cancel();
+    assert.equal(f.load.currentMesh(), null);
+    reply(f.frame);
+    await nextTurn();
+    f.load.navigation(url, 0, background);
+    await f.tick(500);
+    assert.equal(f.mesh(), null);
+    assert.deepEqual(f.calls, ["frame"]);
+  });
 }
 
 test("a slow provisional reload leaves the old frame visible and a usable committed frame skips the cover", async t => {

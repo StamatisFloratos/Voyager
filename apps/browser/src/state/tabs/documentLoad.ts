@@ -17,8 +17,9 @@ const NAVIGATION_LIMIT_MS = 45000;
 const hexColor = (value: unknown): value is string => typeof value === "string" && /^#[a-f\d]{6}$/i.test(value);
 type Viewport = { url: string; start: number; ready: boolean; painted: boolean; reason: string; background: string };
 type Palette = { url: string; start: number; colors: string[] };
+type RestoredDocument = { url: string; covered: boolean };
 
-export function documentLoad(tabId: string, blankCanvas: string) {
+export function documentLoad(tabId: string, blankCanvas: string, restored?: RestoredDocument) {
   let watching = false;
   let visibleSince = 0;
   let commit = 0;
@@ -30,7 +31,9 @@ export function documentLoad(tabId: string, blankCanvas: string) {
   let awaitingReload = false;
   let frameWait = FIRST_FRAME_MS;
   let generation = 0;
-  let mesh: DocumentMesh | null = null;
+  let mesh: DocumentMesh | null = restored?.covered ? { id: generation, background: blankCanvas, colors: [], waitingForFrame: true } : null;
+  let restoreLoaded = false;
+  let restoreTimer: ReturnType<typeof setTimeout> | undefined;
   let probeTimer: ReturnType<typeof setTimeout> | undefined;
   let paletteTimer: ReturnType<typeof setTimeout> | undefined;
   let deadline: ReturnType<typeof setTimeout> | undefined;
@@ -43,6 +46,7 @@ export function documentLoad(tabId: string, blankCanvas: string) {
 
   function stopWatchingFrame() {
     ++generation;
+    clearTimeout(restoreTimer);
     clearTimers();
     if (mesh) {
       mesh = null;
@@ -79,7 +83,8 @@ export function documentLoad(tabId: string, blankCanvas: string) {
   }
 
   function approaching(url: string) {
-    if (firstCanvas || awaitingReload || !isWebPageUrl(destination) || !isWebPageUrl(url) || samePage(destination, url)) return;
+    if ((restored && (!restoreLoaded || (mesh && !nativeCommit))) || firstCanvas || awaitingReload || !isWebPageUrl(destination) || !isWebPageUrl(url) || samePage(destination, url)) return;
+    restored = undefined;
     cancel();
     firstCanvas = blankCanvas;
     awaitFirstDocument();
@@ -88,7 +93,7 @@ export function documentLoad(tabId: string, blankCanvas: string) {
   function observe() {
     const view = webviews.get(tabId);
     if (!view || !watching || !needsInspection) return;
-    const url = destination;
+    let url = destination;
     const evaluate = view.evaluate;
     const id = generation;
     let documentStart: number | undefined;
@@ -121,6 +126,7 @@ export function documentLoad(tabId: string, blankCanvas: string) {
       if (!current()) return;
       if (!frame || frame.ready !== false || !Number.isFinite(frame.start) || typeof frame.url !== "string" ||
           !hexColor(frame.background)) return cancel();
+      if (restored && checkingHistoryEntry && isWebPageUrl(frame.url)) url = frame.url;
       if (!samePage(frame.url, url)) {
         if (checkingHistoryEntry && frame.url === "about:blank" && frame.reason === "paint") {
           firstCanvas = frame.background;
@@ -159,22 +165,57 @@ export function documentLoad(tabId: string, blankCanvas: string) {
     probeTimer = setTimeout(inspect, mesh ? 0 : Math.max(0, firstFrame - Date.now()));
   }
 
+  function restoreNavigation(url: string | undefined, at: number | undefined, finished: boolean) {
+    if (!restored) return false;
+    if (at && at < nativeCommit) return true;
+    if ((at && nativeCommit && at > nativeCommit) || (at && url && !isWebPageUrl(url))) {
+      restored = undefined;
+      return false;
+    }
+    if (!url || !isWebPageUrl(url)) return true;
+    if (at || finished) restoreLoaded = true;
+    if (commit && (!at || at === nativeCommit) && samePage(destination, url) && !(finished && firstCanvas)) return true;
+    ++generation;
+    clearTimers();
+    firstCanvas = undefined;
+    checkingHistoryEntry = !at;
+    nativeCommit = at || nativeCommit;
+    commit = at || Date.now();
+    destination = url;
+    needsInspection = !!mesh;
+    observe();
+    return true;
+  }
+
   return {
     cancel,
     approaching,
+    currentMesh: () => mesh,
     watchPaint(engine: PageEngine) {
       watching = true;
       visibleSince = Date.now();
       const release = engine === "chromium" ? observePageCommits() : undefined;
-      if (firstCanvas) awaitFirstDocument();
+      if (restored && mesh) {
+        patchPage(tabId, { documentMesh: mesh });
+        restoreTimer = setTimeout(() => {
+          if (!mesh?.waitingForFrame) return;
+          const { waitingForFrame, ...animated } = mesh;
+          mesh = animated;
+          patchPage(tabId, { documentMesh: mesh });
+        }, FIRST_FRAME_MS);
+        deadline = setTimeout(cancel, NAVIGATION_LIMIT_MS);
+        observe();
+      } else if (firstCanvas) awaitFirstDocument();
       else observe();
       return () => {
         watching = false;
-        stopWatchingFrame();
+        if (restored) cancel();
+        else stopWatchingFrame();
         release?.();
       };
     },
     navigation(url: string | undefined, at: number | undefined, pendingCanvas?: string | null) {
+      if (restoreNavigation(url, at, pendingCanvas === null)) return;
       if (pendingCanvas && !awaitingReload && !isWebPageUrl(destination)) {
         if (!firstCanvas) {
           firstCanvas = pendingCanvas;
@@ -216,18 +257,22 @@ export function documentLoad(tabId: string, blankCanvas: string) {
       return {
         ...view,
         loadUrl(url, options) {
+          if (restored && !nativeCommit && samePage(restored.url, url)) return view.loadUrl(url, options);
+          restored = undefined;
           cancel();
           awaitingReload = false;
           approaching(url);
           return view.loadUrl(url, options);
         },
         reload() {
+          restored = undefined;
           cancel();
           awaitingReload = true;
           setPageProgress(tabId, 0);
           return view.reload();
         },
         forceReload() {
+          restored = undefined;
           cancel();
           awaitingReload = true;
           setPageProgress(tabId, 0);

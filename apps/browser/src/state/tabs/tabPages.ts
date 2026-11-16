@@ -1,4 +1,5 @@
 import { claimLaunchTab, prepareTabTransfer, releaseTabTransfer, type PageEngine } from "../../platform/tabs";
+import { isWebPageUrl } from "../../lib/url";
 import { isInternalTab } from "../pages/urls";
 import { useBrowser } from "../browser/store";
 import { changedIds } from "../browser/changes";
@@ -13,10 +14,20 @@ import { focusedWindowOf } from "../windows/ui";
 
 export const wantsPage = (t: Tab | undefined): t is Tab => !!t && hasPage(t) && !isInternalTab(t);
 
-const handedOff = new Map<string, string>();
+const restoring = new Map<string, string>();
+
+export const restoringTabUrl = (tabId: string): string | undefined => restoring.get(tabId);
+export function finishTabMount(tabId: string) {
+  restoring.delete(tabId);
+}
+
+const atRestoreUrl = (tab: Tab, url: string) => tab.url === url && (navigationOf(tab)?.url ?? url) === url;
 
 type Handoff = { seq: number | undefined; engine: PageEngine };
+const handedOff = new Map<string, string>();
 const handoffs = new Map<string, Handoff>();
+
+export const hasTabHandOff = (tabId: string, engine: PageEngine): boolean => handoffs.get(tabId)?.engine === engine;
 
 export function takeHandOff(tabId: string, engine: PageEngine): Handoff | null {
   const handoff = handoffs.get(tabId);
@@ -35,12 +46,19 @@ export function handOff(tabId: string, profile: string, engine: PageEngine) {
 }
 
 export function startTabPages() {
+  for (const tab of Object.values(useBrowser.getState().tabs)) {
+    if (isWebPageUrl(tab.url) && atRestoreUrl(tab, tab.url)) restoring.set(tab.id, tab.url);
+  }
   claimLaunch();
   useBrowser.subscribe((s, prev) => {
     if (s.tabs === prev.tabs) return;
     for (const id of changedIds(s.tabs, prev.tabs)) {
       const tab = s.tabs[id];
       const before = prev.tabs[id];
+      const restoreUrl = restoring.get(id);
+      if (restoreUrl && (!tab || tab.createdAt !== before?.createdAt || !atRestoreUrl(tab, restoreUrl))) {
+        restoring.delete(id);
+      }
       const profile = tab && engineProfile(s, tab.profileId);
       if (tab && before && tab.windowId !== before.windowId && webviews.has(id) && profile === engineProfile(s, before.profileId)) handOff(id, profile!, tabEngine(s, id));
       const kept = handedOff.get(id);

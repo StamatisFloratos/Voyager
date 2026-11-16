@@ -23,14 +23,38 @@ const canvasColor = String.raw`() => {
 
 export const viewportCanvasColor = `(${canvasColor})()`;
 
-const sampleViewportPalette = String.raw`() => {
+const sampleViewportPalette = String.raw`async idle => {
   const base = ${viewportCanvasColor};
   const colors = [];
   const root = document.documentElement;
   if (root && innerWidth && innerHeight) {
-    const swatch = document.createElement("canvas");
-    swatch.width = swatch.height = 1;
-    const ctx = swatch.getContext("2d", { willReadFrequently: true });
+    const channelsOf = value => [1, 3, 5].map(i => parseInt(value.slice(i, i + 2), 16));
+    const background = channelsOf(base);
+    const colorCache = new Map();
+    let colorInput;
+    function cssColor(css) {
+      if (colorCache.has(css)) return colorCache.get(css);
+      const rgb = /^rgba?\(([\d.,\s]+)\)$/.exec(css);
+      let channels;
+      if (rgb) {
+        channels = rgb[1].split(",").map(Number);
+        if (channels.length === 3) channels.push(1);
+      } else {
+        if (!colorInput) {
+          colorInput = document.createElement("input");
+          colorInput.type = "color";
+        }
+        colorInput.value = css;
+        const alpha = /\/\s*([\d.]+)(%)?\s*\)$/.exec(css);
+        channels = [...channelsOf(colorInput.value), alpha ? Number(alpha[1]) / (alpha[2] ? 100 : 1) : 1];
+      }
+      colorCache.set(css, channels);
+      return channels;
+    }
+    function over(pixel, color, opacity) {
+      const alpha = color[3] * opacity;
+      for (let i = 0; i < 3; ++i) pixel[i] += (color[i] - pixel[i]) * alpha;
+    }
     const styles = new Map(), bounds = new Map(), vectorCells = [];
     const styleOf = el => {
       if (!styles.has(el)) styles.set(el, getComputedStyle(el));
@@ -56,19 +80,46 @@ const sampleViewportPalette = String.raw`() => {
           t = .5 + (u-.5)*Math.sin(a) - (v-.5)*Math.cos(a);
         }
       }
-      const x = .5 - Math.max(0, Math.min(1, t));
-      const ramp = ctx.createLinearGradient(x, 0, x + 1, 0);
-      stops.forEach((color, i) => ramp.addColorStop(i / (stops.length-1), color));
-      return ramp;
+      const offset = Math.max(0, Math.min(1, t)) * (stops.length - 1);
+      const index = Math.min(Math.floor(offset), stops.length - 2);
+      const from = cssColor(stops[index]), to = cssColor(stops[index + 1]);
+      return from.map((channel, i) => channel + (to[i] - channel) * (offset - index));
     }
-    function photo(el, u, v) {
-      if (el.localName !== "img" || !el.complete || !el.naturalWidth || !el.naturalHeight ||
-          el.naturalWidth * el.naturalHeight > 1024 * 1024) return;
+    const painted = !!performance.getEntriesByName?.("first-contentful-paint", "paint").length;
+    const photoDeadline = Math.min(requestedAt + 50, performance.now() + Math.min(12, idle?.timeRemaining() ?? 12));
+    const decoded = new Map();
+    let swatch, ctx;
+    async function photo(el, x, y) {
       const src = el.currentSrc;
-      if (!src || !src.startsWith(location.origin + "/") || /\.svg(?:[?#]|$)/i.test(src)) return;
-      ctx.drawImage(el, Math.floor(u * el.naturalWidth), Math.floor(v * el.naturalHeight), 1, 1, 0, 0, 1, 1);
+      if (!el.complete || !el.naturalWidth || !el.naturalHeight || el.naturalWidth * el.naturalHeight > 1024 * 1024 ||
+          !src || !src.startsWith(location.origin + "/") || /\.svg(?:[?#]|$)/i.test(src)) return;
+      const remaining = photoDeadline - performance.now();
+      if (remaining <= 0 || document.hidden || !el.isConnected) return;
+      if (!decoded.has(el)) {
+        let timer;
+        try {
+          const ready = el.decode().then(() => true, () => false);
+          const expired = new Promise(resolve => { timer = setTimeout(resolve, remaining, false); });
+          decoded.set(el, await Promise.race([ready, expired]) ? src : null);
+        } finally { clearTimeout(timer); }
+      }
+      if (decoded.get(el) !== src || el.currentSrc !== src || performance.now() >= photoDeadline || !el.isConnected || document.hidden) return;
+      if (!swatch) {
+        swatch = document.createElement("canvas");
+        swatch.width = swatch.height = 1;
+        ctx = swatch.getContext("2d", { willReadFrequently: true });
+      }
+      if (!ctx) return;
+      const [u, v] = position(el, x, y);
+      try {
+        ctx.clearRect(0, 0, 1, 1);
+        ctx.drawImage(el, Math.floor(u * el.naturalWidth), Math.floor(v * el.naturalHeight), 1, 1, 0, 0, 1, 1);
+        const [r, g, b, alpha] = ctx.getImageData(0, 0, 1, 1).data;
+        return [r, g, b, alpha / 255];
+      } catch {
+        swatch.width = 1;
+      }
     }
-    const channelsOf = value => [1, 3, 5].map(i => parseInt(value.slice(i, i + 2), 16));
     function svgFill(image) {
       const comma = image.indexOf(",");
       const encoded = image.slice(comma + 1).replace(/["']?\)$/, "");
@@ -81,23 +132,20 @@ const sampleViewportPalette = String.raw`() => {
         }
       } catch {}
     }
-    if (ctx) for (let row = 0; row < 3; row++) for (let col = 0; col < 4; col++) {
+    for (let row = 0; row < 3; row++) for (let col = 0; col < 4; col++) {
       const x = innerWidth * (col+.5)/4, y = innerHeight * (row+.5)/3;
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = base;
-      ctx.fillRect(0, 0, 1, 1);
+      const pixel = background.slice();
       const stack = document.elementsFromPoint(x, y).slice(0, 7).reverse();
       for (const el of new Set([root, document.body, ...stack])) {
         if (!el || el.checkVisibility && !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
         const s = styleOf(el);
-        ctx.globalAlpha = Number(s.opacity);
-        ctx.fillStyle = s.backgroundColor;
-        ctx.fillRect(0, 0, 1, 1);
+        const opacity = Number(s.opacity);
+        over(pixel, cssColor(s.backgroundColor), opacity);
         const image = s.backgroundImage;
         if (image.startsWith("linear-gradient") || image.startsWith("radial-gradient")) {
           const [u, v] = position(el, x, y);
           const fill = gradient(image, u, v);
-          if (fill) { ctx.fillStyle = fill; ctx.fillRect(0, 0, 1, 1); }
+          if (fill) over(pixel, fill, opacity);
         }
         if (el === stack.at(-1) && image.length <= 16384 && /^url\(["']?data:image\/svg\+xml[,;]/i.test(image)) {
           const [u, v] = position(el, x, y), rect = bounds.get(el);
@@ -105,17 +153,12 @@ const sampleViewportPalette = String.raw`() => {
             vectorCells.push([colors.length, image]);
           }
         }
-        if (el.localName === "img") {
-          try { photo(el, ...position(el, x, y)); } catch {}
+        if (painted && el.localName === "img") {
+          const fill = await photo(el, x, y);
+          if (fill) over(pixel, fill, opacity);
         }
       }
-      try {
-        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-        colors.push("#" + [r,g,b].map(n => n.toString(16).padStart(2,"0")).join(""));
-      } catch {
-        colors.push(base);
-        swatch.width = 1;
-      }
+      colors.push("#" + pixel.map(n => Math.round(n).toString(16).padStart(2,"0")).join(""));
     }
     if (vectorCells.length) {
       const first = channelsOf(colors[0]);
@@ -131,6 +174,7 @@ const sampleViewportPalette = String.raw`() => {
 }`;
 
 export const viewportPaletteProbe = `
+  const requestedAt = performance.now();
   const sample = ${sampleViewportPalette};
   if (typeof requestIdleCallback === "function") requestIdleCallback(sample);
   else sample();
