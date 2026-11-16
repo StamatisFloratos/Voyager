@@ -11,6 +11,151 @@ const profile = (w) => S().windows[w].profileId;
 const tidy = (w) => tidyTabs(w, profile(w));
 const top = (w) => sidebarEntries(S(), w).list.map((key) => parseEntry(key).id);
 
+function addPage(w, url, title) {
+  const id = add(w, url);
+  S().updateTab(id, { title });
+  return id;
+}
+
+const groupOf = (id) => Object.values(S().groups).find((g) => g.tabIds.includes(id));
+
+test("product headings explain opaque storefront tabs and stale headings cannot assign another page", () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://rail.example/timetable" });
+  const train = S().windows[w].tabIds[0];
+  const a = addPage(w, "https://independent.example/a/16", "Store");
+  const b = addPage(w, "https://artisan.example/b/27", "Home");
+  tidy(w);
+  assert.equal(groupOf(a).name, "Other");
+  for (const [id, heading] of [[a, "Hand-cranked burr grinder"], [b, "Electric burr grinder"]]) {
+    S().updateTab(id, { tidyContent: { url: S().tabs[id].url, heading, product: true } });
+  }
+  S().updateTab(train, { tidyContent: { url: "https://rail.example/old", heading: "Burr grinder", product: true } });
+  assert.equal(tidy(w), true);
+  const grinders = groupOf(a);
+  assert.equal(grinders.name, "Burr Grinder Shopping");
+  assert.deepEqual(grinders.tabIds, [a, b]);
+  assert.equal(groupOf(train).name, "Other");
+});
+
+test("a hand-filed sizing guide helps with a matching guide from that store", () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://north.example/products/wool-coat" });
+  const coat = S().windows[w].tabIds[0];
+  add(w, "https://south.example/products/raincoat");
+  const guide = addPage(w, "https://north.example/support/1", "Size guide | North");
+  tidy(w);
+  const coats = groupOf(coat);
+  S().addTabsToGroup(coats.id, [guide]);
+  const next = addPage(w, "https://north.example/support/2", "Size guide | North");
+  const otherStore = addPage(w, "https://furniture.example/help/3", "Size guide | Furniture");
+  const account = addPage(w, "https://north.example/account", "My account | North");
+  tidy(w);
+  assert.equal(groupOf(next).id, coats.id);
+  assert.notEqual(groupOf(otherStore)?.id, coats.id);
+  assert.notEqual(groupOf(account)?.id, coats.id);
+});
+
+test("coat shopping spans a search and multiple shops, keeping duplicate listings and the selected tab", () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://www.google.com/search?q=buy+coats" });
+  const search = S().windows[w].activeTabIds[profile(w)];
+  const coat = addPage(w, "https://www.amazon.co.uk/dp/B123456789", "Women's belted trench coat");
+  const listing = "https://north-and-bay.example/products/3201";
+  const wool = addPage(w, listing, "Wool-blend coat | North & Bay");
+  const duplicate = addPage(w, listing, "Wool-blend coat | North & Bay");
+  const trains = add(w, "https://www.google.com/search?q=train+times");
+  const heraldry = addPage(w, "https://history.example/articles/108", "The royal coat of arms: a history");
+
+  assert.equal(tidy(w), true);
+  const group = groupOf(search);
+  assert.match(group.name, /coat/i);
+  assert.match(group.name, /shop/i);
+  assert.deepEqual(new Set(group.tabIds), new Set([search, coat, wool, duplicate]));
+  assert.equal(groupOf(trains).name, "Other");
+  assert.equal(groupOf(heraldry).name, "Other");
+  assert.equal(S().windows[w].activeTabIds[profile(w)], search);
+  assert.equal(tidy(w), false);
+});
+
+test("product comparisons use a shared product name across independent stores", () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://brewtown.example/products/4981" });
+  const first = S().windows[w].tabIds[0];
+  S().updateTab(first, { title: "Compact burr grinder | Brewtown" });
+  const second = addPage(w, "https://kitchenworks.example/shop/1004", "Electric burr grinder | Kitchenworks");
+  const kettle = addPage(w, "https://kitchenworks.example/shop/1008", "Electric kettle | Kitchenworks");
+
+  assert.equal(tidy(w), true);
+  const grinders = groupOf(first);
+  assert.match(grinders.name, /burr grinder/i);
+  assert.match(grinders.name, /shop/i);
+  assert.deepEqual(new Set(grinders.tabIds), new Set([first, second]));
+  assert.equal(groupOf(kettle).name, "Other");
+  assert.equal(tidy(w), false);
+});
+
+test("a coat in an existing shopping category can join a new comparison, while a hand-filed coat stays put", () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://www.etsy.com/listing/5800" });
+  const bowl = S().windows[w].tabIds[0];
+  S().updateTab(bowl, { title: "Ceramic fruit bowl" });
+  const coat = addPage(w, "https://www.amazon.com/dp/B012345678", "Single-breasted wool coat");
+  const saved = addPage(w, "https://closet.example/products/camel-coat", "Camel coat");
+  const manual = S().createGroup([saved], { name: "Gift ideas" });
+  assert.equal(tidy(w), true);
+  assert.equal(groupOf(coat).id, groupOf(bowl).id);
+
+  const second = addPage(w, "https://nightfall.example/products/100", "Buy a belted winter coat | Nightfall");
+  assert.equal(tidy(w), true);
+  const comparison = groupOf(second);
+  assert.match(comparison.name, /coat/i);
+  assert.deepEqual(new Set(comparison.tabIds), new Set([coat, second]));
+  assert.deepEqual(S().groups[manual].tabIds, [saved]);
+  assert.equal(tidy(w), false);
+});
+
+test("shared subjects in article titles group across sites without drawing in unrelated articles", () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://skywatch.example/read/18" });
+  const map = S().windows[w].tabIds[0];
+  S().updateTab(map, { title: "Lunar eclipse visibility map" });
+  const guide = addPage(w, "https://sciencejournal.example/articles/774", "A field guide to the lunar eclipse");
+  const unrelated = addPage(w, "https://woodland.example/articles/775", "A field guide to edible fungi");
+
+  assert.equal(tidy(w), true);
+  const eclipse = groupOf(map);
+  assert.match(eclipse.name, /eclipse/i);
+  assert.deepEqual(new Set(eclipse.tabIds), new Set([map, guide]));
+  assert.equal(groupOf(unrelated).name, "Other");
+  assert.equal(tidy(w), false);
+});
+
+test("Tidy rechecks Other when titles arrive and keeps a renamed comparison for later tabs", () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://first-shop.example/id/15" });
+  const first = S().windows[w].tabIds[0];
+  const second = add(w, "https://second-shop.example/id/21");
+  tidy(w);
+  assert.equal(groupOf(first).name, "Other");
+  assert.equal(canTidyTabs(S(), w, profile(w)), false);
+
+  S().updateTab(first, { title: "Waterproof parka" });
+  S().updateTab(second, { title: "Wool topcoat" });
+  assert.equal(tidy(w), true);
+  const coats = groupOf(first);
+  assert.equal(coats.name, "Coat Shopping");
+  assert.deepEqual(coats.tabIds, [first, second]);
+  S().updateGroup(coats.id, { name: "Winter shortlist", collapsed: true });
+
+  const third = addPage(w, "https://third-shop.example/id/65", "Faux fur coat");
+  tidy(w);
+  assert.equal(groupOf(third).id, coats.id);
+  assert.equal(groupOf(third).name, "Winter shortlist");
+  assert.equal(groupOf(third).collapsed, true);
+  assert.equal(tidy(w), false);
+});
+
 test("Tidy makes ordered topic and same-site categories in a single edit, keeping duplicate pages and selection", () => {
   S().hydrate({});
   const w = S().createWindow({ url: "https://unrelated.test/" });

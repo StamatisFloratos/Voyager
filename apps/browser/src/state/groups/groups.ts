@@ -11,6 +11,7 @@ import { depthOf, descendantIds, innermostGroupOf, nestGroups, reparent } from "
 import { withShownTab, withoutShownTabs } from "./shownTabs";
 import { pinnedGroupMembers } from "../browser/structure";
 import { groupingOnto } from "../pins/placing";
+import { rememberTidyMove } from "./tidyChoices";
 
 export { ancestorIds, canNest, commonGroup, depthOf, descendantIds, groupPath, innermostGroupOf, nestGroups, reparent, rootOf, withParent } from "./groupNesting";
 
@@ -19,7 +20,7 @@ export type GroupsSlice = {
 
   createGroup(tabIds: string[], options?: { name?: string; icon?: string | null; color?: GroupColor | null }): string;
   updateGroup(id: string, patch: Partial<Pick<TabGroup, "name" | "icon" | "color" | "collapsed" | "pinned" | "shownTabIds">>): void;
-  addTabsToGroup(groupId: string, tabIds: string[]): void;
+  addTabsToGroup(groupId: string, tabIds: string[], options?: { automatic?: boolean }): void;
   removeTabsFromGroup(tabIds: string[]): void;
   ungroup(groupId: string): void;
   newNestedGroup(parentId: string): string;
@@ -154,9 +155,11 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
   deletedGroups: [],
 
   createGroup(tabIds, options = {}) {
-    const [next, id] = withGroup(get(), tabIds, { name: options.name, parentId: null });
+    const s = get();
+    const [next, id] = withGroup(s, tabIds, { name: options.name, parentId: null });
     if (!id) return "";
-    set({ groups: { ...next.groups, [id]: { ...next.groups[id]!, icon: options.icon ?? null, color: options.color ?? null } }, windows: next.windows });
+    const group = { ...next.groups[id]!, icon: options.icon ?? null, color: options.color ?? null };
+    set(rememberTidyMove(s, { ...next, groups: { ...next.groups, [id]: group } }, group.tabIds));
     return id;
   },
 
@@ -175,7 +178,7 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
     });
   },
 
-  addTabsToGroup(groupId, tabIds) {
+  addTabsToGroup(groupId, tabIds, { automatic = false } = {}) {
     set((s) => {
       const group = s.groups[groupId];
       if (!group) return {};
@@ -189,7 +192,8 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
       const nested = nestGroups({ ...leaveGroups(s.groups, new Set(adding)), [groupId]: { ...group, tabIds: [...group.tabIds, ...adding] } });
       const groups = adding.reduce(withShownTab, nested);
       const window = { ...w, tabIds: placeGroups(block, groups, w.id) };
-      return { groups: syncGroupOrder(groups, window), windows: { ...s.windows, [w.id]: window } };
+      const next = { tabs: s.tabs, groups: syncGroupOrder(groups, window), windows: { ...s.windows, [w.id]: window } };
+      return automatic ? next : rememberTidyMove(s, next, adding);
     });
   },
 
@@ -198,7 +202,8 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
       let groups = s.groups;
       const windows = { ...s.windows };
       const touched = new Set<string>();
-      for (const id of withSplitRows(s, tabIds)) {
+      const removing = withSplitRows(s, tabIds);
+      for (const id of removing) {
         const g = innermostGroupOf(groups, id);
         const w = g && windows[g.windowId];
         if (!g || !w) continue;
@@ -216,7 +221,7 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
       }
       let next = { tabs: s.tabs, windows, groups };
       for (const windowId of touched) next = withGroupsPlaced(next, windowId, next.groups);
-      return { groups: next.groups, windows: next.windows };
+      return rememberTidyMove(s, next, removing);
     });
   },
 
@@ -228,7 +233,7 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
       const groups = reparent(rest, s.groups);
       if (!s.windows[group.windowId]) return { groups };
       const next = withGroupsPlaced(s, group.windowId, groups);
-      return { groups: next.groups, windows: next.windows };
+      return rememberTidyMove(s, next, group.tabIds);
     });
   },
 
@@ -265,14 +270,16 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
   },
 
   groupTabs(ids, { pinned = true, name } = {}) {
-    const [next, id] = withRowsGrouped(get(), ids, { pinned, name });
-    if (id) set({ ...next, selection: { ...next.selection, [next.groups[id]!.windowId]: [] } });
+    const s = get();
+    const [next, id] = withRowsGrouped(s, ids, { pinned, name });
+    if (id) set({ ...rememberTidyMove(s, next, next.groups[id]!.tabIds), selection: { ...next.selection, [next.groups[id]!.windowId]: [] } });
     return id;
   },
 
   groupOnto(ids, targetId) {
-    const [next, id] = groupingOnto(get(), ids, targetId);
-    if (id) set(next);
+    const s = get();
+    const [next, id] = groupingOnto(s, ids, targetId);
+    if (id) set(rememberTidyMove(s, next, next.groups[id]!.tabIds));
     return id;
   },
 
@@ -308,7 +315,7 @@ export const createGroupsSlice: StateCreator<BrowserState, [], [], GroupsSlice> 
     if (!g || !w) return "";
     const [next, id] = withNewTab(s, w.id, { profileId: g.profileId, index: w.tabIds.indexOf(g.tabIds.at(-1)!) + 1 });
     const groups = nestGroups({ ...next.groups, [groupId]: { ...g, collapsed: false, tabIds: [...g.tabIds, id] } });
-    set(withGroupsPlaced(next, w.id, groups));
+    set(rememberTidyMove(s, withGroupsPlaced(next, w.id, groups), [id]));
     return id;
   },
 

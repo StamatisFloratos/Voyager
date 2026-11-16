@@ -9,6 +9,8 @@ import { placing, type TabPlacement } from "./placing";
 import { pinnedGroupMembers } from "../browser/structure";
 import { samePage } from "../../lib/url";
 import { pinHome } from "./pinHomes";
+import { rememberTidyMove } from "../groups/tidyChoices";
+import { withSplitRows } from "../splits/splits";
 
 export type OrganizeSlice = {
   selection: Record<string, string[]>;
@@ -50,7 +52,11 @@ export function pinAwareTooltip(t: TitledTab): string {
 }
 
 export function onUrlChange(s: BrowserState, tab: Tab, url: string): Partial<Tab> {
-  return inPinnedContainer(s, tab.id) ? { pinnedUrl: pinHome({ ...tab, url }, true) } : {};
+  return {
+    ...(inPinnedContainer(s, tab.id) ? { pinnedUrl: pinHome({ ...tab, url }, true) } : {}),
+    ...(tab.tidyChoice && tab.url && !samePage(tab.url, url) ? { tidyChoice: undefined } : {}),
+    ...(tab.tidyContent ? { tidyContent: undefined } : {}),
+  };
 }
 
 export function pruneSelection(selection: Record<string, string[]>, gone: Set<string>): Record<string, string[]> {
@@ -95,14 +101,14 @@ export const createOrganizeSlice: StateCreator<BrowserState, [], [], OrganizeSli
   },
 
   placeTabs(ids, placement) {
-    set((s) => placing(s, ids, placement));
+    set((s) => rememberTidyMove(s, placing(s, ids, placement), withSplitRows(s, ids)));
   },
 
   dropTabs(ids, drop) {
     const s = get();
     const next = dropping(s, ids, drop);
     if (next === s) return false;
-    set(next);
+    set(rememberTidyMove(s, next, withSplitRows(s, ids)));
     return true;
   },
 
@@ -113,7 +119,7 @@ export const createOrganizeSlice: StateCreator<BrowserState, [], [], OrganizeSli
     if (!w) return;
     const members = pinnedGroupMembers(s.groups);
     const beforeId = pinned ? null : w.tabIds.find((id) => !s.tabs[id]?.pin && !members.has(id) && !ids.includes(id));
-    set(placing(s, ids, { pinned, row, beforeId }));
+    set(rememberTidyMove(s, placing(s, ids, { pinned, row, beforeId }), withSplitRows(s, ids)));
   },
 
   returnToPinnedUrl(tabId) {

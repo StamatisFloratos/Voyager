@@ -1,11 +1,13 @@
 import { hostOf } from "@voyager/core";
 import { newId } from "../browser/model";
 import { useBrowser, type BrowserState } from "../browser/store";
+import type { Tab } from "../browser/types";
 import { splitIndex } from "../browser/structure";
 import { siteName } from "../groups/groupNames";
 import { withGroupsPlaced } from "../groups/groups";
 import { groupEntries, sidebarEntries } from "./entries";
 import { parseEntry } from "./entryKey";
+import { tidyIntents } from "./tidyIntents";
 
 const topics: Record<string, string[]> = {
   Development: ["github.com", "gitlab.com", "codeberg.org", "bitbucket.org", "stackoverflow.com", "developer.mozilla.org", "npmjs.com"],
@@ -38,6 +40,12 @@ type Assignment = { key: string; tabIds: string[]; groupId?: string };
 type Plan = Assignment[];
 const planCache = new WeakMap<string[], { tabs: BrowserState["tabs"]; groups: BrowserState["groups"]; splits: BrowserState["splits"]; plan: Plan }>();
 
+function categoryName(key: string, ids: string[], tabs: BrowserState["tabs"]): string {
+  if (key === OTHER_KEY) return "Other";
+  if (key.startsWith("site:")) return siteName(ids.map((id) => tabs[id]!));
+  return key.slice(key.indexOf(":") + 1);
+}
+
 function tidyPlan(s: BrowserState, windowId: string, profileId: string): Plan {
   const window = s.windows[windowId];
   if (!window || window.profileId !== profileId || window.kind === "small") return [];
@@ -46,15 +54,21 @@ function tidyPlan(s: BrowserState, windowId: string, profileId: string): Plan {
   if (cached && cached.tabs === s.tabs && cached.groups === s.groups && cached.splits === s.splits) return cached.plan;
   const splitMembers = splitIndex(s.splits);
   const existing = new Map<string, string>();
-  const candidates = new Map<string, string[]>();
-  function consider(entry: string) {
+  const tabs: Tab[] = [];
+  const examples: Tab[] = [];
+  const source = new Map<string, string>();
+  function consider(entry: string, from?: string, reconsider = true) {
     const { kind, id } = parseEntry(entry);
     const tab = s.tabs[id];
     if (kind !== "tab" || splitMembers.has(id) || !tab || tab.pin || tab.liveItem || tab.windowId !== windowId || tab.profileId !== profileId) return;
-    const key = categoryKey(tab.url) ?? OTHER_KEY;
-    const tabIds = candidates.get(key);
-    if (tabIds) tabIds.push(id);
-    else candidates.set(key, [id]);
+    const choice = tab.tidyChoice;
+    if (choice && choice.preferred === (from ?? null)) {
+      if (from && from !== OTHER_KEY) examples.push(tab);
+      return;
+    }
+    if (!reconsider) return;
+    tabs.push(tab);
+    if (from) source.set(id, from);
   }
   for (const entry of list) {
     const { kind, id } = parseEntry(entry);
@@ -63,30 +77,54 @@ function tidyPlan(s: BrowserState, windowId: string, profileId: string): Plan {
       continue;
     }
     const group = s.groups[id]!;
-    if (!group.tidyKey || group.parentId || group.pinned || group.profileId !== profileId || group.windowId !== windowId || existing.has(group.tidyKey)) continue;
-    existing.set(group.tidyKey, id);
-    if (group.tidyKey === OTHER_KEY) groupEntries(s, id).forEach(consider);
-  }
-
-  const otherId = existing.get(OTHER_KEY);
-  const oldOther = otherId ? s.groups[otherId]!.tabIds : [];
-  const otherMembers = new Set(oldOther);
-  const newcomers: string[] = [];
-  const promoted = new Set<string>();
-  const plan: Plan = [];
-  for (const [key, tabIds] of candidates) {
-    const groupId = existing.get(key);
-    if (key !== OTHER_KEY && (groupId || tabIds.length >= 2)) {
-      const members = groupId ? [...s.groups[groupId]!.tabIds, ...tabIds] : tabIds;
-      plan.push({ key, tabIds: members, groupId });
-      for (const id of tabIds) if (otherMembers.has(id)) promoted.add(id);
-    } else {
-      for (const id of tabIds) if (!otherMembers.has(id)) newcomers.push(id);
+    const key = group.tidyKey;
+    if (!key || group.parentId || group.pinned || group.profileId !== profileId || group.windowId !== windowId || existing.has(key)) continue;
+    existing.set(key, id);
+    const reconsider = key === OTHER_KEY || (!key.startsWith("intent:") && group.name === categoryName(key, group.tabIds, s.tabs));
+    if (reconsider || group.tabIds.some((tabId) => s.tabs[tabId]?.tidyChoice?.preferred === key)) {
+      groupEntries(s, id).forEach((entry) => consider(entry, key, reconsider));
     }
   }
-  if (newcomers.length || promoted.size) {
-    plan.push({ key: OTHER_KEY, tabIds: [...oldOther.filter((id) => !promoted.has(id)), ...newcomers], groupId: otherId });
+
+  const accepts = (tab: Pick<Tab, "id">, key: string) => !s.tabs[tab.id]?.tidyChoice?.rejected?.includes(key);
+  const destinations = tidyIntents(tabs, new Set(existing.keys()), accepts, examples);
+  const fallback = new Map<string, string[]>();
+  for (const tab of tabs) {
+    const from = source.get(tab.id);
+    if (destinations.has(tab.id) || (from && from !== OTHER_KEY)) continue;
+    const category = categoryKey(tab.url) ?? OTHER_KEY;
+    const key = accepts(tab, category) ? category : OTHER_KEY;
+    const ids = fallback.get(key);
+    if (ids) ids.push(tab.id);
+    else fallback.set(key, [tab.id]);
   }
+  for (const [key, ids] of fallback) {
+    const destination = existing.has(key) || ids.length >= 2 ? key : OTHER_KEY;
+    for (const id of ids) if (accepts(s.tabs[id]!, destination)) destinations.set(id, destination);
+  }
+
+  const changes = new Map<string, Set<string>>();
+  function members(key: string) {
+    let ids = changes.get(key);
+    if (!ids) {
+      const groupId = existing.get(key);
+      ids = new Set(groupId ? s.groups[groupId]!.tabIds : []);
+      changes.set(key, ids);
+    }
+    return ids;
+  }
+  for (const { id } of tabs) {
+    const from = source.get(id);
+    const to = destinations.get(id);
+    if (!to || to === from) continue;
+    if (from) members(from).delete(id);
+    members(to).add(id);
+  }
+  const plan: Plan = [];
+  for (const [key, ids] of changes) {
+    plan.push({ key, groupId: existing.get(key), tabIds: [...ids] });
+  }
+  plan.sort((a, b) => Number(a.key === OTHER_KEY) - Number(b.key === OTHER_KEY));
   planCache.set(list, { tabs: s.tabs, groups: s.groups, splits: s.splits, plan });
   return plan;
 }
@@ -104,14 +142,14 @@ export function tidyTabs(windowId: string, profileId: string): boolean {
     } else if (groupId) {
       const group = groups[groupId]!;
       groups[groupId] = { ...group, tabIds };
-      if (key === OTHER_KEY && group.shownTabIds) {
+      if (group.shownTabIds) {
         const shown = group.shownTabIds.filter((id) => tabIds.includes(id));
         if (shown.length) groups[groupId].shownTabIds = shown;
         else delete groups[groupId].shownTabIds;
       }
     } else {
       const id = newId("g");
-      const name = key === OTHER_KEY ? "Other" : key.startsWith("site:") ? siteName(tabIds.map((id) => s.tabs[id]!)) : key.slice("topic:".length);
+      const name = categoryName(key, tabIds, s.tabs);
       groups[id] = { id, windowId, profileId, tidyKey: key, name, tabIds, icon: null, color: null, pinned: false, collapsed: false, createdAt: Date.now() };
     }
   }
