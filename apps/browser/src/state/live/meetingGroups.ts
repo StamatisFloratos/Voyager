@@ -28,7 +28,7 @@ export function groupCall(tabId: string, event?: CalendarEvent | null): string {
     return g && g.windowId === tab.windowId && !m.endedAt && ((!!m.occurrence && m.occurrence === match?.occurrence) || (!!callTab && meetingOf(callTab.url)?.key === call.key));
   });
   if (same) {
-    s.addTabsToGroup(same.groupId, [tabId]);
+    s.addTabsToGroup(same.groupId, [tabId], { automatic: true });
     return same.groupId;
   }
   const title = match?.title || MEETING_FALLBACK_TITLE;
@@ -46,7 +46,7 @@ export function joinMeeting(windowId: string, event: CalendarEvent, joinUrl: str
   if (openAll) {
     for (const url of relatedLinks(event)) {
       const id = store().newTab(windowId, { url, background: true, openerId: callTab });
-      if (grouped && !groupOf(store(), id)) store().addTabsToGroup(grouped, [id]);
+      if (grouped && !groupOf(store(), id)) store().addTabsToGroup(grouped, [id], { automatic: true });
     }
   }
   store().activate(callTab);
@@ -67,7 +67,7 @@ export function startMeetingGroups() {
       if (s.settings.autoGroupMeetingTabs && !tab.pin && meetingOf(tab.url) && (!before || !meetingOf(before.url))) groupCall(id);
       if (!before && tab.openerId && !groupOf(s, id)) {
         const opener = groupOf(s, tab.openerId);
-        if (opener && live().meetingGroups[opener.id] && !live().meetingGroups[opener.id]!.endedAt) store().addTabsToGroup(opener.id, [id]);
+        if (opener && live().meetingGroups[opener.id] && !live().meetingGroups[opener.id]!.endedAt) store().addTabsToGroup(opener.id, [id], { automatic: true });
       }
       if (tab.pin && isCalendarUrl(tab.url) && (!before || !before.pin) && !live().calendar.prompted) void offerAlerts(tab.windowId);
     }

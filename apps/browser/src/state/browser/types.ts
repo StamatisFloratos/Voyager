@@ -45,6 +45,7 @@ export type Tab = {
   profileId: string;
   url: string;
   title: string;
+  tidyContent?: { url: string; heading: string; product: boolean };
   favicon: string | null;
   pin: TabPin | null;
   muted: boolean;
@@ -54,6 +55,7 @@ export type Tab = {
   pinnedUrl: string | null;
   page: TabPage;
   openerId: string | null;
+  tidyChoice?: { preferred: string | null; rejected?: string[] };
   liveItem?: { folderId: string; itemId: string };
   pinKey?: string;
   engine?: PageEngine;
@@ -142,7 +144,7 @@ export type TabSnapshot = Pick<
   Tab,
   "url" | "title" | "favicon" | "pin" | "muted" | "zoom" | "customTitle" | "customIcon" | "profileId"
 > &
-  Partial<Pick<Tab, "pinnedUrl" | "engine" | "lastActiveAt">> & { restoreByUrl?: true };
+  Partial<Pick<Tab, "pinnedUrl" | "engine" | "lastActiveAt" | "tidyChoice">> & { restoreByUrl?: true };
 
 export type ClosedTab = {
   kind: "tab";

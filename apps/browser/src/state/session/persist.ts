@@ -55,7 +55,7 @@ const publicTab = (t: { profileId: string }) => !isIncognitoProfile(t.profileId)
 const publicProfiles = <T,>(byProfile: Record<string, T>) => Object.fromEntries(Object.entries(byProfile).filter(([profileId]) => publicTab({ profileId })));
 
 function restorableTab(t: Tab, page: ReturnType<typeof savedPage>): Tab {
-  const { restoreByUrl, ...tab } = restorableSnapshot(t);
+  const { restoreByUrl, tidyContent: _content, ...tab } = restorableSnapshot(t);
   return { ...tab, page: restoreByUrl ? { kind: page.kind } : page };
 }
 

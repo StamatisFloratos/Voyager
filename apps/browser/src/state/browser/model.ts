@@ -90,6 +90,7 @@ export const snapshotTab = (t: Tab): TabSnapshot => restorableSnapshot({
   customIcon: t.customIcon,
   pinnedUrl: t.pinnedUrl,
   ...(t.engine ? { engine: t.engine } : {}),
+  ...(t.tidyChoice ? { tidyChoice: t.tidyChoice } : {}),
   profileId: t.profileId,
   lastActiveAt: t.lastActiveAt,
 });

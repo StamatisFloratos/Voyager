@@ -23,6 +23,7 @@ import { returnRefusedMove, setFind } from "../../state/windows/actions";
 import { activateFocusedPane, currentTabEngine, downloadNavigated, useTabEngine } from "../../state/windows/card";
 import { setPageProgress } from "../../state/tabs/pageProgress";
 import { documentLoad } from "../../state/tabs/documentLoad";
+import { tidyContentReader } from "../../state/tabs/tidyPageContent";
 import { shallowEqual, useBrowserWhile, useProfilesValue, useTabValue } from "../../state/tabs/tabWatch";
 import { isIncognitoProfile, navigationTo } from "../../state/browser/model";
 import type { Tab } from "../../state/browser/types";
@@ -78,6 +79,7 @@ export const TabWebView = memo(function TabWebView(props: TabWebViewProps) {
 
 function EngineWebView({ tabId, visible, warm, peekOf, engine, load, watch }: TabWebViewProps & { engine: PageEngine; load: ReturnType<typeof documentLoad>; watch: boolean }) {
   const { navigation, adoptId, profileId, shownUrl } = useTabValue(tabId, webViewTab, shallowEqual);
+  const tidyContent = useMemo(() => tidyContentReader(tabId), [tabId]);
   const neighbour = useBrowserWhile(warm, (s) => warm && s.windows[s.tabs[tabId]?.windowId ?? ""]?.profileId !== profileId);
   const tab = () => currentTab(tabId);
   const ref = useMemo(() => {
@@ -144,6 +146,7 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine, load, watch }: Ta
   useLayoutEffect(
     () => () => {
       load.cancel();
+      tidyContent.cancel();
       const t = tab();
       const sameEngine = currentTabEngine(tabId) === engine;
       if (wantsPage(t) && sameEngine && currentEngineProfile(t.profileId) === currentEngineProfile(mountedProfile.current) && !isQuitting()) handOff(tabId, currentEngineProfile(t.profileId), engine);
@@ -232,6 +235,7 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine, load, watch }: Ta
         if (fromNewTab.current && url && !isBlankAddress(url)) patchPage(tabId, { backToNewTab: true });
         const shownTitle = !title && restoring ? (tab()?.title ?? title) : title;
         updateTab(tabId, { url, title: shownTitle }, { isLoading, canGoBack, canGoForward, themeColor: shownTheme });
+        if (peekOf === undefined) void tidyContent.navigation(url, shownTitle, isLoading, committedAt);
         dropOutlivedFavicon(tabId, url, isLoading);
         if (engine === "webkit") noteWebKitPage(tabId, { url, title, isLoading, committedUrl: committedUrl ?? "" });
         if (lastPage.current !== null && withoutFragment(url) !== lastPage.current) leftPage(tabId, url, lastPage.current, engine, peekOf !== undefined);
