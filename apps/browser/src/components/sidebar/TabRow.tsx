@@ -13,7 +13,7 @@ import { isPinnedRow, tabTitle } from "../../state/browser/model";
 import { awayFromPin, awayTitle } from "../../state/pins/organize";
 import { commitRename, endRename, startRename } from "../../state/sidebar/actions";
 import { useDragItem, useDropOnto } from "./DragProvider";
-import { useShift, type EntryMotion } from "./EntryMotion";
+import { useShift, type EntryMotion, type RowShift } from "./EntryMotion";
 import { useRowHover } from "./hoverController";
 import { pressPaneClose, pressTabClose, useTabCloseControlWhile } from "../../state/sidebar/closeControl";
 import { modifiersOf } from "../../lib/keys";
@@ -60,7 +60,7 @@ export const TabRow = memo(function TabRow({
 }: {
   tabId: string;
   onto?: boolean;
-  shift?: Animated.Value | null;
+  shift?: RowShift;
 }) {
   const theme = useTheme();
   const tokens = useSidebarTokens();
@@ -172,6 +172,7 @@ export const TabRow = memo(function TabRow({
 const AWAY_FRAME = { flex: 1, marginLeft: TAB_ROW.titleGap } as const;
 
 export function RenameField({
+  flush = false,
   initial,
   placeholder,
   color,
@@ -179,6 +180,7 @@ export function RenameField({
   weight,
   onDone,
 }: {
+  flush?: boolean;
   initial: string;
   placeholder: string;
   color: string;
@@ -200,7 +202,7 @@ export function RenameField({
     return () => clearTimeout(t);
   }, []);
   return (
-    <OutsidePressArea onOutsidePress={() => finish(text)} style={ROW_TITLE_FRAME}>
+    <OutsidePressArea onOutsidePress={() => finish(text)} style={flush ? { flex: 1, height: TAB_ROW.titleHeight } : ROW_TITLE_FRAME}>
       <TextInput
         ref={input}
         value={text}

@@ -2,7 +2,7 @@ import { removeDownloadStaging, type Download } from "../../platform/downloads";
 import { documentSaved, readDocument, writeDocument } from "../../platform/documents";
 import { SESSION_DOCUMENT } from "./sessionDocument";
 import { useBrowser, type BrowserState, type HydrateData } from "../browser/store";
-import { inPinnedContainer, isIncognitoProfile, snapshotTab, tabsShownIn } from "../browser/model";
+import { inPinnedContainer, isIncognitoProfile, restorableSnapshot, snapshotTab, tabsShownIn } from "../browser/model";
 import { earlyLaunchTabOn, launchTab, linkProfile } from "../tabs/launchTab";
 import { launchBackdrop } from "../windows/launchBackdrop";
 import { restoreLaunchLook, saveLaunchLook } from "../windows/launchLook";
@@ -54,7 +54,12 @@ function doc<F extends Record<string, Field<Key, unknown>>>(name: string, versio
 const publicTab = (t: { profileId: string }) => !isIncognitoProfile(t.profileId);
 const publicProfiles = <T,>(byProfile: Record<string, T>) => Object.fromEntries(Object.entries(byProfile).filter(([profileId]) => publicTab({ profileId })));
 
-const persistedTab = (t: Tab) => ({ ...t, page: savedPage(t) });
+function restorableTab(t: Tab, page: ReturnType<typeof savedPage>): Tab {
+  const { restoreByUrl, ...tab } = restorableSnapshot(t);
+  return { ...tab, page: restoreByUrl ? { kind: page.kind } : page };
+}
+
+const persistedTab = (t: Tab) => restorableTab(t, savedPage(t));
 const savedWindows = (s: Pick<BrowserState, "windows">) =>
   Object.values(s.windows).filter(isRegularWindow).map(({ chromeWindow: _c, kind: _k, ...w }) => ({ ...w, incognito: false }));
 const savedWindowsWithTabsShown = (s: Pick<BrowserState, "windows" | "settings">) => savedWindows(s).map((w) => ({ ...w, sidebarOpen: tabsShownIn(s, w.id) }));
@@ -170,7 +175,7 @@ export function parseSession(json: string | null | undefined): SavedSession | nu
     windowOrder: strings(raw.windowOrder),
     focusedWindowId: nullableString(raw.focusedWindowId),
     lastProfileId: nullableString(raw.lastProfileId),
-    tabs: byId(rows<Tab>(raw.tabs, tabOk).map((t) => ({ ...t, page: pageFromDisk(t.page), pin: pinFromDisk(t.pin) }))),
+    tabs: byId(rows<Tab>(raw.tabs, tabOk).map((t) => restorableTab({ ...t, pin: pinFromDisk(t.pin) }, pageFromDisk(t.page)))),
     groups: byId(rows(raw.groups, groupOk)),
     splits: byId(rows<SplitView>(raw.splits, splitOk).map((v) => ({ ...v, slots: slotsFromDisk(v.slots)! }))),
     closedTabs: rows(raw.closedTabs, closedTabOk),

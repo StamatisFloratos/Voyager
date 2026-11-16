@@ -66,7 +66,7 @@ export async function openOverflowMenu(windowId: string) {
           ]
         : [{ id: "none", title: "Empty", enabled: false }],
     },
-    ...(deleted.length ? [{ id: "deleted", title: "Recently Deleted Groups", symbol: "trash", children: deleted }] : []),
+    ...(deleted.length ? [{ id: "deleted", title: "Recently Deleted Categories", symbol: "trash", children: deleted }] : []),
     sep,
     { id: "clean", title: "Clean Up Tabs", symbol: "wand.and.stars", ...menuShortcut("cleanUpTabs") },
     { id: "daily", title: "Clean Up Daily", checked: daily },

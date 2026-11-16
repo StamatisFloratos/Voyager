@@ -1,5 +1,5 @@
 import type { GestureResponderEvent } from "react-native";
-import { modifiersOf } from "../../lib/keys";
+import { modifiersOf, pressStart } from "../../lib/keys";
 import { activeTabId } from "../browser/model";
 import { useBrowser } from "../browser/store";
 import { clickTab } from "./actions";
@@ -11,10 +11,6 @@ export const TAB_CLICK_SLOP = 10;
 export const devTabPress = { switchOnPress: true };
 
 let heldPress: { windowId: string; tabId: string; startedAt: number | undefined; switched: boolean } | null = null;
-
-type WithHistory = GestureResponderEvent & { touchHistory?: { touchBank: ({ startTimeStamp: number } | null | undefined)[] } };
-
-const pressStart = (e: GestureResponderEvent) => (e as WithHistory).touchHistory?.touchBank[Number(e.nativeEvent.identifier)]?.startTimeStamp;
 
 function switchesOnPress(windowId: string, tabId: string, press: GestureResponderEvent) {
   if (!devTabPress.switchOnPress) return false;

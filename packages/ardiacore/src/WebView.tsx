@@ -97,7 +97,7 @@ export const WebView = forwardRef<WebViewHandle, WebViewProps>(function WebView(
       discard: (options) => call<DiscardOutcome>("refused", (n) => n.discard(options?.unload ?? false)),
       setFrozen: (frozen) => call(undefined, (n) => n.setFrozen(frozen)),
     };
-  });
+  }, [props.engine]);
 
   const latest = useRef(props);
   latest.current = props;

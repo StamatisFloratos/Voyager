@@ -5,13 +5,17 @@ import { layout, useTheme } from "../ui/theme";
 import { useSettings } from "../../state/browser/hooks";
 import { isIncognitoProfile } from "../../state/browser/model";
 import { newCapture } from "../../state/sidebar/listCapture";
-import { useCanTidyPins, useCapturedSidebarEntries, usePinnedCollapsed, usePinnedKept } from "../../state/sidebar/hooks";
+import { useCanTidyTabs, useCapturedSidebarEntries, usePinnedCollapsed, usePinnedKept } from "../../state/sidebar/hooks";
+import { useCanClearTabs } from "../../state/sidebar/clearTabs";
 import { useAddressBarInSidebar } from "../../state/windows/layout";
 import { ClearDivider } from "./ClearDivider";
 import { useDragController, useDragItem } from "./DragProvider";
 import { Fold, useFold } from "./Fold";
 import { SidebarEntry } from "./GroupBlock";
 import { GhostSlot, ListMotionContext, useListMotion } from "./ListMotion";
+import { ListActionMotionContext, useListActionMotion } from "./listActionMotion";
+import { ListActionGhosts } from "./ListActionGhosts";
+import { reduceMotion } from "../ui/reduceMotion";
 import { PinnedGrid } from "./PinnedGrid";
 import { usePinnedSequence } from "../../state/sidebar/pinnedOrder";
 import { SCROLL_EDGE } from "./ScrollEdge";
@@ -59,23 +63,28 @@ export function PageRows({ windowId, profileId, current, rows, lazy, offScreen, 
   const list = limit === undefined ? all : all.slice(0, limit);
   const pending = usePendingEntriesHeight(windowId, profileId, all, mountedRows, growing);
   const showClear = useSettings((s) => s.showClearButton);
-  const clearable = showClear && !offScreen && all.length > 0;
-  const tidy = useCanTidyPins(windowId, profileId, offScreen);
+  const clearable = useCanClearTabs(windowId, profileId, showClear && current && !offScreen);
+  const canTidy = useCanTidyTabs(windowId, profileId, !current || offScreen);
+  const actionMotion = useListActionMotion(windowId, profileId);
   const pinned = usePinnedSequence(windowId, profileId, offScreen);
   const pinnedSection = pinned.length > 0;
-  const divided = clearable || tidy || pinnedSection;
+  const divided = !offScreen || pinnedSection;
   const collapsed = usePinnedCollapsed(profileId);
   const pinnedFold = useFold(collapsed);
   const kept = usePinnedKept(windowId, profileId, pinned);
   const pinnedGap = collapsed && !kept && !pinnedFold.moving ? 0 : layout.rowGap;
   const newTabButtonAtTop = useSettings((s) => s.newTabButtonPosition === "top");
-  const animated = current && !offScreen;
+  const animated = current && !offScreen && !reduceMotion() && !actionMotion.run;
   const motion = useListMotion(windowId, profileId, all, captured, animated);
+  const tail = actionMotion.tail ?? motion.tail;
   const scope = useMemo(() => ({ enabled: animated, slideBelow: motion.slideBelow }), [animated, motion.slideBelow]);
   if (geometry) geometry.current.newTabAtTop = newTabButtonAtTop && inlineNewTab;
   return (
     <ListMotionContext.Provider value={scope}>
       <View
+        aria-hidden={!current}
+        accessibilityElementsHidden={!current}
+        importantForAccessibility={current ? "auto" : "no-hide-descendants"}
         onLayout={(e) => onListHeight(e.nativeEvent.layout.height + SCROLL_EDGE.inset - (inlineNewTab ? ROW_PITCH : 0))}
       >
         {isIncognitoProfile(profileId) ? <IncognitoBadge /> : null}
@@ -103,8 +112,10 @@ export function PageRows({ windowId, profileId, current, rows, lazy, offScreen, 
             windowId={windowId}
             profileId={profileId}
             lift={underDockedTiles && !pinnedSection && !isIncognitoProfile(profileId) ? DOCKED_TILES_GAP : 0}
-            clear={clearable}
-            tidy={tidy}
+            showClear={showClear}
+            canClear={clearable}
+            canTidy={canTidy}
+            onAction={actionMotion.activate}
             pinned={pinnedSection ? { collapsed, open: pinnedFold.open } : null}
           />
         ) : null}
@@ -116,20 +127,23 @@ export function PageRows({ windowId, profileId, current, rows, lazy, offScreen, 
           style={{ gap: layout.rowGap }}
         >
           {newTabButtonAtTop && inlineNewTab ? <NewTabRow windowId={windowId} /> : null}
-          {motion.fading
-            ? motion.slots(list).map((slot) =>
-                "ghost" in slot ? (
-                  <GhostSlot key={slot.ghost.key} snapshot={slot.ghost.snapshot} top={slot.top} opacity={slot.ghost.opacity} />
-                ) : (
-                  <SidebarEntry key={slot.entry} entry={slot.entry} section="list" motion={motion.motion(slot.entry)} />
-                ),
-              )
-            : list.map((entry) => <SidebarEntry key={entry} entry={entry} section="list" motion={motion.motion(entry)} />)}
+          {actionMotion.run?.ghosts.length ? <ListActionGhosts run={actionMotion.run} top={newTabButtonAtTop && inlineNewTab ? ROW_PITCH : 0} /> : null}
+          <ListActionMotionContext.Provider value={actionMotion.rows}>
+            {motion.fading
+              ? motion.slots(list).map((slot) =>
+                  "ghost" in slot ? (
+                    <GhostSlot key={slot.ghost.key} snapshot={slot.ghost.snapshot} top={slot.top} opacity={slot.ghost.opacity} />
+                  ) : (
+                    <SidebarEntry key={slot.entry} entry={slot.entry} section="list" motion={motion.motion(slot.entry)} />
+                  ),
+                )
+              : list.map((entry) => <SidebarEntry key={entry} entry={entry} section="list" motion={motion.motion(entry)} />)}
+          </ListActionMotionContext.Provider>
           {pending ? <View style={{ height: pending }} /> : null}
           <Tail section="list" />
-          {!newTabButtonAtTop && inlineNewTab ? <NewTabRow windowId={windowId} shift={motion.tail} clip={motion.tailClip} /> : null}
+          {!newTabButtonAtTop && inlineNewTab ? <NewTabRow windowId={windowId} shift={tail} clip={motion.tailClip} /> : null}
         </View>
-        {current ? <CleanUpUpsell windowId={windowId} shift={motion.tail} /> : null}
+        {current ? <CleanUpUpsell windowId={windowId} shift={tail} /> : null}
       </View>
     </ListMotionContext.Provider>
   );

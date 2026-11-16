@@ -167,7 +167,7 @@ export function TabChip({ tabId, width, tuck, dragged }: { tabId: string; width:
                     weight="semibold"
                     color={onBand ? palette.icon : undefined}
                     onPress={tuck ?? (() => pressTabClose(tab.id))}
-                    tooltip={tuck ? "Hide in Group" : closeControl.tooltip}
+                    tooltip={tuck ? "Hide in Category" : closeControl.tooltip}
                   />
                 }
               >

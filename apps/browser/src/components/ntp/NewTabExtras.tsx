@@ -22,7 +22,7 @@ export function NewTabExtras({ size, bar }: { size: { width: number; height: num
       <View ref={tourAnchorRef(windowId, "commandBar")} style={{ position: "absolute", left: bar.x, top: bar.y, width: bar.width, height: bar.height }} pointerEvents="none" />
       <CheckInBanner windowId={windowId} />
       {telemetryAvailable() ? <TelemetryAsk windowId={windowId} size={size} bar={bar} /> : null}
-      {incognito ? null : <PersonalizeButton windowId={windowId} />}
+      {incognito ? null : <PersonalizeButton windowId={windowId} pageWidth={size.width} />}
       {pending && !incognito && !page ? (
         <ReleaseNotesPostcard notes={pending} size={size} onOpen={() => openReleaseNotes(windowId)} onDismiss={retireReleaseNotes} />
       ) : null}

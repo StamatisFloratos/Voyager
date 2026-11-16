@@ -2,6 +2,7 @@ import { fileExists, fileIcon } from "../../state/app/system";
 import { useEffect, useState } from "react";
 import { Image, View, type ImageSourcePropType } from "react-native";
 import { Checkbox, IconTile, Symbol, Text } from "../ui";
+import { VoyagerAppIcon } from "../ui/VoyagerAppIcon";
 import { radius, space } from "../ui/tokens";
 import { isWebDemo } from "../../state/onboarding/demoSteps";
 import { openImport } from "../../state/settings/settingsWindows";
@@ -14,8 +15,6 @@ import { ChoiceCard } from "./ChoiceCard";
 import { SetupCodeLink, SetupCodeStep } from "./SetupCodeStep";
 import { browserIcon } from "./browserIcons";
 import { useImageRing } from "./GlassBacking";
-
-const ICON = require("../../../assets/app-icon.png");
 
 type Candidate = { id: Exclude<BrowserSourceId, "fresh">; name: string; app: string; importId?: string; onlyWhenFound?: boolean };
 
@@ -187,7 +186,7 @@ function SourcePreview({ tile, fresh, found }: { tile: Tile | null; fresh: boole
         </View>
       ) : null}
       {from.length ? <Symbol name="arrow.down" size={18} weight="medium" color={colors.steps} style={{ width: 24, height: 24 }} /> : null}
-      <Image source={ICON} style={{ width: tile || fresh ? 96 : 72, height: tile || fresh ? 96 : 72 }} />
+      <VoyagerAppIcon size={tile || fresh ? 96 : 72} />
       {tile || fresh ? <Tag title={`Starts out ${PRESET_NAMES[preset]}-style`} /> : null}
     </View>
   );

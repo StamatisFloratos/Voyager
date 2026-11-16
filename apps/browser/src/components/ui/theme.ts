@@ -8,6 +8,7 @@ import { SIDEBAR_ROW } from "../../lib/sidebarMetrics";
 import { arcSelectedFill, colorRoles, ink, INCOGNITO_TINT, PROFILE_COLORS, radius, type ColorRoles, type ProfileColorSpec, type ShadowLevel } from "./tokens";
 import type { BasePalette } from "../../lib/themeFile";
 import { visibleSelection } from "../../lib/selectionContrast";
+import { sandDunes } from "./themes/tokens";
 
 export { PROFILE_COLORS } from "./tokens";
 
@@ -79,20 +80,27 @@ const tintThemes = new WeakMap<Theme, Theme>();
 const windowThemes = new WeakMap<Theme, Theme>();
 
 export function tintTheme(theme: Theme): Theme {
+  const cached = tintThemes.get(theme);
+  if (cached) return cached;
   if (!theme.adaptiveInk) return theme;
-  let tint = tintThemes.get(theme);
-  if (!tint) {
-    const keepsOwnInk = inkOn(theme.windowTint, theme.dark) === (theme.dark ? ink.white : ink.black);
-    const other = theme.dark ? theme.palettes.light : theme.palettes.dark;
-    tint = keepsOwnInk ? theme : { ...theme, ...other, tabSelected: theme.tabSelected, pinnedSelectedFill: theme.pinnedSelectedFill, rowSelectedText: theme.rowSelectedText };
-    tintThemes.set(theme, tint);
-    if (tint !== theme) windowThemes.set(tint, theme);
-  }
+  const keepsOwnInk = inkOn(theme.windowTint, theme.dark) === (theme.dark ? ink.white : ink.black);
+  const other = theme.dark ? theme.palettes.light : theme.palettes.dark;
+  const tint = keepsOwnInk ? theme : { ...theme, ...other, tabSelected: theme.tabSelected, pinnedSelectedFill: theme.pinnedSelectedFill, rowSelectedText: theme.rowSelectedText };
+  tintThemes.set(theme, tint);
+  if (tint !== theme) windowThemes.set(tint, theme);
   return tint;
 }
 
 export function surfaceTheme(theme: Theme): Theme {
   return windowThemes.get(theme) ?? theme;
+}
+
+function applySandDunes(theme: Theme) {
+  theme.windowTint = [sandDunes.swatch, sandDunes.swatch];
+  theme.backdrop = { ...theme.backdrop, tintColor: sandDunes.swatch, ...sandDunes.backdrop };
+  const chrome: Theme = { ...theme, ...theme.palettes.light, ...sandDunes.chrome };
+  tintThemes.set(theme, chrome);
+  windowThemes.set(chrome, theme);
 }
 
 export function themeFor(key: string, palette?: BasePalette | null): Theme {
@@ -116,6 +124,7 @@ export function themeFor(key: string, palette?: BasePalette | null): Theme {
       custom: null,
       palettes: layer.palettes,
     };
+    if (color === "sandDunes") applySandDunes(theme);
     layer.themes.set(key, theme);
   }
   return theme;
@@ -131,7 +140,7 @@ export function nearestPreset(hexColor: string): ProfileColor {
   let best: ProfileColor = "plum";
   let distance = Infinity;
   for (const [name, spec] of Object.entries(PROFILE_COLORS) as [ProfileColor, ProfileColorSpec][]) {
-    if (name === "neutral") continue;
+    if (name === "neutral" || name === "sandDunes") continue;
     const [sh] = hsl(spec.swatch);
     const d = Math.min(Math.abs(sh - h), 1 - Math.abs(sh - h));
     if (d < distance) [best, distance] = [name, d];
@@ -174,6 +183,7 @@ function customTheme(custom: ProfileTheme, color: ProfileColor, appDark: boolean
 export function profileTheme(profile: ProfileLookFields | undefined, appDark: boolean, source: LookSource = "own", palette?: BasePalette | null, adaptTextToColor = true): Theme {
   const color = profile?.color ?? "plum";
   if (profile?.theme) return customTheme(profile.theme, color, appDark, source, palette, adaptTextToColor);
+  if (color === "sandDunes" && source !== "utility") return tintTheme(themeFor("sandDunes:light", palette));
   return themeFor(`${color}:${appDark ? "dark" : "light"}`, palette);
 }
 

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3502A60B45674DB9BCC692A9 /* app-icon.svg in Resources */ = {isa = PBXBuildFile; fileRef = 60C8094814E04D4993407C34 /* app-icon.svg */; };
+		C46F3F43D013424881ADBE3F /* mark.svg in Resources */ = {isa = PBXBuildFile; fileRef = 109D2604CB094DC6B8CB6A7C /* mark.svg */; };
 		2FF0A6F31D6FB76878E63C5F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3E0CAE61008516DE07A12694 /* PrivacyInfo.xcprivacy */; };
 		32CC817DBABC4088BF1F2895 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 42108ADD054F481A9B60EC2B /* AppIcon.icon */; };
 		3FF132665BBAFDDFE46449C0 /* DisableFusebox.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9A15241E979C9B4F4BB79D8 /* DisableFusebox.mm */; };
@@ -20,6 +22,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		60C8094814E04D4993407C34 /* app-icon.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "app-icon.svg"; path = "../../../docs/brand/voyager/app-icon.svg"; sourceTree = SOURCE_ROOT; };
+		109D2604CB094DC6B8CB6A7C /* mark.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = mark.svg; path = ../../../docs/brand/voyager/mark.svg; sourceTree = SOURCE_ROOT; };
 		3E0CAE61008516DE07A12694 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ../PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		42108ADD054F481A9B60EC2B /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		4F6F34DACD396890604E4F3F /* Voyager.sdef */ = {isa = PBXFileReference; includeInIndex = 1; path = Voyager.sdef; sourceTree = "<group>"; };
@@ -80,6 +84,8 @@
 			children = (
 				514201512437B4B40078DB4F /* Assets.xcassets */,
 				42108ADD054F481A9B60EC2B /* AppIcon.icon */,
+				60C8094814E04D4993407C34 /* app-icon.svg */,
+				109D2604CB094DC6B8CB6A7C /* mark.svg */,
 				514201562437B4B40078DB4F /* Info.plist */,
 				514201592437B4B40078DB4F /* Voyager.entitlements */,
 				DE21821D6B4527B7E023B602 /* main.swift */,
@@ -188,6 +194,8 @@
 			files = (
 				514201522437B4B40078DB4F /* Assets.xcassets in Resources */,
 				32CC817DBABC4088BF1F2895 /* AppIcon.icon in Resources */,
+				3502A60B45674DB9BCC692A9 /* app-icon.svg in Resources */,
+				C46F3F43D013424881ADBE3F /* mark.svg in Resources */,
 				2FF0A6F31D6FB76878E63C5F /* PrivacyInfo.xcprivacy in Resources */,
 				EB6C4E3A222E6D1BF85AB612 /* Voyager.sdef in Resources */,
 			);

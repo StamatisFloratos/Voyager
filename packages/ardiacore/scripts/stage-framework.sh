@@ -5,7 +5,9 @@ repo=$(cd "$here/../../.." && pwd)
 name="Chromium Framework"
 
 key_of() {
-  printf '%s %s %s' "$1" "$(stat -f '%m %z' "$1/Versions/Current/$name")" \
+  local brand_key
+  brand_key=$(cd "$here/.." && shasum -a 256 scripts/brand-framework.py branding/* | shasum -a 256)
+  printf '%s %s %s %s' "$1" "$(stat -f '%m %z' "$1/Versions/Current/$name")" "$brand_key" \
     "$(find "$1/Versions/Current/" -type f -exec stat -f '%m' {} + | sort -n | tail -1)" | shasum -a 256 | cut -c1-16
 }
 if [[ "${1:-}" == --key ]]; then
@@ -58,6 +60,7 @@ fill_cache() {
   key=$(cat "$tmp/.key") || return 1
   sign() { codesign --force --timestamp=none --sign - "$@"; }
   fwv=$(cd "$tmp/$name.framework/Versions/Current" && pwd -P) || return 1
+  python3 -I "$here/brand-framework.py" "$fwv" || return 1
   for lib in "$fwv"/Libraries/*.dylib; do
     if [[ -e "$lib" ]]; then sign "$lib" || return 1; fi
   done

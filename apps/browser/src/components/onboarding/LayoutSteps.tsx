@@ -269,7 +269,7 @@ export function TabsStep() {
           <OptionCard control="check" title="⌘Z reopens closed tabs" subtitle="Outside text fields, as in Arc" selected={values.undoReopensClosedTab} onPress={() => change({ undoReopensClosedTab: !values.undoReopensClosedTab })} />
           <OptionCard
             control="check"
-            title="⌘-click on a link makes a tab group"
+            title="⌘-click on a link creates a tab category"
             subtitle="Keeps related tabs together"
             selected={values.cmdClickCreatesTabGroup}
             onPress={() => change({ cmdClickCreatesTabGroup: !values.cmdClickCreatesTabGroup })}

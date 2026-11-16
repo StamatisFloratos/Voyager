@@ -1,4 +1,4 @@
-import { appUrlOrigin, displayHost } from "@voyager/core";
+import { appUrlOrigin, displayHost, restorableChatGPTUrl } from "@voyager/core";
 import type { BrowserState } from "./store";
 import { DEFAULT_PROFILE_ID } from "../settings/settings";
 import type { BrowserWindow, Navigation, Profile, Tab, TabGroup, TabLive, TabPin, TabSnapshot } from "./types";
@@ -44,8 +44,16 @@ export const IDLE_LIVE: TabLive = {
   themeColor: null,
 };
 
+export function restorableSnapshot<T extends Partial<TabSnapshot>>(tab: T): T & { restoreByUrl?: true } {
+  const url = tab.url && restorableChatGPTUrl(tab.url);
+  const pinnedUrl = tab.pinnedUrl && restorableChatGPTUrl(tab.pinnedUrl);
+  if (url === tab.url && pinnedUrl === tab.pinnedUrl) return tab;
+  return { ...tab, ...(url !== tab.url ? { url, restoreByUrl: true as const } : {}), ...(pinnedUrl !== tab.pinnedUrl ? { pinnedUrl } : {}) };
+}
+
 export function makeTab(windowId: string, profileId: string, url = "", snapshot?: Partial<TabSnapshot>): Tab {
   const now = Date.now();
+  const { restoreByUrl: _, ...saved } = snapshot ?? {};
   return {
     id: newId("tab"),
     windowId,
@@ -60,7 +68,7 @@ export function makeTab(windowId: string, profileId: string, url = "", snapshot?
     customIcon: null,
     pinnedUrl: null,
     openerId: null,
-    ...snapshot,
+    ...saved,
     page: url ? { kind: "loaded", nav: navigationTo(url) } : { kind: "idle" },
     createdAt: now,
     lastActiveAt: snapshot?.lastActiveAt ?? now,
@@ -71,7 +79,7 @@ export function makeTab(windowId: string, profileId: string, url = "", snapshot?
 export const byRecentUse = (a: Pick<Tab, "unseen" | "lastActiveAt">, b: Pick<Tab, "unseen" | "lastActiveAt">) =>
   Number(!!a.unseen) - Number(!!b.unseen) || b.lastActiveAt - a.lastActiveAt;
 
-export const snapshotTab = (t: Tab): TabSnapshot => ({
+export const snapshotTab = (t: Tab): TabSnapshot => restorableSnapshot({
   url: t.url,
   title: t.title,
   favicon: t.favicon,

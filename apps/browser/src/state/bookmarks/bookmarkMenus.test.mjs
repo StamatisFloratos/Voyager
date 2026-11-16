@@ -21,7 +21,7 @@ test("a bookmarks bar folder: Open All in each place, group, Rename… and New F
   assert.deepEqual(render(barMenuItems({ kind: "folder", links: 2, makesGroup: true, restoresArc: false }, { barShown: true })), [
     ...OPEN_ALL,
     "---",
-    "Add to Sidebar as Group [sidebar.left]",
+    "Add to Sidebar as Category [sidebar.left]",
     "---",
     "Rename… [pencil]",
     "New Folder… [folder.badge.plus]",
@@ -29,7 +29,7 @@ test("a bookmarks bar folder: Open All in each place, group, Rename… and New F
     "Delete Folder [trash]",
   ]);
   const empty = render(barMenuItems({ kind: "folder", links: 0, makesGroup: false, restoresArc: true }, { barShown: true }));
-  assert.deepEqual(empty.slice(0, 6), [...OPEN_ALL.map((t) => `${t} (off)`), "---", "Add to Sidebar as Group [sidebar.left] (off)", "Restore Arc Folders as Groups"]);
+  assert.deepEqual(empty.slice(0, 6), [...OPEN_ALL.map((t) => `${t} (off)`), "---", "Add to Sidebar as Category [sidebar.left] (off)", "Restore Arc Folders as Categories"]);
 });
 
 test("the bookmarks bar background: Add Page…, New Folder…, then Manage Bookmarks and the bar toggle with their real keys", () => {
@@ -52,7 +52,7 @@ test("a Bookmarks page row matches the bar, adds Show in Folder for a search res
   assert.deepEqual(render(bookmarkRowMenuItems({ kind: "folder", links: 3, makesGroup: false, restoresArc: false, showPath: false })), [
     ...OPEN_ALL,
     "---",
-    "Add to Sidebar as Group [sidebar.left] (off)",
+    "Add to Sidebar as Category [sidebar.left] (off)",
     "---",
     "Rename… [pencil]",
     "New Folder… [folder.badge.plus]",

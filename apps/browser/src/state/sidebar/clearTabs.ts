@@ -1,12 +1,15 @@
 import { closeTab } from "../browser/actions";
 import { useBrowser } from "../browser/store";
 import { plural } from "../browser/model";
-import { canUndoClear, type ClearedTabs } from "../pins/tabCleanup";
+import { canUndoClear, clearedTabIds, type ClearedTabs } from "../pins/tabCleanup";
 import { hideKeyedToast, showToast, useToasts } from "../app/toasts";
 
 const store = () => useBrowser.getState();
 
 let undoToasts = 0;
+
+export const useCanClearTabs = (windowId: string, profileId: string, enabled: boolean) =>
+  useBrowser((s) => enabled && s.windows[windowId]?.profileId === profileId && clearedTabIds(s, windowId).length > 0);
 
 function showUndoToast(cleared: ClearedTabs, title: string, icon: string) {
   const { windowId } = cleared;

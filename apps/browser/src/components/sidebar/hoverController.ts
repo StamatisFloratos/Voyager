@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useReducer, useRef, useState } fr
 import type { LayoutChangeEvent } from "react-native";
 import { markHoverProps } from "../../lib/hoverMarks";
 import { currentWindow } from "../../state/browser/current";
-import { PageProfileContext, useWindow } from "../../state/browser/hooks";
+import { PageProfileContext } from "../../state/browser/hooks";
 import {
   cardEntered,
   cardLaidOut,
@@ -12,7 +12,6 @@ import {
   rowLeft,
   rowShown,
   rowsCovered,
-  setGroupPointed,
   watchCovered,
   type HoverPointerEvent,
 } from "../../state/sidebar/hover";
@@ -86,29 +85,4 @@ export function useRowHover(windowId: string, target: Target | null) {
     [],
   );
   return { hovered: hovered && !rowsCovered(windowId), hoverProps };
-}
-
-export function useGroupHover(windowId: string, groupId: string) {
-  const [inside, setInside] = useState(false);
-  const [, refresh] = useReducer((n: number) => n + 1, 0);
-  const page = useContext(PageProfileContext);
-  const away = useContext(FoldedAway);
-  const onPage = useWindow(windowId, (w) => !page || w?.profileId === page);
-  const [hoverProps] = useState(() =>
-    markHoverProps({
-      onMouseEnter: () => setInside(true),
-      onMouseLeave: () => setInside(false),
-    }),
-  );
-  useEffect(() => {
-    watchCovered(windowId, refresh, true);
-    return () => watchCovered(windowId, refresh, false);
-  }, [windowId]);
-  const hovered = inside && onPage && !away && !rowsCovered(windowId);
-  useEffect(() => {
-    if (!hovered) return;
-    setGroupPointed(groupId, true);
-    return () => setGroupPointed(groupId, false);
-  }, [hovered, groupId]);
-  return { hovered, hoverProps };
 }

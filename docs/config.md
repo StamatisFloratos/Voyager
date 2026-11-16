@@ -122,16 +122,15 @@ stays off until that's decided.
 
 ### The command bar's start
 
-`settings.commandBarStart` sets what a new tab's command bar (⌘T, with New Tab opening the command bar) lists before
-you type. It has no Settings row: plugins (github.com/mantrakp04/ardia-plugins) and people write it here.
+`settings.commandBarStart` controls which recent tabs the command and address popups list before you type. It has no Settings row: plugins (github.com/mantrakp04/ardia-plugins) and people write it here.
 
 ```json
-"commandBarStart": { "openTabs": { "hidePinned": true, "hideTopApps": true, "limit": 5 } }
+"commandBarStart": { "openTabs": { "hidePinned": true, "hideTopApps": true, "limit": 2 } }
 ```
 
 - `openTabs.hidePinned` leaves out pinned tabs (the sidebar's pinned rows), `openTabs.hideTopApps` leaves out Top Apps
   (the tiles). Typing still finds every open tab.
-- `openTabs.limit` (0–20, default 8) is how many open tabs it lists; 0 lists none.
+- `openTabs.limit` defaults to 3. Lower it to show fewer tabs, or set it to 0 to hide them. Existing values up to 20 are accepted and capped at 3.
 - Any other key, or a value of the wrong type, makes the whole setting invalid. `{}` is Voyager's default.
 - Code: `state/omnibox/commandBarStart.ts`, used by `useOpenTabsStart` (`components/omnibox/dropdownStart.ts`).
   Telemetry: `settings_snapshot` carries `setting_commandBarStart_hidePinned`, `_hideTopApps` and `_limit` with their

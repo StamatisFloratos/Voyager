@@ -3,6 +3,7 @@ import { memo, useState } from "react";
 import { Image, Text, View } from "react-native";
 import { faviconFailed, useAppearanceDark, useFavicon, useFaviconTheme } from "../../state/favicons/favicons";
 import { radius, Symbol, useTheme, weight } from "../ui";
+import { VOYAGER_MARK } from "../ui/brandImages";
 import { bundledSiteIcon } from "./siteIcons";
 
 export const Favicon = memo(function Favicon({
@@ -72,15 +73,14 @@ function hostInitial(url: string): string {
   return Array.from(displayHost(host))[0]?.toLocaleUpperCase() ?? "";
 }
 
-const NEW_TAB_MARK = require("../../../assets/new-tab-mark.png");
-
 export function NewTabIcon({ size = 16 }: { size?: number }) {
   const theme = useTheme();
   return (
     <Image
       key={theme.dark ? "dark" : "light"}
-      source={NEW_TAB_MARK}
-      style={{ width: size, height: size, tintColor: theme.mark, opacity: theme.dark ? 0.28 : 0.3 }}
+      source={VOYAGER_MARK}
+      resizeMode="contain"
+      style={{ width: size, height: size, tintColor: theme.mark, opacity: 0.65 }}
     />
   );
 }

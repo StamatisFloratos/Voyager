@@ -13,7 +13,7 @@ export { isEmptyCardTab };
 
 const store = () => useBrowser.getState();
 const IN_LIST: NewTabTarget = { kind: "list" };
-const shownUnasked = new WeakSet<object>();
+let dismissedPress: { windowId: string; at: number } | undefined;
 
 function barTarget(s: BrowserState, windowId: string, target: NewTabTarget): NewTabTarget {
   if (target.kind !== "list") return target;
@@ -43,20 +43,45 @@ function focusShownNewTabPage(s: BrowserState, windowId: string): boolean {
 
 export function toggleNewTabBar(windowId: string, target: NewTabTarget = IN_LIST): boolean {
   const s = store();
-  if (!barOpensHere(s, windowId)) return target.kind === "list" && focusShownNewTabPage(s, windowId);
-  const panel = s.windowUi[windowId]?.panel;
-  if (panel?.newTab && shownUnasked.delete(panel)) notePageOverlay("newTabBarKept");
-  else if (panel?.newTab) closeNewTabBar(windowId);
-  else s.openPanel(windowId, "", barTarget(s, windowId, target));
-  return true;
+  if (s.windowUi[windowId]?.panel.newTab) {
+    closeNewTabBar(windowId);
+    return true;
+  }
+  return showNewTabBar(windowId, target) || (target.kind === "list" && focusShownNewTabPage(s, windowId));
+}
+
+export function toggleNewTabSearch(windowId: string) {
+  const s = store();
+  if (s.windowUi[windowId]?.panel.newTab) closeNewTabBar(windowId);
+  else s.openPanel(windowId, "", barTarget(s, windowId, IN_LIST));
+}
+
+export function dismissNewTabSearchOnPress(windowId: string, at?: number) {
+  if (!store().windowUi[windowId]?.panel.newTab) return;
+  dismissedPress = at === undefined ? undefined : { windowId, at };
+  store().closePanel(windowId);
+}
+
+export function toggleNewTabBarOnPress(windowId: string, at?: number): boolean {
+  if (dismissedPress?.windowId === windowId && dismissedPress.at === at) {
+    dismissedPress = undefined;
+    if (!store().windowUi[windowId]?.panel.open) focusActivePage(windowId);
+    return true;
+  }
+  return toggleNewTabBar(windowId);
 }
 
 export function closeNewTabBar(windowId: string) {
   const s = store();
   if (!s.windowUi[windowId]?.panel.open) return;
   s.closePanel(windowId);
-  const active = activeTabId(store(), windowId);
-  if (active && store().tabs[active]?.url) void webviews.get(active)?.focus();
+  focusActivePage(windowId);
+}
+
+function focusActivePage(windowId: string) {
+  const s = store();
+  const active = activeTabId(s, windowId);
+  if (active && s.tabs[active]?.url) void webviews.get(active)?.focus();
 }
 
 export function openFromNewTabBar(windowId: string, target: NewTabTarget, url: string) {
@@ -83,9 +108,7 @@ export function showOnceOverEmptyCard(windowId: string, tabId: string) {
   shownOver.add(tabId);
   if (launchTabs.has(tabId) && !NEW_TAB_BAR_POLICY.showOnLaunch) return;
   const s = store();
-  if (activeTabId(s, windowId) !== tabId || s.windowUi[windowId]?.panel.open || !showNewTabBar(windowId)) return;
-  const shown = store().windowUi[windowId]?.panel;
-  if (shown) shownUnasked.add(shown);
+  if (activeTabId(s, windowId) === tabId && !s.windowUi[windowId]?.panel.open) showNewTabBar(windowId);
 }
 
 function dismissBars(except?: string) {

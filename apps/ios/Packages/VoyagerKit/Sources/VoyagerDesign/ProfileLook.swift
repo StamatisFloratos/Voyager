@@ -199,7 +199,8 @@ public struct ProfileLook: Equatable, Hashable, Sendable {
   public init(colorName: String?, themeColors: [String] = [], darkThemeColors: [String]? = nil) {
     let theme = themeColors.compactMap(LookRGB.init(hexString:))
     let darkTheme = darkThemeColors.map { $0.compactMap(LookRGB.init(hexString:)) }.flatMap { $0.isEmpty ? nil : $0 }
-    guard let first = theme.first ?? colorName.flatMap(LookRGB.init(hexString:)) else {
+    let profileColor = colorName == "sandDunes" ? LookRGB(hex: 0xDFD9C4) : colorName.flatMap(LookRGB.init(hexString:))
+    guard let first = theme.first ?? profileColor else {
       self.init(preset: colorName.flatMap { Preset(rawValue: $0.lowercased()) } ?? .plum)
       return
     }

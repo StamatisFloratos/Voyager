@@ -21,6 +21,7 @@ import { isFields, isString, isStringList } from "../../lib/decode";
 import type { SavedObject } from "../../lib/savedDocument";
 import type { JsonSchema } from "../../lib/jsonSchema";
 import { PROVIDERS_SCHEMA } from "../omnibox/providerSchema";
+import { AI_ENGINE_IDS } from "../omnibox/aiDestination";
 import { COMMAND_BAR_START_SCHEMA, isCommandBarStart, type CommandBarStart } from "../omnibox/commandBarStart";
 import { noteAutoHideTabsChosen } from "../telemetry/autoHideTabsChoices";
 
@@ -65,6 +66,7 @@ export const SETTING_SPECS = {
   warnBeforeClosingWindow: flag(true, SYNCED),
   restoreSession: flag(true),
   searchEngine: text("google", SYNCED),
+  defaultAiEngine: oneOf(AI_ENGINE_IDS, "chatgpt", SYNCED),
   customSearchUrl: text("", SYNCED),
   customSearchEngines: shaped<CustomSearchEngine[]>([], (v) => Array.isArray(v) && v.every((e) => hasStrings(e, ["id", "name", "keyword", "url"])), engineRecords(["id", "name", "keyword", "url"]), SYNCED),
   extensionSearchEngines: shaped<ExtensionSearchEngine[]>(

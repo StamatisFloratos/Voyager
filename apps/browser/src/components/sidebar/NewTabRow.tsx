@@ -1,5 +1,5 @@
-import { memo, useState } from "react";
-import { Animated, Pressable, View, type LayoutChangeEvent } from "react-native";
+import { memo, useRef, useState } from "react";
+import { Pressable, View, type LayoutChangeEvent } from "react-native";
 import { Button, ContextMenuArea, radius, space, Symbol, Text, useHover } from "../ui";
 import { layout, useTheme } from "../ui/theme";
 import { HoverSlot } from "../ui/HoverSlot";
@@ -7,10 +7,10 @@ import { newTab } from "../../state/tabs/actions";
 import { useCleanedCount } from "../../state/sidebar/hooks";
 import { openNewTabInSplit } from "../../state/splits/actions";
 import { openOverflowMenu, openSidebarMenu } from "../../state/sidebar/menus";
-import { toggleNewTabBar } from "../../state/omnibox/newTabBar";
+import { toggleNewTabBarOnPress } from "../../state/omnibox/newTabBar";
 import { noteRowPressIn } from "../../state/sidebar/heldTabPress";
-import { modifiersOf } from "../../lib/keys";
-import { useClipped, useShift, type ClipSource } from "./EntryMotion";
+import { modifiersOf, pressStart } from "../../lib/keys";
+import { useClipped, useShift, type ClipSource, type RowShift } from "./EntryMotion";
 import { TAB_ROW, useSidebarTokens } from "./tokens";
 import { SidebarRowLabel } from "./SidebarRow";
 
@@ -23,8 +23,9 @@ const MEASURE_TEXT = { alignSelf: "flex-start" } as const;
 const HINT = { marginRight: space.xxs } as const;
 const MEASURE_OFFSCREEN = { position: "absolute", width: 1000, height: 0, overflow: "hidden", opacity: 0 } as const;
 
-export const NewTabRow = memo(function NewTabRow({ windowId, shift = null, clip = null }: { windowId: string; shift?: Animated.Value | null; clip?: ClipSource | null }) {
+export const NewTabRow = memo(function NewTabRow({ windowId, shift = null, clip = null }: { windowId: string; shift?: RowShift; clip?: ClipSource | null }) {
   const theme = useTheme();
+  const pressedAt = useRef<number>(undefined);
   const tokens = useSidebarTokens();
   const cleaned = useCleanedCount(windowId);
   const { hovered, hoverProps } = useHover();
@@ -52,10 +53,15 @@ export const NewTabRow = memo(function NewTabRow({ windowId, shift = null, clip 
       </View>
       <ContextMenuArea style={{ flex: 1 }} onContextMenu={() => void openSidebarMenu(windowId)}>
         <Pressable
-          onPressIn={() => noteRowPressIn(windowId)}
+          accessibilityRole="button"
+          accessibilityLabel="New Tab"
+          onPressIn={(e) => {
+            pressedAt.current = pressStart(e) ?? e.nativeEvent.timestamp;
+            noteRowPressIn(windowId);
+          }}
           onPress={(e) => {
             if (modifiersOf(e).altKey) openNewTabInSplit(windowId);
-            else toggleNewTabBar(windowId) || newTab(windowId, { newTabCommand: true });
+            else toggleNewTabBarOnPress(windowId, pressedAt.current) || newTab(windowId, { newTabCommand: true });
           }}
         >
           {({ pressed }) => (

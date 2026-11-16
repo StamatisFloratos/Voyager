@@ -1,35 +1,11 @@
 import { tabTitle } from "../../state/browser/model";
 import { recentTabSuggestions, type Suggestion } from "@voyager/core";
 import { useMemo } from "react";
-import { useSettings, useTab, useWindow } from "../../state/browser/hooks";
-import { useProfileHistory } from "../../state/history/hooks";
+import { useSettings, useWindow } from "../../state/browser/hooks";
 import { usePeeks } from "../../state/peek/hooks";
 import { useTabs } from "../../state/tabs/hooks";
 import { openTabsByUse } from "../../state/tabs/tabShare";
-import { withoutFragment } from "../../lib/url";
 import { commandBarTabLimit, keepsOpenTab } from "../../state/omnibox/commandBarStart";
-
-const RECENT = 4;
-
-export function useDropdownStart(enabled: boolean, tabId: string, profileId: string): Suggestion[] {
-  const url = useTab(tabId, (t) => (enabled ? (t?.url ?? "") : ""));
-  const title = useTab(tabId, (t) => (enabled ? (t?.title ?? "") : ""));
-  const favicon = useTab(tabId, (t) => (enabled ? (t?.favicon ?? null) : null));
-  const history = useProfileHistory(enabled ? profileId : null);
-  const recent = useMemo(() => {
-    const seen = new Set(url ? [withoutFragment(url)] : []);
-    const out: Suggestion[] = [];
-    for (const h of [...history].sort((a, b) => b.lastVisit - a.lastVisit)) {
-      const key = withoutFragment(h.url);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push({ kind: "page", url: h.url, title: h.title, favicon: h.favicon, visited: true });
-      if (out.length === RECENT) break;
-    }
-    return out;
-  }, [history, url]);
-  return useMemo(() => (url ? [{ kind: "page" as const, url, title, favicon }, ...recent] : recent), [url, title, favicon, recent]);
-}
 
 const NO_TABS: Suggestion[] = [];
 

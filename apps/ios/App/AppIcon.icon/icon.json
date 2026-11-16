@@ -1,19 +1,19 @@
 {
   "fill": {
-    "solid": "srgb:0.97647,0.96078,0.89020,1.00000"
+    "solid": "srgb:0.97255,0.80392,0.58824,1.00000"
   },
   "groups": [
     {
       "layers": [
         {
           "glass": false,
-          "image-name": "sun.png",
-          "name": "sun"
+          "image-name": "orbit.svg",
+          "name": "Orbit"
         }
       ],
       "shadow": {
         "kind": "neutral",
-        "opacity": 0.5
+        "opacity": 0
       },
       "specular": false,
       "translucency": {
@@ -25,31 +25,13 @@
       "layers": [
         {
           "glass": false,
-          "image-name": "front.png",
-          "name": "front"
+          "image-name": "rainbow.png",
+          "name": "Rainbow"
         }
       ],
       "shadow": {
         "kind": "neutral",
-        "opacity": 0.5
-      },
-      "specular": false,
-      "translucency": {
-        "enabled": false,
-        "value": 0.5
-      }
-    },
-    {
-      "layers": [
-        {
-          "glass": false,
-          "image-name": "back.png",
-          "name": "back"
-        }
-      ],
-      "shadow": {
-        "kind": "neutral",
-        "opacity": 0.5
+        "opacity": 0
       },
       "specular": false,
       "translucency": {

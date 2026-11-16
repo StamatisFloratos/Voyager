@@ -40,8 +40,8 @@ export function barMenuItems(
     return menuSections(
       openAllItems(target.links),
       [
-        { id: "addGroup", title: "Add to Sidebar as Group", symbol: "sidebar.left", enabled: target.makesGroup },
-        target.restoresArc && { id: "restoreArc", title: "Restore Arc Folders as Groups" },
+        { id: "addGroup", title: "Add to Sidebar as Category", symbol: "sidebar.left", enabled: target.makesGroup },
+        target.restoresArc && { id: "restoreArc", title: "Restore Arc Folders as Categories" },
       ],
       [
         { id: "rename", title: "Rename…", symbol: "pencil" },

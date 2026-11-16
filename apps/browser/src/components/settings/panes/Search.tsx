@@ -1,5 +1,5 @@
 import { engineHost, type SearchEngine } from "@voyager/core";
-import { Box, Button, DialogActions, DialogTitle, Sheet, space, Symbol, Text, TextField, Toggle } from "../../ui";
+import { Box, Button, DialogActions, DialogTitle, PopUp, Sheet, space, Symbol, Text, TextField, Toggle } from "../../ui";
 import { useState } from "react";
 import { View } from "react-native";
 import { useTheme } from "../../ui/theme";
@@ -12,6 +12,9 @@ import { Favicon } from "../../favicon/Favicon";
 import { FormField, Group, Row, SectionHeader, SettingToggle } from "../Form";
 import { closeSettingsSheet, showSettingsSheet } from "../../../state/settings/sheet";
 import { openSettings } from "../../../state/settings/settingsWindows";
+import { AI_ENGINE_IDS, aiEngine } from "../../../state/omnibox/aiDestination";
+
+const AI_OPTIONS = AI_ENGINE_IDS.map((value) => ({ value, title: aiEngine(value).name }));
 
 function manageExtensionsOf(profile: string) {
   const profileId = currentProfileOrder().find((id) => currentEngineProfile(id) === profile);
@@ -21,6 +24,7 @@ function manageExtensionsOf(profile: string) {
 export function SearchPane() {
   const engines = useSettings(searchEngines);
   const selectedId = useSettings((s) => defaultSearchEngine(s).id);
+  const assistant = useSettings((s) => s.defaultAiEngine);
   const controlling = useSettings(controllingSearchExtension);
   const suggestions = useSettings((s) => s.searchSuggestions);
   const theme = useTheme();
@@ -31,6 +35,11 @@ export function SearchPane() {
 
   return (
     <View>
+      <Group>
+        <Row anchor="search.defaultAiEngine">
+          <PopUp value={assistant} options={AI_OPTIONS} onChange={(defaultAiEngine) => updateSettings({ defaultAiEngine })} />
+        </Row>
+      </Group>
       <SectionHeader anchor="search.defaultEngine" />
       <Group>
         {controlling && (

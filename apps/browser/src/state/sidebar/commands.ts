@@ -5,6 +5,7 @@ import { activeTabId, pinSection, plural } from "../browser/model";
 import { awayFromPin, selectedTabIds } from "../pins/organize";
 import { groupOf } from "../pins/tabGrouping";
 import { newGroupWithSelection, openIconPicker, startRename } from "./actions";
+import { COMMANDS } from "../commands/commandCatalog";
 import { closeAllTabs } from "./clearTabs";
 import { toggleNewTabBar } from "../omnibox/newTabBar";
 import { movePinnedTitle, togglePinnedRows } from "./movePinned";
@@ -59,7 +60,11 @@ export function runSidebarCommand(command: BrowserCommand, arg: string | null, w
 
 export function sidebarMenuState(s: BrowserState, windowId: string | undefined) {
   const disabled: string[] = [];
-  const titles: Record<string, string> = {};
+  const titles: Record<string, string> = {
+    newTabInGroup: COMMANDS.newTabInGroup.title,
+    newGroupWithTabs: COMMANDS.newGroupWithTabs.title,
+    closeTabGroup: COMMANDS.closeTabGroup.title,
+  };
   const tab = windowId ? s.tabs[activeTabId(s, windowId) ?? ""] : undefined;
   if (windowId) {
     if (!tab || !awayFromPin(tab)) disabled.push("returnToPinnedUrl");
@@ -67,7 +72,7 @@ export function sidebarMenuState(s: BrowserState, windowId: string | undefined) 
     const selected = selectedTabIds(s, windowId);
     const forGroup = selected.filter((id) => pinSection(s.tabs[id]) !== "tile");
     if (!forGroup.length) disabled.push("newGroupWithTabs");
-    if (forGroup.length > 1) titles.newGroupWithTabs = `New Group with ${plural(forGroup.length, "Tab")}`;
+    if (forGroup.length > 1) titles.newGroupWithTabs = `New Category with ${plural(forGroup.length, "Tab")}`;
     const bar = s.windowUi[windowId]?.panel;
     if (selected.length > 1 && !bar?.open && !bar?.newTab) titles.closeTab = `Close ${plural(selected.length, "Tab")}`;
   }

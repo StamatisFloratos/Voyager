@@ -40,5 +40,13 @@ export const routeLinkTabs = (urls: string[]) => call("tabs.routeLinkTabs", { ur
 
 export const onTabStripTransaction = (listener: (tx: TabStripTransaction) => void) => on("tabs.strips", listener);
 export const tabStrips = () => call("tabs.strips");
-export const reportPageCommits = (on: boolean) => call("tabs.reportCommits", { on });
+let commitObservers = 0;
+
+export function observePageCommits() {
+  if (++commitObservers === 1) void call("tabs.reportCommits", { on: true }).catch(() => {});
+  return () => {
+    if (--commitObservers === 0) void call("tabs.reportCommits", { on: false }).catch(() => {});
+  };
+}
+
 export const lastTabClosesWindow = () => call("tabs.lastTabPolicy").then((r) => r.closesWindow);

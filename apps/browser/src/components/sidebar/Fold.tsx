@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Animated, View } from "react-native";
 import { curve } from "../ui/motion";
+import { reduceMotion } from "../ui/reduceMotion";
 import { layout } from "../ui/theme";
 import { FoldedAway } from "./hoverController";
 import { SIDEBAR_MOTION } from "./tokens";
@@ -18,6 +19,12 @@ export function useFold(collapsed: boolean): FoldState {
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
+      return;
+    }
+    if (reduceMotion()) {
+      open.setValue(collapsed ? 0 : 1);
+      setSettled(collapsed);
+      setRunning(false);
       return;
     }
     setRunning(true);

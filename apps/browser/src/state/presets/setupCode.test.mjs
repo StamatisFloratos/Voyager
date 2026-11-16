@@ -138,3 +138,11 @@ test("a Helium preset round-trips and the presets before it keep their codes", (
   assert.deepEqual(decodeSetupCode(encodeSetupCode(helium)), { ok: true, choices: helium });
   for (const [preset, index] of [["edge", 7], ["fresh", 8], ["helium", 9]]) assert.match(encodeSetupCode({ preset, settings: {} }), new RegExp(`^${SETUP_CODE_PREFIX}p${index}[^0-9]`));
 });
+
+test("Sand Dunes can be shared by setup code and existing colour codes keep their meaning", () => {
+  const sand = { color: "sandDunes", settings: {} };
+  assert.equal(encodeSetupCode(sand), signed("x9"));
+  assert.deepEqual(decodeSetupCode(signed("x9")), { ok: true, choices: sand });
+  assert.deepEqual(describeSetupChoices(sand), ["Sand Dunes theme"]);
+  assert.deepEqual(decodeSetupCode(signed("x8")), { ok: true, choices: { color: "neutral", settings: {} } });
+});

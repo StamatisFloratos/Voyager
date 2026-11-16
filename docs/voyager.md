@@ -12,4 +12,14 @@ ArdiaCore is a dependency. The Apache and GPL notices, engine source, hashes, ar
 
 Voyager uses a separate app and profile, but ad-hoc builds use Chromium’s development keychain mode. Passkeys and payment features that require Apple entitlements are not available as in a properly signed browser. Before a daily-use release, supply your own signing and provisioning, build the engine with fork-owned secure-storage identities, test real credentials with a disposable profile, and configure and test your own signed update feed. Do not install upstream Ardia updates into Voyager.
 
-The existing icon and screenshots are upstream artwork. The old site, videos, release notes and infrastructure under `apps/site`, `apps/videos`, `docs/release-notes` and `infra` describe Ardia, including real downloads and historical releases. They are not a Voyager service or release history. The upstream GitHub deployment, CLA, release and moderation workflows are archived in `.github/upstream-workflows`; they do not run on this branch.
+The [Voyager app icon and traced mark](brand/voyager/) supply the browser and its companion targets. Historical screenshots, the old site, dashboard, videos, release notes and infrastructure describe Ardia, including its downloads and releases. The upstream GitHub deployment, CLA, release and moderation workflows are archived in `.github/upstream-workflows`; they do not run on this branch.
+
+## Page loading on macOS
+
+On a slow fresh navigation, the macOS pane can start its mesh while the new page is still connecting. A page that paints before the mesh starts stays visible as its remaining content loads. This also applies to cached reloads. Once the mesh appears, it covers the web view and its scrollbar, builds over 135 ms and stays opaque for at least 200 ms including its entrance. It dissolves over 185 ms once the viewport is usable. Time spent waiting for the page counts toward the minimum; it does not delay the network or the page.
+
+Visible hero images, video posters and artwork in a gallery's visible cards count toward readiness. Small, read-only color samples update the mesh independently. Below-the-fold assets and background requests can continue after the reveal, and a stalled renderer or missing resource has a bounded wait. Clicks, typing and scrolling pass through to the page throughout. Reduce Motion skips the mesh. Normal reload (⌘R) uses the browser cache.
+
+## ChatGPT in the command bar
+
+Choosing ChatGPT opens a normal chat with your prompt filled in. Press Send in ChatGPT when you’re ready. The same behavior applies to `!chatgpt` and `!cgpt`.

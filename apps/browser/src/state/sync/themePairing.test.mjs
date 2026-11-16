@@ -273,7 +273,7 @@ test("picking a preset while adopting keeps the preset when the late theme arriv
   const { choosePresetColor } = await import("../profiles/themeActions.ts");
   await c.with(async () => {
     S().updateProfile("default", { theme: undefined });
-    choosePresetColor("default", "blue", engineC.adoptProfileTheme);
+    choosePresetColor("default", "sandDunes", engineC.adoptProfileTheme);
     await engineC.syncNow();
   });
   downloading.clear();
@@ -281,11 +281,12 @@ test("picking a preset while adopting keeps the preset when the late theme arriv
     await engineC.syncNow();
     await engineC.syncNow();
     assert.equal(S().profiles.default.theme, null, "the user's preset stays");
-    assert.equal(S().profiles.default.color, "blue");
+    assert.equal(S().profiles.default.color, "sandDunes");
   });
   await a.with(async () => {
     await engineA.syncNow();
     assert.equal(S().profiles.default.theme, null, "and reaches the other Mac");
+    assert.equal(S().profiles.default.color, "sandDunes");
   });
 });
 

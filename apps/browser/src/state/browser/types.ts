@@ -89,7 +89,7 @@ export type TabLive = {
 
 export type GroupColor = TabGroupColor | "none";
 
-export type ClosedGroupInfo = Pick<TabGroup, "id" | "name" | "icon" | "color"> & { pinned?: boolean };
+export type ClosedGroupInfo = Pick<TabGroup, "id" | "name" | "icon" | "color" | "tidyKey"> & { pinned?: boolean };
 
 export type TabGroup = {
   id: string;
@@ -103,6 +103,7 @@ export type TabGroup = {
   tabIds: string[];
   createdAt: number;
   autoUngroup?: boolean;
+  tidyKey?: string;
   pinnedOpenerId?: string;
   pinKey?: string;
   parentId?: string;
@@ -141,7 +142,7 @@ export type TabSnapshot = Pick<
   Tab,
   "url" | "title" | "favicon" | "pin" | "muted" | "zoom" | "customTitle" | "customIcon" | "profileId"
 > &
-  Partial<Pick<Tab, "pinnedUrl" | "engine" | "lastActiveAt">>;
+  Partial<Pick<Tab, "pinnedUrl" | "engine" | "lastActiveAt">> & { restoreByUrl?: true };
 
 export type ClosedTab = {
   kind: "tab";
@@ -181,7 +182,7 @@ export type NestedGroupSnapshot = Pick<TabGroup, "id" | "name" | "icon" | "color
 export type ClosedGroup = {
   kind: "group";
   id: string;
-  group: Pick<TabGroup, "id" | "name" | "icon" | "color" | "pinned"> & { parentId?: string };
+  group: Pick<TabGroup, "id" | "name" | "icon" | "color" | "pinned" | "tidyKey"> & { parentId?: string };
   tabs: TabSnapshot[];
   tabIds?: string[];
   nested?: NestedGroupSnapshot[];

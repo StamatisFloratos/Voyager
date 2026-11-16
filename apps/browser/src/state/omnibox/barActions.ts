@@ -50,7 +50,7 @@ const DEFS: ActionDef[] = [
   { command: "searchTabs" },
   { command: "cleanUpTabs", keywords: ["tidy tabs"] },
   { command: "tidyPins", keywords: ["tidy pinned tabs", "organize pins", "pinned folders", "remove duplicate pins"], needs: "pins" },
-  { command: "newGroupWithTabs", keywords: ["tab group"], needs: "tab" },
+  { command: "newGroupWithTabs", keywords: ["tab group", "tab category"], needs: "tab" },
   { command: "reload", keywords: ["refresh"], needs: page },
   { command: "forceReload", keywords: ["hard reload", "hard refresh"], needs: page },
   { command: "toggleMute", title: ({ s, tab }) => muteTitle(tab ? muteState(s, tab) : null), keywords: ["mute", "unmute", "silence", "mute tab"], needs: page },

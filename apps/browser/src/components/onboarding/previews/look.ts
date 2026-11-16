@@ -1,4 +1,4 @@
-import { nearestPreset, PROFILE_COLORS, themeFor, type Theme } from "../../ui/theme";
+import { nearestPreset, PROFILE_COLORS, profileTheme, themeFor, tintTheme, type Theme } from "../../ui/theme";
 import { opaqueCard } from "../../ui/opaqueCard";
 import { toolbarPalette, type ToolbarPalette } from "../../ui/toolbarColors";
 import { backdropTint, opaqueTint, tintForHue } from "../../../lib/windowTint";
@@ -10,6 +10,7 @@ import { mockPage } from "./tokens";
 export type Look = {
   dark: boolean;
   t: Theme;
+  sidebar: Theme;
   tint: readonly [string, string];
   card: string;
   page: string;
@@ -34,11 +35,12 @@ export function lookFor(dark: boolean, accent: string, palette: BasePalette | nu
   if (cached) return cached;
   const mode = dark ? "dark" : "light";
   const exact = (Object.keys(PROFILE_COLORS) as ProfileColor[]).find((c) => PROFILE_COLORS[c].swatch.toLowerCase() === accent.toLowerCase());
-  const t = themeFor(`${exact ?? nearestPreset(accent)}:${mode}`, palette);
+  const t = exact ? profileTheme({ color: exact }, dark, "own", palette) : themeFor(`${nearestPreset(accent)}:${mode}`, palette);
   const tint = exact ? t.windowTint : opaqueTint(backdropTint(tintForHue(accent), false), dark);
   const look: Look = {
     dark,
     t,
+    sidebar: tintTheme(t),
     tint,
     card: opaqueCard({ card: t.card, windowTint: tint }),
     ...mockPage[mode],

@@ -1,6 +1,7 @@
 import type { AreaLightPalette } from "@voyager/shaders";
 import type { ProfileColor } from "../../lib/profileLook";
 import { parseColor } from "../../lib/color";
+import { sandDunes } from "./themes/tokens";
 
 export function withAlpha(color: string, alpha: number): string {
   const [r, g, b] = parseColor(color);
@@ -277,6 +278,7 @@ export const PROFILE_COLORS: Record<ProfileColor, ProfileColorSpec> = {
   yellow: { name: "Yellow", swatch: "#E3AC38", palette: "yellow" },
   green: { name: "Green", swatch: "#3EB489", palette: "green" },
   neutral: { name: "Neutral", swatch: "#8E8E93", palette: null },
+  sandDunes: { name: "Sand Dunes", swatch: sandDunes.swatch, palette: "yellow" },
 };
 
 export const INCOGNITO_TINT = "#3A3A3C";

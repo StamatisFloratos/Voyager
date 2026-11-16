@@ -1,74 +1,33 @@
-import { createContext, memo, useContext, useEffect, useState } from "react";
+import { memo, useContext, useState } from "react";
 import { Animated, Pressable, View } from "react-native";
 import { useTheme } from "../ui/theme";
 import { useGroup, usePageProfileId, useWindowId } from "../../state/browser/hooks";
 import { updateGroup } from "../../state/groups/actions";
-import { noteGroupHeaderHide } from "../../state/telemetry/usage";
 import { useGroupLabel } from "../../state/groups/hooks";
 import { useSelectionInGroup } from "../../state/pins/hooks";
 import { newCapture } from "../../state/sidebar/listCapture";
-import { useCapturedGroupEntries, useGroupFirstTabIcon, useGroupTabIds, useKeptEntries, useShowsExtraTabs } from "../../state/sidebar/hooks";
+import { useCapturedGroupEntries, useGroupTabIds, useKeptEntries } from "../../state/sidebar/hooks";
 import { MeetingTimeLabel, useMeetingCountdown } from "../live/MeetingCountdown";
-import { HoverSlot } from "../ui/HoverSlot";
-import { Button, ContextMenuArea, FadeLabel, font, ink, space, Symbol, Text, weight, withAlpha } from "../ui";
+import { ContextMenuArea, weight } from "../ui";
 import { commitRename, endRename } from "../../state/sidebar/actions";
 import { useDragFolded, useDragItem, useDropInto } from "./DragProvider";
 import { useShift, type EntryMotion } from "./EntryMotion";
 import { Fold, useFold } from "./Fold";
-import { GROUP_BORDER, GROUP_INNER_RADIUS, GROUP_INDENT, GROUP_INSET, GROUP_RADIUS, groupMembersPadBottom } from "./geometry";
+import { GROUP_BORDER, GROUP_INDENT, groupMembersPadBottom } from "./geometry";
 import { entryHeightNow, foldedGroupHeight, headGap } from "../../state/sidebar/geometry";
 import { dismissHover } from "../../state/sidebar/hover";
-import { useGroupHover, useRowHover } from "./hoverController";
-import { HOVER_CARD_FADE_MS } from "./hoverMotion";
+import { useRowHover } from "./hoverController";
 import { GhostSlot, ListMotionContext, useGroupMotion } from "./ListMotion";
-import { pressGroupClose, useGroupCloseControlWhile } from "../../state/sidebar/closeControl";
 import { openGroupMenu } from "../../state/sidebar/menus";
 import { registerRow, useSidebarUi } from "../../state/sidebar/sidebarUi";
-import { TabIcon } from "./TabIcon";
+import { CATEGORY_ROW, CategoryHeading } from "./CategoryHeading";
 import { RenameField, SplitRowItem, TabRowItem } from "./TabRow";
-import { groupBoxAtRest, groupSurface, TAB_ROW, TABULAR_NUMS, useSidebarTokens } from "./tokens";
-import { SidebarRowSurface } from "./SidebarRow";
-import { curve } from "../ui/motion";
+import { groupTint } from "./tokens";
+import { ListActionMotionContext } from "./listActionMotion";
 import { entryKey, parseEntry } from "../../state/sidebar/entryKey";
 import { LiveFolderBlock } from "./LiveFolderBlock";
 import { tailKey, type RowSection } from "./dragModel";
 import { SharedFolderMark } from "./SharedFolderMark";
-
-const BOX_FADE = curve.fade;
-const NO_GROUPS: ReadonlySet<string> = new Set();
-
-type ReportInnerHover = (groupId: string, hovered: boolean) => void;
-const InnerGroupHover = createContext<ReportInnerHover | null>(null);
-
-function useInnermostHover(groupId: string, hovered: boolean) {
-  const reportToParent = useContext(InnerGroupHover);
-  const [hoveredInside, setHoveredInside] = useState(NO_GROUPS);
-  const [reportInside] = useState(() => (id: string, on: boolean) =>
-    setHoveredInside((was) => {
-      if (was.has(id) === on) return was;
-      const next = new Set(was);
-      if (on) next.add(id);
-      else next.delete(id);
-      return next;
-    }),
-  );
-  useEffect(() => {
-    if (!reportToParent || !hovered) return;
-    reportToParent(groupId, true);
-    return () => reportToParent(groupId, false);
-  }, [reportToParent, hovered, groupId]);
-  return { innermost: hovered && hoveredInside.size === 0, reportInside };
-}
-
-function useBoxOpacity(shown: boolean) {
-  const [opacity] = useState(() => new Animated.Value(shown ? 1 : 0));
-  useEffect(() => {
-    const fade = Animated.timing(opacity, { toValue: shown ? 1 : 0, duration: HOVER_CARD_FADE_MS, easing: BOX_FADE, useNativeDriver: true });
-    fade.start();
-    return () => fade.stop();
-  }, [shown]);
-  return opacity;
-}
 
 export const GroupBlock = memo(function GroupBlock({
   groupId,
@@ -82,10 +41,8 @@ export const GroupBlock = memo(function GroupBlock({
   motion?: EntryMotion | null;
 }) {
   const windowId = useWindowId();
-  const tokens = useSidebarTokens();
   const stored = useGroup(groupId, (g) => !!g?.collapsed);
   const collapsed = useDragFolded(entryKey("group", groupId)) || stored;
-  const color = useGroup(groupId, (g) => g?.color ?? null);
   const tabIds = useGroupTabIds(groupId);
   const [captured] = useState(newCapture);
   const entries = useCapturedGroupEntries(groupId, captured);
@@ -100,47 +57,32 @@ export const GroupBlock = memo(function GroupBlock({
   const scope = useContext(ListMotionContext);
   const motion = useGroupMotion(windowId, profileId, groupId, entries, captured, section === "list" && !parentGroup ? scope : { enabled: scope.enabled, slideBelow: null }, scope.enabled && !collapsed);
   const [moved, movedRef] = useShift(own?.shift ?? null);
-  const box = useGroupHover(windowId, groupId);
-  const dropInto = useDropInto() === groupId;
-  const nested = useInnermostHover(groupId, box.hovered);
-  const boxOpacity = useBoxOpacity(nested.innermost || dropInto || groupBoxAtRest(color));
-
-  const { fill, stroke } = groupSurface(color, tokens);
-
   return (
     <Animated.View ref={wrapper.ref} style={wrapper.style}>
-      <View {...moved} {...box.hoverProps} ref={movedRef} style={[{ paddingVertical: GROUP_BORDER }, moved.style as object]}>
-        <Animated.View
-          pointerEvents="none"
-          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, borderRadius: GROUP_RADIUS, backgroundColor: fill, borderWidth: GROUP_BORDER, borderColor: stroke, opacity: boxOpacity }}
-        />
+      <View {...moved} ref={movedRef} style={[{ paddingVertical: GROUP_BORDER, paddingLeft: parentGroup ? GROUP_INDENT : 0 }, moved.style as object]}>
         <View ref={headerRef} {...handle}>
           <GroupHeader groupId={groupId} windowId={windowId} collapsed={collapsed} open={fold.open} />
         </View>
-        <InnerGroupHover.Provider value={nested.reportInside}>
-          <Fold
-            fold={fold}
-            collapsed={collapsed}
-            entries={motion.slots(entries).map((slot) =>
-              "ghost" in slot
-                ? { key: slot.ghost.key, ghost: true, node: <GhostSlot snapshot={slot.ghost.snapshot} top={slot.top} opacity={slot.ghost.opacity} /> }
-                : {
-                    key: slot.entry,
-                    node: (
-                      <SidebarEntry entry={slot.entry} section={section} parentGroup={groupId} motion={motion.motion(slot.entry)} />
-                    ),
-                  },
-            )}
-            keep={keptEntries}
-            rowHeight={(key) => entryHeightNow(windowId, profileId, key)}
-            padTop={headGap(collapsed && keptEntries.length ? keptEntries[0] : entries[0])}
-            padBottom={groupMembersPadBottom(collapsed ? keptEntries.length : entries.length)}
-            indent={GROUP_INDENT}
-            indentEnd={GROUP_INSET}
-            mountClosed={selectedInside}
-            footer={<Animated.View ref={tail.wrapper.ref} style={tail.wrapper.style} />}
-          />
-        </InnerGroupHover.Provider>
+        <Fold
+          fold={fold}
+          collapsed={collapsed}
+          entries={motion.slots(entries).map((slot) =>
+            "ghost" in slot
+              ? { key: slot.ghost.key, ghost: true, node: <GhostSlot snapshot={slot.ghost.snapshot} top={slot.top} opacity={slot.ghost.opacity} /> }
+              : {
+                  key: slot.entry,
+                  node: (
+                    <SidebarEntry entry={slot.entry} section={section} parentGroup={groupId} motion={motion.motion(slot.entry)} />
+                  ),
+                },
+          )}
+          keep={keptEntries}
+          rowHeight={(key) => entryHeightNow(windowId, profileId, key)}
+          padTop={headGap(collapsed && keptEntries.length ? keptEntries[0] : entries[0])}
+          padBottom={groupMembersPadBottom(collapsed ? keptEntries.length : entries.length)}
+          mountClosed={selectedInside}
+          footer={<Animated.View ref={tail.wrapper.ref} style={tail.wrapper.style} />}
+        />
         {motion.tail ? <Animated.View style={{ marginTop: motion.tail }} /> : null}
       </View>
     </Animated.View>
@@ -152,7 +94,7 @@ export const SidebarEntry = memo(function SidebarEntry({
   section,
   rowSection = section,
   parentGroup,
-  motion = null,
+  motion: listMotion = null,
 }: {
   entry: string;
   section: "list" | "pinnedGroups";
@@ -161,6 +103,7 @@ export const SidebarEntry = memo(function SidebarEntry({
   motion?: EntryMotion | null;
 }) {
   const windowId = useWindowId();
+  const motion = useContext(ListActionMotionContext).get(entry) ?? listMotion;
   const { kind, id } = parseEntry(entry);
   if (kind === "live") return <LiveFolderBlock folderId={id} windowId={windowId} />;
   if (kind === "group") return <GroupBlock groupId={id} section={section} parentGroup={parentGroup} motion={motion} />;
@@ -168,23 +111,22 @@ export const SidebarEntry = memo(function SidebarEntry({
   return <TabRowItem tabId={id} section={rowSection} parentGroup={parentGroup} motion={motion} />;
 });
 
-const MEASURE_LABEL = { opacity: 0, fontVariant: TABULAR_NUMS } as const;
-
 function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; windowId: string; collapsed: boolean; open: Animated.Value }) {
   const theme = useTheme();
-  const tokens = useSidebarTokens();
   const group = useGroup(groupId, (g) => g);
   const label = useGroupLabel(groupId);
-  const firstTab = useGroupFirstTabIcon(groupId);
   const renaming = useSidebarUi((u) => u.renaming?.kind === "group" && u.renaming.id === groupId);
   const dropInto = useDropInto() === groupId;
-  const { hovered, hoverProps } = useRowHover(windowId, collapsed && !renaming ? { kind: "group", id: groupId } : null);
+  const { hoverProps } = useRowHover(windowId, collapsed && !renaming ? { kind: "group", id: groupId } : null);
   const countdown = useMeetingCountdown(groupId);
-  const closeControl = useGroupCloseControlWhile(groupId, hovered && !renaming);
-  const profileId = usePageProfileId();
-  const showsExtra = useShowsExtraTabs(windowId, profileId, groupId);
   if (!group) return null;
   const target = { kind: "group" as const, id: groupId };
+
+  const tint = groupTint(group.color);
+  const toggle = () => {
+    dismissHover();
+    if (!renaming) updateGroup(groupId, { collapsed: !collapsed });
+  };
 
   return (
     <View ref={(v) => registerRow(windowId, groupId, v)} {...hoverProps}>
@@ -195,58 +137,34 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
         }}
       >
         <Pressable
-          onPress={() => {
-            dismissHover();
-            if (renaming) return;
-            if (!collapsed || !showsExtra) return updateGroup(groupId, { collapsed: !collapsed });
-            noteGroupHeaderHide();
-            updateGroup(groupId, { shownTabIds: [] });
-          }}
+          focusable={!renaming}
+          accessibilityRole="button"
+          accessibilityLabel={label}
+          accessibilityState={{ expanded: !collapsed }}
+          aria-expanded={!collapsed}
+          onAccessibilityTap={toggle}
+          onPress={toggle}
         >
-          {() => (
-            <SidebarRowSurface fill={dropInto ? theme.tabPressed : ink.clear} cornerRadius={GROUP_INNER_RADIUS}>
-              {group.icon || firstTab ? (
-                <TabIcon url={firstTab?.url ?? ""} favicon={firstTab?.favicon} icon={group.icon ?? firstTab?.customIcon} profileId={firstTab?.profileId} />
-              ) : (
-                <View style={{ width: 16 }} />
-              )}
-              {renaming ? (
-                <RenameField
-                  initial={group.name}
-                  placeholder={label}
-                  color={tokens.groupTitle}
-                  weight={weight.medium}
-                  onDone={(text) => (text === null ? endRename(target) : commitRename(target, text))}
-                />
-              ) : (
-                <Animated.View style={{ flex: 1, height: TAB_ROW.titleHeight, marginLeft: TAB_ROW.titleGap, flexDirection: "row", alignItems: "center", transform: [{ rotate: countdown.rotate }] }}>
-                  <View style={{ flexShrink: 1, height: TAB_ROW.titleHeight, paddingRight: space.m, justifyContent: "center" }}>
-                    <Text lines={1} weight="medium" style={MEASURE_LABEL}>
-                      {label}
-                    </Text>
-                    <FadeLabel text={label} fontSize={font.body.fontSize} weight="medium" color={tokens.groupTitle} style={{ position: "absolute", left: 0, right: 0, top: 0, height: TAB_ROW.titleHeight }} />
-                  </View>
-                  <SharedFolderMark groupId={groupId} />
-                  <Animated.View
-                    style={{
-                      width: 10,
-                      height: 10,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transform: [{ rotate: open.interpolate({ inputRange: [0, 1], outputRange: ["-90deg", "0deg"] }) }],
-                    }}
-                  >
-                    <Symbol name="chevron.down" size={9} weight="semibold" color={withAlpha(tokens.groupTitle, 0.5)} style={{ width: 10, height: 10 }} />
-                  </Animated.View>
+          {renaming ? (
+            <View style={CATEGORY_ROW}>
+              <RenameField
+                flush
+                initial={group.name}
+                placeholder={label}
+                color={theme.textSecondary}
+                weight={weight.semibold}
+                onDone={(text) => (text === null ? endRename(target) : commitRename(target, text))}
+              />
+            </View>
+          ) : (
+            <CategoryHeading label={label} open={open} tint={tint} dropTarget={dropInto}>
+              <SharedFolderMark groupId={groupId} />
+              {countdown.label ? (
+                <Animated.View style={{ transform: [{ rotate: countdown.rotate }] }}>
+                  <MeetingTimeLabel label={countdown.label} urgent={countdown.urgent} />
                 </Animated.View>
-              )}
-              <HoverSlot
-                hovered={hovered && !renaming}
-                hover={closeControl && <Button variant="icon" icon={closeControl.icon} size="s" weight="semibold" onPress={() => pressGroupClose(groupId)} tooltip={closeControl.tooltip} />}
-              >
-                {countdown.label && !renaming ? <MeetingTimeLabel label={countdown.label} urgent={countdown.urgent} /> : null}
-              </HoverSlot>
-            </SidebarRowSurface>
+              ) : null}
+            </CategoryHeading>
           )}
         </Pressable>
       </ContextMenuArea>

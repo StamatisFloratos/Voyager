@@ -25,8 +25,8 @@ const offInLittleArdia = { littleArdia: "off" } as const;
 const windowOffInLittleArdia = { scope: "window", littleArdia: "off" } as const;
 
 export const COMMANDS = {
-  newTab: { title: "New Tab", symbol: "plus", keys: ["⌘T"] },
-  newWindow: { title: "New Window", symbol: "macwindow", keys: ["⌘N"] },
+  newTab: { title: "New Tab", symbol: "plus", keys: ["⌘T"], variants: { search: { title: "New Tab Search", keys: ["⌘N"] } } },
+  newWindow: { title: "New Window", symbol: "macwindow" },
   newIncognitoWindow: { title: "New Incognito Window", symbol: "eyeglasses", keys: ["⇧⌘N"] },
   newLittleArdia: { title: "New Little Voyager Window", keys: ["⌥⌘N"] },
   toggleOpenLinksInLittleArdia: { title: "Open Links from Other Apps in Main Window" },
@@ -114,8 +114,8 @@ export const COMMANDS = {
   bookmarkAllTabs: { title: "Bookmark All Tabs…", keys: ["⇧⌘D"], ...offInLittleArdia },
   setBookmarksBar: { chooses: "bookmarksBar", variants: { always: { title: "Always" }, newTab: { title: "On New Tab Only" }, never: { title: "Never" } } },
   toggleBookmarksBar: { title: "Toggle Bookmarks Bar", symbol: "menubar.rectangle", keys: ["⇧⌘B"] },
-  newTabInGroup: { title: "New Tab in Group", keys: ["⌥⌘T", "⌃⌘C"], ...windowOffInLittleArdia },
-  newGroupWithTabs: { title: "New Group with Tab", symbol: "folder.badge.plus", keys: ["⌃⌘N", "⌃⌘P"], ...windowOffInLittleArdia },
+  newTabInGroup: { title: "New Tab in Category", keys: ["⌥⌘T", "⌃⌘C"], ...windowOffInLittleArdia },
+  newGroupWithTabs: { title: "New Category with Tab", symbol: "folder.badge.plus", keys: ["⌃⌘N", "⌃⌘P"], ...windowOffInLittleArdia },
   cleanUpTabs: { title: "Clean Up Tabs", symbol: "sparkles", keys: ["⌥⌘K"], ...windowOffInLittleArdia },
   tidyPins: { title: "Tidy Pins", symbol: "sparkles" },
   searchTabs: { title: "Search Tabs…", symbol: "magnifyingglass", keys: ["⇧⌘A"], ...windowOffInLittleArdia },
@@ -154,7 +154,7 @@ export const COMMANDS = {
   caretBrowsing: { title: "Caret Browsing", keys: ["F7"], ...pageInLittleArdia },
   moveTabDown: { title: "Move Tab Down", keys: ["⌃⇧⇟"], ...windowOffInLittleArdia },
   moveTabUp: { title: "Move Tab Up", keys: ["⌃⇧⇞"], ...windowOffInLittleArdia },
-  closeTabGroup: { title: "Close Group", keys: ["⌃⌘W"], ...windowOffInLittleArdia },
+  closeTabGroup: { title: "Close Category", keys: ["⌃⌘W"], ...windowOffInLittleArdia },
   openProfileMenu: { title: "Show Profiles Menu", keys: ["⇧⌘M"], ...inWindow },
 } as const satisfies Record<BrowserCommand, CommandSpec>;
 

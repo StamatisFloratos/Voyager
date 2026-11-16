@@ -4,6 +4,7 @@ import { test } from "node:test";
 globalThis.__DEV__ = false;
 
 const { inkOn, profileTheme, scopedTheme, surfaceTheme, tintTheme, PROFILE_COLORS } = await import("./theme.ts");
+const { opaqueCard } = await import("./opaqueCard.ts");
 const { arcSelectedFill, colorRoles } = await import("./tokens.ts");
 const { luminance, over } = await import("../../lib/color.ts");
 const { selectionLightnessDelta, visibleSelection, MIN_SELECTION_LIGHTNESS } = await import("../../lib/selectionContrast.ts");
@@ -13,6 +14,7 @@ const flat = (r, g, b, mode) => {
   return { stops: [{ x: 0.2, y: 0.2, color }, { x: 0.8, y: 0.8, color }], intensity: 0.6, mode, grain: 0, texture: "grain", translucency: 1 };
 };
 
+const appearanceFollowing = Object.keys(PROFILE_COLORS).filter((color) => color !== "sandDunes");
 const GREYS = [0, 0.02, 0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 0.95, 0.98, 1];
 const TINTED = [[0.02, 0.03, 0.1], [0.1, 0.01, 0.03], [1, 0.98, 0.92], [0.9, 1, 0.95], [0.05, 0.1, 0.06]];
 
@@ -21,9 +23,9 @@ const customThemes = () =>
     ["dark", "light"].map((mode) => ({ label: `${[r, g, b]} ${mode}`, theme: profileTheme({ color: "neutral", theme: flat(r, g, b, mode) }, mode === "dark") })),
   );
 
-test("built-in presets keep Dia's selected-tab fill, neutral included", () => {
+test("appearance-following presets keep Dia's selected-tab fill, neutral included", () => {
   for (const dark of [true, false])
-    for (const color of Object.keys(PROFILE_COLORS)) {
+    for (const color of appearanceFollowing) {
       const theme = profileTheme({ color }, dark);
       const base = colorRoles[dark ? "dark" : "light"];
       assert.equal(theme.tabSelected, base.tabSelected, `${color} ${dark ? "dark" : "light"}`);
@@ -95,7 +97,7 @@ test("a selected row's title keeps the mode's ink unless it can't be read on tha
   assert.equal(custom(solid(rgb(128, 92, 91))).rowSelectedText, "#FFFFFF");
   assert.equal(profileTheme({ color: "neutral", theme: flat(0.95, 0.62, 0.78, "light") }, false).rowSelectedText, "#000000");
   for (const dark of [true, false])
-    for (const color of Object.keys(PROFILE_COLORS)) assert.equal(profileTheme({ color }, dark).rowSelectedText, colorRoles[dark ? "dark" : "light"].tabSelectedText);
+    for (const color of appearanceFollowing) assert.equal(profileTheme({ color }, dark).rowSelectedText, colorRoles[dark ? "dark" : "light"].tabSelectedText);
 });
 
 test("a light custom colour in dark mode draws its sidebar text, glyphs and hover in the light palette", () => {
@@ -137,12 +139,37 @@ test("every custom colour's sidebar text reads at 3:1 on its tint, or takes the 
   }
 });
 
-test("built-in presets keep their sidebar and strip palette", () => {
+test("appearance-following presets keep their sidebar and strip palette", () => {
   for (const dark of [true, false])
-    for (const color of [...Object.keys(PROFILE_COLORS), "incognito"]) {
+    for (const color of [...appearanceFollowing, "incognito"]) {
       const theme = color === "incognito" ? profileTheme(undefined, dark) : profileTheme({ color }, dark);
       assert.equal(tintTheme(theme), theme, `${color} ${dark}`);
     }
+});
+
+test("Sand Dunes keeps the regular window and New Tab light while utility windows follow the app", () => {
+  for (const dark of [true, false]) {
+    for (const source of ["app", "own"]) {
+      const theme = profileTheme({ color: "sandDunes" }, dark, source);
+      const sidebar = tintTheme(theme);
+      assert.equal(theme.dark, false);
+      assert.equal(surfaceTheme(sidebar).dark, false);
+      assert.equal(opaqueCard(theme).toUpperCase(), PROFILE_COLORS.sandDunes.swatch);
+      assert.equal(profileTheme({ color: "sandDunes" }, dark, "utility").dark, dark);
+      assert.equal(theme.backdrop.themeAppearance, "auto");
+      assert.equal(theme.backdrop.themeOpacity, 1);
+      assert.equal(theme.backdrop.themeColors.length, 4);
+      assert.equal(theme.backdrop.themeTexture, "sand");
+      assert.ok(theme.backdrop.themeGrain > 0);
+      assert.equal(sidebar.dark, false);
+      const sand = PROFILE_COLORS.sandDunes.swatch;
+      assert.deepEqual(theme.windowTint, [sand, sand]);
+      for (const [text, fill] of [[sidebar.textTab, sand], [sidebar.rowSelectedText, over(sidebar.tabSelected, sand)]]) {
+        assert.equal(text, "#1F1905");
+        assert.ok((luminance(fill) + 0.05) / (luminance(text) + 0.05) >= 7);
+      }
+    }
+  }
 });
 
 test("a strip's selected chip, drawn on the card, keeps the mode's ink unless the card on the tint can't hold it", () => {
@@ -153,7 +180,7 @@ test("a strip's selected chip, drawn on the card, keeps the mode's ink unless th
   }
   assert.equal(profileTheme({ color: "neutral", theme: flat(0.95, 0.62, 0.78, "light") }, false).tabSelectedText, "#000000");
   for (const dark of [true, false])
-    for (const color of Object.keys(PROFILE_COLORS)) assert.equal(profileTheme({ color }, dark).tabSelectedText, colorRoles[dark ? "dark" : "light"].tabSelectedText);
+    for (const color of appearanceFollowing) assert.equal(profileTheme({ color }, dark).tabSelectedText, colorRoles[dark ? "dark" : "light"].tabSelectedText);
 });
 
 test("whatever is drawn on its own surface inside a flipped tint gets the window theme back", () => {

@@ -148,3 +148,51 @@ test("session.json names the profile the next launch opens links from other apps
   flushPersistence();
   assert.equal(JSON.parse(stub.docs.get("session.json")).linkProfile, "");
 });
+
+test("a pending ChatGPT submission runs once and cannot replay on launch, wake or undo-close", () => {
+  const home = "https://chatgpt.com/";
+  const request = home + "?q=pending%20request&hints=search&ref=ext";
+  hydrate([win("w1", ["a"], "a")], [tab("a", "w1", "https://example.org/")], { focusedWindowId: "w1" });
+  const id = S().newTab("w1", { url: request });
+  assert.equal(S().tabs[id].page.nav.url, request);
+  assert.equal(launchTab(S(), "w1").url, home);
+  flushPersistence();
+  let doc = JSON.parse(stub.docs.get("session.json"));
+  assert.equal(doc.launchTab.url, home);
+  assert.equal(doc.tabs.find(t => t.id === id).url, home);
+  assert.equal(S().tabs[id].url, request);
+  S().closeTab(id);
+  const entry = S().closedTabs.at(-1);
+  assert.equal(entry.tab.url, home);
+  S().reopenClosedTab("w1");
+  const restoredId = S().windows.w1.activeTabIds.default;
+  assert.equal(S().tabs[restoredId].page.kind, "loaded");
+  assert.equal(S().tabs[restoredId].page.nav.url, home);
+  const saved = doc.tabs.find(t => t.id === id);
+  Object.assign(saved, { url: request, pin: { as: "row" }, pinnedUrl: request, page: { kind: "asleep", wake: "restore:stale" } });
+  doc.windows[0].activeTabIds.default = "a";
+  stub.docs.set("session.json", JSON.stringify(doc));
+  S().hydrate(loadSession());
+  assert.equal(S().tabs[id].url, home);
+  assert.equal(S().tabs[id].pinnedUrl, home);
+  assert.equal(S().tabs[id].page.wake, undefined);
+  S().activate(id);
+  assert.equal(S().tabs[id].page.nav.url, home);
+});
+
+test("accepted ChatGPT conversations keep their exact links and native undo history", () => {
+  for (const path of ["c", "uc"]) {
+    const url = "https://chatgpt.com/" + path + "/saved-thread?view=compact";
+    hydrate([win("w1", ["a"], "a")], [tab("a", "w1", "https://example.org/")], { focusedWindowId: "w1" });
+    const id = S().newTab("w1", { url });
+    flushPersistence();
+    const doc = JSON.parse(stub.docs.get("session.json"));
+    assert.equal(doc.launchTab.url, url);
+    assert.equal(doc.tabs.find(t => t.id === id).url, url);
+    S().closeTab(id);
+    S().reopenClosedTab("w1");
+    const t = S().tabs[S().windows.w1.activeTabIds.default];
+    assert.equal(t.url, url);
+    assert.equal(t.page.adopt, "restore:" + id);
+  }
+});

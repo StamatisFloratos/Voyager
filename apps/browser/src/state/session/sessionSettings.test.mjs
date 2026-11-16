@@ -22,7 +22,9 @@ const BEFORE = {"legacyTrue":{"chosen":["newTabPosition","newTabButtonPosition"]
 const doc = (version, settings) => ({ version, profiles: { default: PROFILE }, profileOrder: ["default"], settings, windows: [], windowOrder: [], tabs: [], groups: [], splits: [], closedTabs: [], closedWindows: [] });
 const loaded = () => {
   const { settings: st, settingsMeta } = S();
-  return { chosen: settingsMeta.chosen, inferred: settingsMeta.inferred, batterySaverWhen: st.batterySaverWhen, newTabButtonPosition: st.newTabButtonPosition, newTabPosition: st.newTabPosition, tabLayout: st.tabLayout, peekModifier: st.peekModifier, splitLinkModifier: st.splitLinkModifier, keys: Object.keys(st).length + 2 };
+  const { defaultAiEngine, ...previousSettings } = st;
+  assert.equal(defaultAiEngine, "chatgpt");
+  return { chosen: settingsMeta.chosen, inferred: settingsMeta.inferred, batterySaverWhen: st.batterySaverWhen, newTabButtonPosition: st.newTabButtonPosition, newTabPosition: st.newTabPosition, tabLayout: st.tabLayout, peekModifier: st.peekModifier, splitLinkModifier: st.splitLinkModifier, keys: Object.keys(previousSettings).length + 2 };
 };
 
 for (const version of [3, 4, 7]) {
@@ -59,4 +61,21 @@ test("settings and their bookkeeping save apart, read back the same, and a chang
   S().hydrate(loadSession());
   assert.deepEqual(S().settingsMeta, { chosen: ["tabLayout", "appearance"], inferred: [] });
   assert.equal(S().settings.appearance, "light");
+});
+
+test("selecting Sand Dunes replaces the profile's custom theme and survives a relaunch", async () => {
+  const { choosePresetColor, setProfileTheme } = await import("../profiles/themeActions.ts");
+  const { startingTheme } = await import("../../lib/profileLook.ts");
+  stub.docs.clear();
+  const stop = startPersistence();
+  const work = S().createProfile({ name: "Work", color: "blue" });
+  setProfileTheme(work, startingTheme("#4F7CFF"));
+  choosePresetColor(work, "sandDunes");
+  flushPersistence();
+  stop();
+  S().hydrate({});
+  S().hydrate(loadSession());
+  assert.equal(S().profiles[work].color, "sandDunes");
+  assert.equal(S().profiles[work].theme, null);
+  assert.equal(S().profiles.default.color, "plum");
 });

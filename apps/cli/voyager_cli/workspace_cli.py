@@ -48,7 +48,7 @@ Examples:
 GROUPS_DESCRIPTION = f"""\
 List and organize tab groups: create (around tabs you name, URLs you open, or one new tab), rename, set the icon,
 colour and collapsed state, nest, reorder, pin, move to another window or profile, ungroup, close or delete. New
-groups are pinned, as with New Group with Tab in the sidebar, unless --unpinned or --parent says otherwise. A group
+groups are pinned unless --unpinned or --parent says otherwise. A group
 made from tabs of another group, with no --parent, --before or --after, goes just above that group, so groups made
 one after another from it keep their order and what's left of it stays below. A group argument takes an id or a
 name, looked up case-insensitively in the last focused window (--parent: in the window the group goes to); an exact
@@ -190,7 +190,7 @@ def add_parsers(commands, formatter):
 
     for name, text in (
         ("ungroup", "ungroup: the tabs stay, the group goes"),
-        ("close", "close a group and its tabs (History › Recently Closed Groups brings it back)"),
+        ("close", "close a group and its tabs (the History menu can reopen it)"),
         ("delete", "delete a group and its tabs"),
     ):
         common(gverbs.add_parser(name, help=text, description=text[0].upper() + text[1:] + ".")).add_argument("id", metavar="GROUP", help="a group id or name")

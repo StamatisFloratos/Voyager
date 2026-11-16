@@ -2,7 +2,7 @@ import { THEME_TEXTURES, type ThemeBackdropProps, type ThemeMode, type ThemeText
 import { hslToRgb, parseColor, rgbToHsl, toHex } from "./color";
 import { numberOr } from "./decode";
 
-export type ProfileColor = "plum" | "blue" | "purple" | "pink" | "red" | "orange" | "yellow" | "green" | "neutral";
+export type ProfileColor = "plum" | "blue" | "purple" | "pink" | "red" | "orange" | "yellow" | "green" | "neutral" | "sandDunes";
 
 export type ThemeColor = { r: number; g: number; b: number; a: number };
 

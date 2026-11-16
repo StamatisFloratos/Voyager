@@ -108,9 +108,9 @@ function organiseItems(s: BrowserState, windowId: string, tab: Tab, f: Facts): T
           ...(f.memberPin
             ? []
             : f.group
-              ? [{ id: "ungroupTab", title: "Remove from Group", symbol: "folder.badge.minus" }]
-              : [{ id: "newGroup", title: "New Group with Tab", symbol: "folder.badge.plus", ...hintWhen(f.active, "newGroupWithTabs", s) }]),
-          ...(groups.length ? [{ id: "moveToGroup", title: "Move to Group", symbol: "folder", children: groups }] : []),
+              ? [{ id: "ungroupTab", title: "Remove from Category", symbol: "folder.badge.minus" }]
+              : [{ id: "newGroup", title: "New Category with Tab", symbol: "folder.badge.plus", ...hintWhen(f.active, "newGroupWithTabs", s) }]),
+          ...(groups.length ? [{ id: "moveToGroup", title: "Move to Category", symbol: "folder", children: groups }] : []),
         ];
   return [
     ...grouping,

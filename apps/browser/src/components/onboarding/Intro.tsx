@@ -1,4 +1,5 @@
 import { DIA_SPECTRUM, Meadow, meadowTextStyle, PowerUp, Text, type MeadowTone } from "../ui";
+import { VoyagerAppIcon } from "../ui/VoyagerAppIcon";
 import {
   playIntroMusic,
   setIntroMusicMuted,
@@ -9,7 +10,7 @@ import {
 } from "../../state/onboarding/onboarding";
 import { isWebDemo } from "../../state/onboarding/demoSteps";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Image, StyleSheet, View } from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
 import { useTheme } from "../ui/theme";
 import { CircleButton, SecondaryButton } from "./Buttons";
 import { useOnboardingColors } from "./Parts";
@@ -18,7 +19,6 @@ import { space } from "../ui/tokens";
 import { onboardingMotion, onboardingType } from "./tokens";
 
 const WORDMARK = "Voyager";
-const ICON = require("../../../assets/app-icon.png");
 
 const LETTER = 0.52;
 const TAGLINE = 0.6;
@@ -113,7 +113,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
             transform: [{ scale: icon.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
           }}
         >
-          <Image source={ICON} style={{ width: 96, height: 96 }} />
+          <VoyagerAppIcon size={96} />
         </Animated.View>
         <View style={{ flexDirection: "row" }} accessibilityLabel={WORDMARK}>
           {[...WORDMARK].map((ch, i) => (

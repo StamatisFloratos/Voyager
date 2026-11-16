@@ -148,7 +148,7 @@ export function TabsPane() {
       <SectionHeader title="Links" />
       <LinkKeys />
 
-      <SectionHeader title="Tab groups" />
+      <SectionHeader title="Tab categories" />
       <Group>
         <SettingToggle anchor="tabs.warnBeforeClosingTabGroup" />
         <SettingToggle anchor="tabs.cmdClickCreatesTabGroup" />

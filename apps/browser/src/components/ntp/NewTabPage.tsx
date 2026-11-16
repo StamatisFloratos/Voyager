@@ -1,4 +1,5 @@
 import { PowerUp, hex, ink, reduceMotion, springs, Surface, useTheme } from "../ui";
+import { VoyagerAppIcon } from "../ui/VoyagerAppIcon";
 import { TOOLBAR_ROWS } from "../../lib/toolbarRow";
 import { useEffect, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
@@ -12,26 +13,7 @@ import { Omnibox } from "../omnibox/Omnibox";
 import { NTP_BAR } from "./tokens";
 
 const BAR_HEIGHT = 112;
-const MARKS = {
-  green: { back: require("../../../assets/ntp-mark-back.png"), front: require("../../../assets/ntp-mark-front.png"), sun: require("../../../assets/ntp-mark-sun.png") },
-  plum: { back: require("../../../assets/ntp-mark-plum-back.png"), front: require("../../../assets/ntp-mark-plum-front.png"), sun: require("../../../assets/ntp-mark-plum-sun.png") },
-  blue: { back: require("../../../assets/ntp-mark-blue-back.png"), front: require("../../../assets/ntp-mark-blue-front.png"), sun: require("../../../assets/ntp-mark-blue-sun.png") },
-  purple: { back: require("../../../assets/ntp-mark-purple-back.png"), front: require("../../../assets/ntp-mark-purple-front.png"), sun: require("../../../assets/ntp-mark-purple-sun.png") },
-  pink: { back: require("../../../assets/ntp-mark-pink-back.png"), front: require("../../../assets/ntp-mark-pink-front.png"), sun: require("../../../assets/ntp-mark-pink-sun.png") },
-  red: { back: require("../../../assets/ntp-mark-red-back.png"), front: require("../../../assets/ntp-mark-red-front.png"), sun: require("../../../assets/ntp-mark-red-sun.png") },
-  orange: { back: require("../../../assets/ntp-mark-orange-back.png"), front: require("../../../assets/ntp-mark-orange-front.png"), sun: require("../../../assets/ntp-mark-orange-sun.png") },
-  yellow: { back: require("../../../assets/ntp-mark-yellow-back.png"), front: require("../../../assets/ntp-mark-yellow-front.png"), sun: require("../../../assets/ntp-mark-yellow-sun.png") },
-  neutral: { back: require("../../../assets/ntp-mark-neutral-back.png"), front: require("../../../assets/ntp-mark-neutral-front.png"), sun: require("../../../assets/ntp-mark-neutral-sun.png") },
-};
-const MARK_SIZE = 100;
-const SUN_DELAY = 250;
-const MARK_LAYERS = [
-  { name: "sun", hidden: 56, delay: SUN_DELAY, spring: springs.smooth },
-  { name: "back", hidden: 40.5, delay: 170, spring: springs.smooth },
-  { name: "front", hidden: 34, delay: 80, spring: springs.smooth },
-] as const;
-const SUN_DRIFT = 6;
-const SUN_DRIFT_SPRING = springs.smooth;
+const MARK_SIZE = 64;
 
 type Size = { width: number; height: number };
 let lastSize: { card: Size; size: Size } | null = null;
@@ -62,22 +44,16 @@ export function NewTabPage({ tabId, toolbar = true }: { tabId: string; toolbar?:
   const [headingHeight, setHeadingHeight] = useState(0);
   const heading = !onboarding && incognito;
   const [playIntro] = useState(() => !introPlayed.has(tabId));
-  const [rise] = useState(() => {
-    const intro = playIntro && !reduceMotion();
-    const layers = MARK_LAYERS.map((l) => ({ ...l, y: new Animated.Value(intro ? l.hidden : 0) }));
-    return { layers, drift: new Animated.Value(intro ? SUN_DRIFT : 0) };
-  });
+  const [rise] = useState(() => new Animated.Value(playIntro && !reduceMotion() ? 16 : 0));
   useEffect(() => {
     introPlayed.add(tabId);
   }, [tabId]);
   useEffect(() => {
-    if (!playIntro || reduceMotion()) return;
-    const spring = (value: Animated.Value, delay: number, params: typeof springs.smooth) =>
-      Animated.spring(value, { toValue: 0, delay, ...params, useNativeDriver: true });
-    const intro = Animated.parallel([
-      ...rise.layers.map((l) => spring(l.y, l.delay, l.spring)),
-      spring(rise.drift, SUN_DELAY, SUN_DRIFT_SPRING),
-    ]);
+    if (!playIntro || reduceMotion()) {
+      rise.setValue(0);
+      return;
+    }
+    const intro = Animated.spring(rise, { toValue: 0, ...springs.smooth, useNativeDriver: true });
     intro.start();
     return () => intro.stop();
   }, [playIntro, rise]);
@@ -104,30 +80,17 @@ export function NewTabPage({ tabId, toolbar = true }: { tabId: string; toolbar?:
         />
       )}
       {heading && <IncognitoHeading left={x} barTop={top} width={width} onHeight={setHeadingHeight} />}
-      <View
+      <Animated.View
         pointerEvents="none"
         style={{
           position: "absolute",
           left: size.width / 2 + DIA_OFFSET - MARK_SIZE / 2,
           top: top - MARK_ABOVE_BAR,
-          width: MARK_SIZE,
-          height: MARK_ABOVE_BAR,
-          overflow: "hidden",
+          transform: [{ translateY: rise }],
         }}
       >
-        {rise.layers.map((l) => (
-          <Animated.Image
-            key={l.name}
-            source={(MARKS[theme.profileColor === "incognito" ? "neutral" : theme.profileColor] ?? MARKS.green)[l.name]}
-            style={{
-              position: "absolute",
-              width: MARK_SIZE,
-              height: MARK_SIZE,
-              transform: [{ translateX: l.name === "sun" ? rise.drift : 0 }, { translateY: l.y }],
-            }}
-          />
-        ))}
-      </View>
+        <VoyagerAppIcon size={MARK_SIZE} />
+      </Animated.View>
       <View onLayout={(e) => setPanelHeight(e.nativeEvent.layout.height)} style={{ position: "absolute", left: x, top, width }}>
         {NTP_BAR.shadows.map((level, i) => (
           <Surface

@@ -1,4 +1,6 @@
-# Ardia logo
+# Archived Ardia logo
+
+The paths below record upstream Ardia's original asset layout. In this fork the historical generator writes its catalogs and Chromium resources under `output/brand/ardia/final/`. The active [Voyager artwork](../voyager/) has its own build steps.
 
 Two oil-painted hills (sage `#71955A`, forest `#203F32`) under a sun (`#E6BC62`), on a parchment tile (`#F9F5E3`).
 `source/` holds the three paintings, generated with Codex image generation (round 5, "hills"):

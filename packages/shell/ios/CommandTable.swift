@@ -113,6 +113,7 @@ enum CommandTable {
 
   static let titles: [String: String] = [
     "newTab": "New Tab",
+    "newTab:search": "New Tab Search",
     "newWindow": "New Window",
     "newIncognitoWindow": "New Incognito Window",
     "newLittleArdia": "New Little Voyager Window",
@@ -190,8 +191,8 @@ enum CommandTable {
     "setBookmarksBar:newTab": "On New Tab Only",
     "setBookmarksBar:never": "Never",
     "toggleBookmarksBar": "Toggle Bookmarks Bar",
-    "newTabInGroup": "New Tab in Group",
-    "newGroupWithTabs": "New Group with Tab",
+    "newTabInGroup": "New Tab in Category",
+    "newGroupWithTabs": "New Category with Tab",
     "cleanUpTabs": "Clean Up Tabs",
     "tidyPins": "Tidy Pins",
     "searchTabs": "Search Tabs…",
@@ -223,13 +224,13 @@ enum CommandTable {
     "caretBrowsing": "Caret Browsing",
     "moveTabDown": "Move Tab Down",
     "moveTabUp": "Move Tab Up",
-    "closeTabGroup": "Close Group",
+    "closeTabGroup": "Close Category",
     "openProfileMenu": "Show Profiles Menu",
   ]
 
   static let keys: [String: [(key: String, mods: NSEvent.ModifierFlags)]] = [
     "newTab": [("t", [.command])],
-    "newWindow": [("n", [.command])],
+    "newTab:search": [("n", [.command])],
     "newIncognitoWindow": [("n", [.shift, .command])],
     "newLittleArdia": [("n", [.option, .command])],
     "reopenClosedTab": [("t", [.shift, .command])],

@@ -27,9 +27,11 @@ test("hides pinned rows and Top Apps separately", () => {
   assert.ok(keepsOpenTab({ openTabs: { hidePinned: true, hideTopApps: true } }, null));
 });
 
-test("limit defaults to eight", () => {
-  assert.equal(commandBarTabLimit({}), 8);
-  assert.equal(commandBarTabLimit({ openTabs: { limit: 3 } }), 3);
+test("recent tabs default to three and respect smaller configured limits", () => {
+  assert.equal(commandBarTabLimit({}), 3);
+  assert.equal(commandBarTabLimit({ openTabs: { limit: 20 } }), 3);
+  assert.equal(commandBarTabLimit({ openTabs: { limit: 0 } }), 0);
+  assert.equal(commandBarTabLimit({ openTabs: { limit: 2 } }), 2);
 });
 
 test("telemetry flags never carry anything but booleans and the limit", () => {
@@ -38,10 +40,10 @@ test("telemetry flags never carry anything but booleans and the limit", () => {
     default_commandBarStart_hidePinned: "false",
     setting_commandBarStart_hideTopApps: "false",
     default_commandBarStart_hideTopApps: "false",
-    setting_commandBarStart_limit: "4",
-    default_commandBarStart_limit: "8",
+    setting_commandBarStart_limit: "3",
+    default_commandBarStart_limit: "3",
   });
-  assert.equal(commandBarStartFlags("bad").setting_commandBarStart_limit, "8");
+  assert.equal(commandBarStartFlags("bad").setting_commandBarStart_limit, "3");
 });
 
 test("the setting round-trips through the store", () => {

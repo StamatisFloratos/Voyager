@@ -47,6 +47,7 @@ export function BarField({
       placeholder={scope ? `Search ${scope.name}` : incognito ? "Search privately or enter address" : "Search or enter address"}
       placeholderTextColor={theme.placeholder}
       pastedTypes={PASTED_TYPES}
+      cursorColor={theme.textPrimary}
       selectionColor={theme.selection}
       enableFocusRing={false}
       style={{

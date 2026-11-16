@@ -38,6 +38,7 @@ test("commands lists exactly the automatable commands, with titles and variants"
   assert.ok(!listed.some((c) => c.id === "togglePageEngine" || c.id === "toggleJavaScriptFromAppleEvents"));
   for (const c of listed) assert.ok(typeof c.title === "string" && c.title.length > 0, c.id);
   assert.deepEqual(listed.find((c) => c.id === "setAppearance").variants, ["auto", "light", "dark"]);
-  assert.equal(listed.find((c) => c.id === "newTab").variants, null);
+  assert.deepEqual(listed.find((c) => c.id === "newTab").variants, ["search"]);
+  assert.equal(listed.find((c) => c.id === "newWindow").variants, null);
   assert.equal(listed.find((c) => c.id === "reload").scope, "page");
 });

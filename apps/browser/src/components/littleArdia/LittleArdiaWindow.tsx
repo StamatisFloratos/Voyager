@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 import { useTheme } from "../ui/theme";
 import { useProfileOrder } from "../../state/profiles/hooks";
+import { useFullscreenTab } from "../../state/tabs/pageState";
 import { openPanel } from "../../state/windows/actions";
 import { useActiveTab, useWindowFullScreen, useWindowId, useWindowProfile, useWindowUi } from "../../state/browser/hooks";
 import type { Tab } from "../../state/browser/types";
 import { CommandPanel } from "../omnibox/CommandPanel";
+import { NavigationProgress } from "../window/NavigationProgress";
 import { ContentCard } from "../window/ContentCard";
 import { DownloadsPopover } from "../downloads/Downloads";
 import { ExtensionOverlays } from "../extensions/ExtensionOverlays";
@@ -41,6 +43,7 @@ export function LittleArdiaWindow() {
   const theme = useTheme();
   const windowId = useWindowId();
   const fullScreen = useWindowFullScreen(windowId);
+  const fullscreenPage = useFullscreenTab(windowId);
   const [width, setWidth] = useState(0);
   const frame = usePageFrameInset();
   const pinch = useLittleArdiaPinch(windowId);
@@ -58,6 +61,7 @@ export function LittleArdiaWindow() {
           </View>
         </Animated.View>
       </PinchArea>
+      {!fullscreenPage && <NavigationProgress windowId={windowId} />}
       <CommandPanel windowWidth={width} />
       <DownloadsPopover />
       <ExtensionOverlays />

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { startChromeTabs } from "../../state/tabs/chromeTabs";
 import { useIsSmallWindow, useSplitOf } from "../../state/windows/card";
 import { usePeeks } from "../../state/peek/hooks";
-import { useActiveTabId, useSettings, useWindowId } from "../../state/browser/hooks";
+import { useActiveTabId, useSettings, useSidebarSide, useWindowId } from "../../state/browser/hooks";
 import { useBookmarksBarHeight } from "../bookmarks/barSize";
 import { useBookmarksBarMode } from "../../state/bookmarks/hooks";
 import { POPOVER_MARGIN } from "../ui";
@@ -13,7 +13,7 @@ import { useFullscreenTab } from "../../state/tabs/pageState";
 import { DropTargets, SplitDividers, SplitToast } from "../split/SplitChrome";
 import { dockMoving, usePeekSpan, whenDockStill } from "../../state/windows/dockMotion";
 import { FrozenPage } from "./FrozenPage";
-import { setCardAnchor, setUrlAnchor, useAddressBarInSidebar, useTabLayout, watchToolbarExtensionsWidth } from "../../state/windows/layout";
+import { setCardAnchor, setPageSpan, setUrlAnchor, useAddressBarInSidebar, useTabLayout, watchToolbarExtensionsWidth } from "../../state/windows/layout";
 import { startSelectionTools } from "../../state/site/selection";
 import { startMedia } from "../../state/media/pip";
 import { urlFieldRight } from "../toolbar/Toolbar";
@@ -37,6 +37,7 @@ export function ContentCard() {
   const split = useSplitOf(activeId);
   const fullscreenTab = useFullscreenTab(windowId);
   const tabLayout = useTabLayout();
+  const sidebarSide = useSidebarSide(windowId);
   const addressInSidebar = useAddressBarInSidebar();
   const small = useIsSmallWindow(windowId);
   const hideWhileScrolling = useSettings((st) => st.hideToolbarWhileScrolling);
@@ -71,6 +72,17 @@ export function ContentCard() {
   };
 
   const focusedRect = activeId ? panes[activeId] : undefined;
+  const pageRect = split && !peekId ? focusedRect : undefined;
+  const placeProgress = useCallback((left: number, width: number) => {
+    setPageSpan(windowId, left + (pageRect?.x ?? 0), pageRect?.width ?? width);
+  }, [windowId, pageRect?.x, pageRect?.width]);
+  useLayoutEffect(() => {
+    let current = true;
+    container.current?.measureInWindow((left, _top, width) => {
+      if (current) placeProgress(left, width);
+    });
+    return () => { current = false; };
+  }, [placeProgress, sidebarSide]);
   useEffect(() => {
     if (!origin || !focusedRect || chrome.kind === "none") return;
     const g = geometryFor(focusedRect);
@@ -116,7 +128,8 @@ export function ContentCard() {
       ref={container}
       style={{ flex: 1 }}
       onLayout={(e) => {
-        const { width, height } = e.nativeEvent.layout;
+        const { x, width, height } = e.nativeEvent.layout;
+        placeProgress(x, width);
         if (size.width > 0 && dockMoving(windowId) && !split) {
           settleMeasure.cancel();
           settled.current = { width, height };

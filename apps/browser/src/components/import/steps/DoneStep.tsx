@@ -71,7 +71,7 @@ function RestoreArcFolders() {
   if (!arcHolders.length) return null;
   return (
     <Button
-      title="Restore Arc Folders as Groups"
+      title="Restore Arc Folders as Categories"
       onPress={() => {
         for (const id of arcHolders) restoreArcFolders(id, null);
       }}

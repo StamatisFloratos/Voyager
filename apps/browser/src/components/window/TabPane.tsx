@@ -22,7 +22,8 @@ import { publishPaneChrome } from "../toolbar/WindowToolbar";
 import { revealToolbar } from "../../state/windows/toolbarAutoHide";
 import { useToolbarRow } from "../toolbar/useToolbarRow";
 import { TabWebView } from "./TabWebView";
-import { withoutFragment } from "../../lib/url";
+import { isWebPageUrl, withoutFragment } from "../../lib/url";
+import { BLANK_PAGE_CANVAS } from "./tokens";
 import { paneBar, type CardChrome } from "./paneChrome";
 import { PageOverlays } from "./PageOverlays";
 import { useProfileTheme } from "./ThemeScope";
@@ -129,7 +130,7 @@ export const TabPane = memo(function TabPane({
         {autoLayout && bookmarksBar && <BookmarksBar tabId={tabId} placeholder={!visible} />}
         <View style={{ flex: 1 }}>
           {visible && !fullscreen && <ShareBar tabId={tabId} />}
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: visible && !newTabShown && isWebPageUrl(own.url) ? BLANK_PAGE_CANVAS : undefined }}>
             {(mounted || prewarmed) && <TabWebView tabId={tabId} visible={visible && !newTabShown && !isNewTab} warm={!!warm && !newTabShown && !isNewTab} />}
             {visible && isNewTab && !small && (
               <NewTabDropArea tabId={tabId} accepting={!covered && !lingering}>

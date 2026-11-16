@@ -53,7 +53,7 @@ export function PillButtonView(props: PillProps) {
     const chipHeight = props.height ?? pillHeight[size ?? "m"];
     return (
       <View {...hoverProps}>
-        <Pressable onPress={onPress}>
+        <Pressable accessibilityRole="button" accessibilityLabel={title} onAccessibilityTap={onPress} onPress={onPress}>
           {({ pressed }) => {
             const look = pillLook(theme, tone, primary, pressed, hovered);
             const ink = look.text;

@@ -5,7 +5,7 @@ import type { TabPin } from "../browser/types";
 export type CommandBarStart = { openTabs?: { hidePinned?: boolean; hideTopApps?: boolean; limit?: number } };
 
 export const COMMAND_BAR_START_MAX_TABS = 20;
-export const DEFAULT_COMMAND_BAR_TABS = 8;
+export const DEFAULT_COMMAND_BAR_TABS = 3;
 
 const OPEN_TAB_KEYS = new Set(["hidePinned", "hideTopApps", "limit"]);
 
@@ -23,7 +23,7 @@ export const isCommandBarStart = (v: unknown): v is CommandBarStart =>
 
 export const COMMAND_BAR_START_SCHEMA: JsonSchema = {
   type: "object",
-  description: "What a new tab's command bar (⌘T) lists before you type. Set by plugins in config.json; there is no Settings row.",
+  description: "Which recent tabs the command and address bar lists before you type. Set by plugins in config.json; there is no Settings row.",
   additionalProperties: false,
   properties: {
     openTabs: {
@@ -32,7 +32,7 @@ export const COMMAND_BAR_START_SCHEMA: JsonSchema = {
       properties: {
         hidePinned: { type: "boolean", description: "Leave out pinned tabs (the sidebar's pinned rows)." },
         hideTopApps: { type: "boolean", description: "Leave out Top Apps (the pinned tiles)." },
-        limit: { type: "integer", minimum: 0, maximum: COMMAND_BAR_START_MAX_TABS, description: "How many open tabs to list; 0 lists none." },
+        limit: { type: "integer", minimum: 0, maximum: COMMAND_BAR_START_MAX_TABS, description: "Maximum recent tabs to list. The popup shows up to three. Zero hides all tabs." },
       },
     },
   },
@@ -43,7 +43,7 @@ export function keepsOpenTab(start: CommandBarStart, pin: TabPin | null): boolea
   return pin.as === "row" ? !start.openTabs?.hidePinned : !start.openTabs?.hideTopApps;
 }
 
-export const commandBarTabLimit = (start: CommandBarStart): number => start.openTabs?.limit ?? DEFAULT_COMMAND_BAR_TABS;
+export const commandBarTabLimit = (start: CommandBarStart): number => Math.min(start.openTabs?.limit ?? DEFAULT_COMMAND_BAR_TABS, DEFAULT_COMMAND_BAR_TABS);
 
 export function commandBarStartFlags(start: unknown): Record<string, string> {
   const valid = isCommandBarStart(start) ? start : {};

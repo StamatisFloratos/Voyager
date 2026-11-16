@@ -1,5 +1,5 @@
 export const DIA_OFFSET = 1;
-export const MARK_ABOVE_BAR = 84.1;
+export const MARK_ABOVE_BAR = 84;
 export const HEADING_GAP_ABOVE_MARK = 12;
 export const HEADING_EDGE = 16;
 

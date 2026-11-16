@@ -27,6 +27,8 @@ registerHooks({
 });
 
 const { useBrowser } = await import("../browser/store.ts");
+const { activeTabId } = await import("../browser/model.ts");
+const { patchPage } = await import("./pageState.ts");
 const lifecycle = await import("./tabLifecycle.ts");
 const { keepActiveSiteOf, memorySaverRequest } = await import("./memorySaver.ts");
 const { reloadRecentTabs } = await import("./recentTabWarmup.ts");
@@ -180,4 +182,29 @@ test("a recent pin queued for warming at launch stays closed when the user close
   assert.equal(S().tabs[pin].page.nav, undefined);
   assert.ok(S().tabs[warm].page.nav, "a pin left alone still warms up");
   assert.notEqual(S().tabs[warm].page.kind, "asleep");
+});
+
+test("restored background tabs wait for the foreground load and then warm one at a time", (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  S().hydrate({});
+  const windowId = S().createWindow({ url: "https://foreground.test" });
+  const foreground = activeTabId(S(), windowId);
+  const tabs = ["one", "two"].map((name) => S().newTab(windowId, { url: `https://${name}.test`, background: true }));
+  for (const id of tabs) S().updateTab(id, { page: { kind: "idle" }, lastActiveAt: Date.now() });
+  S().updateLive(foreground, { isLoading: true });
+  const queued = reloadRecentTabs({ physicalMemory: 32 * 2 ** 30, onBattery: false, lowPowerMode: false, memoryPressure: "normal" });
+
+  t.mock.timers.tick(10000);
+  assert.equal(queued.length, 2);
+  assert.ok(queued.every((id) => S().tabs[id].page.kind === "idle"));
+  patchPage(foreground, { documentMesh: { id: 1, background: "#ffffff", colors: [] } });
+  S().updateLive(foreground, { isLoading: false });
+  t.mock.timers.tick(4000);
+  assert.ok(queued.every((id) => S().tabs[id].page.kind === "idle"), "visible media can still be arriving after the document load event");
+  patchPage(foreground, { documentMesh: null });
+  t.mock.timers.tick(2000);
+  assert.ok(S().tabs[queued[0]].page.nav);
+  assert.equal(S().tabs[queued[1]].page.kind, "idle");
+  t.mock.timers.tick(2000);
+  assert.ok(S().tabs[queued[1]].page.nav);
 });

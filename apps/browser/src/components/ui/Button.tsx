@@ -36,7 +36,7 @@ type IconBase = {
 };
 
 type IconProps = IconBase &
-  ({ toolbar?: false; onPress?: (press: GestureResponderEvent) => void } | { toolbar: true; onPress?: (modifiers: ClickModifiers) => void; onLongPress?: () => void; onContextMenu?: () => void });
+  ({ toolbar?: false; onPress?: (press: GestureResponderEvent) => void } | { toolbar: true; onPressIn?: (press: GestureResponderEvent) => void; onPress?: (modifiers: ClickModifiers) => void; onLongPress?: () => void; onContextMenu?: () => void });
 
 type TextLook = "toolbar" | "panel" | "link";
 
@@ -157,6 +157,7 @@ function IconButtonView(props: IconProps) {
   const { onPress, onLongPress, onContextMenu } = props;
   const button = (
     <Pressable
+      onPressIn={props.onPressIn}
       onPress={(e) => onPress?.(modifiersOf(e))}
       onLongPress={onLongPress}
       delayLongPress={450}

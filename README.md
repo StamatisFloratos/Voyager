@@ -1,6 +1,6 @@
 # Voyager
 
-Voyager is a personal fork of the [Ardia browser](https://github.com/ardia-browser/ardia), based on [Ardia 0.2.46](https://github.com/ardia-browser/ardia/releases/tag/v0.2.46). It brings Ardia’s Chromium engine, sidebar, split views and browser profiles to a separate macOS app named **Voyager**. The original artwork is retained for this first naming pass.
+Voyager is a personal fork of the [Ardia browser](https://github.com/ardia-browser/ardia), based on [Ardia 0.2.46](https://github.com/ardia-browser/ardia/releases/tag/v0.2.46). It brings Ardia’s Chromium engine, sidebar, split views and browser profiles to a separate macOS app named **Voyager**. Its app icon pairs a white orbit and star with a rainbow gradient. [Voyager artwork](docs/brand/voyager/)
 
 ## Build on a Mac
 

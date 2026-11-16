@@ -28,7 +28,7 @@ export function sidebarMenuItems(s: BrowserState, windowId: string): MenuItem[] 
       { id: "reopen", title: "Reopen Closed Tab", enabled: !!lastClosedEntry(s, windowId), ...menuShortcut("reopenClosedTab", s) },
     ],
     [
-      { id: "newGroup", title: "New Group", symbol: "folder.badge.plus" },
+      { id: "newGroup", title: "New Category", symbol: "folder.badge.plus" },
       newLiveFolderMenuItem(),
       ...(canAddSharedFolder(w?.profileId) ? [{ id: "addShared", title: "Add Shared Folder…", symbol: "person.2" }] : []),
     ],

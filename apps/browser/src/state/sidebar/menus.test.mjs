@@ -8,6 +8,7 @@ const { groupMenuItems } = await import("./groupMenu.ts");
 const { sidebarMenuItems } = await import("./sidebarMenu.ts");
 const { tileFolderContextItems } = await import("./tileFolderUi.ts");
 const { openTabMenu } = await import("./tabMenu.ts");
+const { newGroupWithSelection } = await import("./actions.ts");
 const { openMultiMenu } = await import("./multiTabMenu.ts");
 const { openGroupMenu } = await import("./groupMenu.ts");
 const { shellNativeModules } = await import("../../test-native/shell.ts");
@@ -58,7 +59,7 @@ test("a shown tab's menu follows Dia's sections, and its hints are the keys that
     "Duplicate [plus.square.on.square]",
     "Open in WebKit",
     "---",
-    "New Group with Tab [folder.badge.plus] ⌃⌘N",
+    "New Category with Tab [folder.badge.plus] ⌃⌘N",
     "Move to Profile [person] ›",
     "Move to Window [macwindow] ›",
     "---",
@@ -100,15 +101,15 @@ test("destinations sit in submenus: profiles checked, other windows, bookmark fo
   assert.deepEqual(sub(items, "bookmarkTo"), ["Bookmarks Bar", "Other Bookmarks", "---", "New Folder…"]);
 });
 
-test("a tab in a group leaves it from the menu, and Move to Group lists pinned groups under a header", () => {
+test("a tab in a group leaves it from the menu, and Move to Category lists pinned groups under a header", () => {
   const { w, ids } = windowWith("a", "b", "c", "d");
   const pinned = S().groupTabs([ids[0]], { name: "Pinned One" });
   S().groupTabs([ids[1]], { name: "Work", pinned: false });
   S().groupTabs([ids[2]], { name: "Read", pinned: false });
   const items = tabMenuItems(S(), w, S().tabs[ids[2]]);
   const lines = top(items);
-  assert.ok(lines.includes("Remove from Group [folder.badge.minus]"));
-  assert.ok(!lines.some((l) => l.startsWith("New Group with Tab")));
+  assert.ok(lines.includes("Remove from Category [folder.badge.minus]"));
+  assert.ok(!lines.some((l) => l.startsWith("New Category with Tab")));
   assert.deepEqual(sub(items, "moveToGroup"), ["Pinned (off)", "Pinned One", "---", "Work"]);
   assert.ok(S().groups[pinned].pinned);
 });
@@ -148,6 +149,19 @@ test("a Top Apps tile: unpin first, folders instead of groups, Open in New Windo
   ]);
 });
 
+test("manual categories keep loose tabs in the list, pinned rows pinned, and nested tabs in their parent", () => {
+  const { w, ids: [loose, pin, first, second] } = windowWith("a", "b", "c", "d");
+  const ordinary = newGroupWithSelection(w, [loose]);
+  assert.equal(S().groups[ordinary].pinned, false);
+  S().pinTabs([pin], true, true);
+  const pinned = newGroupWithSelection(w, [pin]);
+  assert.equal(S().groups[pinned].pinned, true);
+  const parent = newGroupWithSelection(w, [first, second]);
+  const child = newGroupWithSelection(w, [second]);
+  assert.equal(S().groups[child].parentId, parent);
+  assert.equal(S().groups[child].pinned, false);
+});
+
 test("a pinned row offers Top Apps as its other place, and a pinned group's tab unpins out of the group", () => {
   const { w, ids } = windowWith("a", "b", "c");
   S().pinTabs([ids[0]], true, true);
@@ -156,7 +170,7 @@ test("a pinned row offers Top Apps as its other place, and a pinned group's tab 
   S().groupTabs([ids[1]], { name: "P" });
   const member = top(tabMenuItems(S(), w, S().tabs[ids[1]]));
   assert.deepEqual(member.slice(0, 2), ["Unpin [pin.slash]", "Edit Pinned Page ›"]);
-  assert.ok(!member.some((l) => l.startsWith("Remove from Group") || l.startsWith("New Group with Tab") || l.startsWith("Close")));
+  assert.ok(!member.some((l) => l.startsWith("Remove from Category") || l.startsWith("New Category with Tab") || l.startsWith("Close")));
 });
 
 test("a split pane offers Remove from Split View in place of Open as Split", () => {
@@ -176,9 +190,9 @@ test("several tabs: counts in the titles, Move N Tabs to Profile, and Close N Ta
     "---",
     "Duplicate 2 Tabs [plus.square.on.square]",
     "---",
-    "New Group with 2 Tabs [folder.badge.plus] ⌃⌘N",
-    "Remove from Group [folder.badge.minus]",
-    "Move to Group [folder] ›",
+    "New Category with 2 Tabs [folder.badge.plus] ⌃⌘N",
+    "Remove from Category [folder.badge.minus]",
+    "Move to Category [folder] ›",
     "Move 2 Tabs to Profile [person] ›",
     "Move to Window [macwindow] ›",
     "---",
@@ -197,33 +211,33 @@ test("a group header: pin, open, move, customise, copy, then the ways to end it"
   const { w, ids } = windowWith("a", "b", "c");
   const g = S().groupTabs([ids[1], ids[2]], { name: "G", pinned: false });
   assert.deepEqual(top(groupMenuItems(S(), w, g)), [
-    "Pin Group [pin]",
+    "Pin Category [pin]",
     "---",
-    "New Tab in Group [plus.app] ⌥⌘T",
-    "New Nested Group",
-    "Duplicate Group [plus.square.on.square]",
+    "New Tab in Category [plus.app] ⌥⌘T",
+    "New Subcategory",
+    "Duplicate Category [plus.square.on.square]",
     "---",
     "Move to Profile [person] ›",
     "Move to Window [macwindow] ›",
     "---",
-    "Rename… [pencil]",
-    "Add Icon… [photo]",
+    "Rename Category… [pencil]",
     "Color [paintpalette] ›",
     "---",
     "Copy All Links [link]",
     "Copy All Links as Markdown [link] ⌥ (alt)",
     "---",
-    "Ungroup [folder.badge.minus]",
     "Move to Bookmarks Bar [bookmark]",
-    "Close Group [xmark] ⌃⌘W",
-    "Delete Group [trash]",
+    "Remove Category and Keep Tabs [folder.badge.minus]",
+    "Close Category [xmark] ⌃⌘W",
+    "Delete Category [trash]",
   ]);
+  assert.ok(top(groupMenuItems(S(), w, g, "strip")).includes("Add Icon… [photo]"));
   S().moveGroup(g, { pinned: true });
   const pinned = top(groupMenuItems(S(), w, g));
-  assert.equal(pinned[0], "Unpin Group [pin.slash]");
+  assert.equal(pinned[0], "Unpin Category [pin.slash]");
   assert.ok(!pinned.some((l) => l.startsWith("Move to Window")), "a pinned group is in every window already");
   S().activate(ids[0]);
-  assert.ok(top(groupMenuItems(S(), w, g)).includes("Close Group [xmark]"), "⌃⌘W closes the shown tab's group, not this one");
+  assert.ok(top(groupMenuItems(S(), w, g)).includes("Close Category [xmark]"), "⌃⌘W closes the shown tab's group, not this one");
 });
 
 test("a group's colour menu: None, Neutral, the site's colour, then the palette; picking one sets it", async () => {
@@ -262,7 +276,7 @@ test("the sidebar background menu: new things, then the sidebar toggles, Close A
     "New Tab [plus.app] ⌘T",
     "Reopen Closed Tab ⇧⌘T (off)",
     "---",
-    "New Group [folder.badge.plus]",
+    "New Category [folder.badge.plus]",
     "New Live Folder ›",
     "Add Shared Folder… [person.2]",
     "---",

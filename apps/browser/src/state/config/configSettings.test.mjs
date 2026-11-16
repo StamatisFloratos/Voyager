@@ -72,8 +72,8 @@ test("shortcuts read as cmd+shift+t or glyphs, one per command", () => {
 });
 
 test("file shortcuts become stored overrides: \"\" unbinds, the default clears the override, a command left out keeps its own", () => {
-  const current = { closeTab: ["w", "command", "option"], newWindow: ["m", "command"] };
-  const { overrides, problems } = configShortcuts("config.json", { newTab: "cmd+shift+n", reopenClosedTab: "", newWindow: "⌘N", nope: "cmd+k", "system:Edit > Copy": "cmd+c", findInPage: 7, print: "cmd+foo" }, current);
+  const current = { closeTab: ["w", "command", "option"], "newTab:search": ["m", "command"] };
+  const { overrides, problems } = configShortcuts("config.json", { newTab: "cmd+shift+n", reopenClosedTab: "", "newTab:search": "⌘N", nope: "cmd+k", "system:Edit > Copy": "cmd+c", findInPage: 7, print: "cmd+foo" }, current);
   assert.deepEqual(overrides, { closeTab: ["w", "command", "option"], newTab: ["n", "shift", "command"], reopenClosedTab: [""] });
   assert.deepEqual(problems, [
     "config.json: shortcuts.nope isn't a command",

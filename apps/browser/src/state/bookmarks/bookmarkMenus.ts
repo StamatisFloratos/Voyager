@@ -40,8 +40,8 @@ export function bookmarkRowMenuItems(target: RowMenuTarget): MenuItem[] {
     return menuSections(
       [...openAllItems(target.links), showInFolder(target.showPath)],
       [
-        { id: "addGroup", title: "Add to Sidebar as Group", symbol: "sidebar.left", enabled: target.makesGroup },
-        target.restoresArc && { id: "restoreArc", title: "Restore Arc Folders as Groups" },
+        { id: "addGroup", title: "Add to Sidebar as Category", symbol: "sidebar.left", enabled: target.makesGroup },
+        target.restoresArc && { id: "restoreArc", title: "Restore Arc Folders as Categories" },
       ],
       [
         { id: "edit", title: "Rename…", symbol: "pencil" },

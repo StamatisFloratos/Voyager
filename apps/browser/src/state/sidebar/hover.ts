@@ -194,12 +194,3 @@ export function rowLeft(windowId: string, target: Target | null, event: HoverPoi
   if (target && isShown(windowId, target.id)) card.exit = pointerIn(windowId, event);
   if (target && onPage) hoverLeave(target.id);
 }
-
-const pointedGroups = new Set<string>();
-
-export const pointerOnGroup = (groupId: string) => pointedGroups.has(groupId);
-
-export function setGroupPointed(groupId: string, on: boolean) {
-  if (on) pointedGroups.add(groupId);
-  else pointedGroups.delete(groupId);
-}

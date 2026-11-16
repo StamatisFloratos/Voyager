@@ -81,6 +81,14 @@ export function setCardAnchor(windowId: string, anchor: CardAnchor) {
   useCardAnchors.setState({ [windowId]: anchor });
 }
 
+type PageSpan = { left: number; width: number };
+export const usePageSpans = create<Record<string, PageSpan>>()(() => ({}));
+
+export function setPageSpan(windowId: string, left: number, width: number) {
+  const current = usePageSpans.getState()[windowId];
+  if (width > 0 && (current?.left !== left || current.width !== width)) usePageSpans.setState({ [windowId]: { left, width } });
+}
+
 export const useToolbarExtensionsWidths = create<Record<string, number>>()(() => ({}));
 
 export function watchToolbarExtensionsWidth(windowId: string, listener: (width: number | undefined) => void): () => void {

@@ -33,9 +33,9 @@ export function multiTabMenuItems(s: BrowserState, windowId: string, ids: string
     ],
     [{ id: "duplicate", title: `Duplicate ${n} Tabs`, symbol: "plus.square.on.square" }],
     [
-      { id: "newGroup", title: `New Group with ${n} Tabs`, symbol: "folder.badge.plus", enabled: !f.allTiles, ...hintWhen(!f.allTiles, "newGroupWithTabs", s) },
-      ...(f.tabs.some((t) => groupOf(s, t.id)) ? [{ id: "ungroup", title: "Remove from Group", symbol: "folder.badge.minus" }] : []),
-      ...(groups.length ? [{ id: "moveToGroup", title: "Move to Group", symbol: "folder", children: groups }] : []),
+      { id: "newGroup", title: `New Category with ${n} Tabs`, symbol: "folder.badge.plus", enabled: !f.allTiles, ...hintWhen(!f.allTiles, "newGroupWithTabs", s) },
+      ...(f.tabs.some((t) => groupOf(s, t.id)) ? [{ id: "ungroup", title: "Remove from Category", symbol: "folder.badge.minus" }] : []),
+      ...(groups.length ? [{ id: "moveToGroup", title: "Move to Category", symbol: "folder", children: groups }] : []),
       {
         id: "moveToProfile",
         title: `Move ${n} Tabs to Profile`,

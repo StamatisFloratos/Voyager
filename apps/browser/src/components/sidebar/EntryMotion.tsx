@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useReducer, type Ref } from "react";
 import type { Animated, View } from "react-native";
 
 export type ClipSource = { clipped: () => boolean; subscribe: (changed: () => void) => () => void };
-export type EntryMotion = { shift: Animated.Value | null; clip: ClipSource };
+export type RowShift = Animated.Value | Animated.AnimatedInterpolation<number> | null;
+export type EntryMotion = { shift: RowShift; clip?: ClipSource };
 
 type AnimatedPropsHook = (props: object) => [Record<string, unknown>, (instance: View | null) => void];
 const useAnimatedProps: AnimatedPropsHook = require("react-native/Libraries/Animated/useAnimatedProps").default;
@@ -27,7 +28,7 @@ export function useAnimatedStyle(style: object | null, own?: (view: View | null)
   return [animated, ref];
 }
 
-export function useShift(shift: Animated.Value | null, own?: (view: View | null) => void) {
+export function useShift(shift: RowShift, own?: (view: View | null) => void) {
   const style = useMemo(() => (shift ? { transform: [{ translateY: shift }] } : null), [shift]);
   return useAnimatedStyle(style, own);
 }

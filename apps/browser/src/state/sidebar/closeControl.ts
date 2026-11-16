@@ -9,7 +9,7 @@ import { middleClickTab } from "./clearTabs";
 export type CloseControl = { icon: "xmark" | "minus"; tooltip: string };
 
 const REMOVE_PIN: CloseControl = { icon: "xmark", tooltip: "Remove Pinned Tab" };
-const CLOSE_GROUP: CloseControl = { icon: "xmark", tooltip: "Close Group" };
+const CLOSE_GROUP: CloseControl = { icon: "xmark", tooltip: "Close Category" };
 const UNLOAD_GROUP: CloseControl = { icon: "minus", tooltip: "Unload Tabs" };
 
 const CLOSE_KEY_CONTROLS = { close: { icon: "xmark", title: "Close Tab" }, unload: { icon: "minus", title: "Unload Tab" } } as const;
@@ -40,8 +40,6 @@ export function groupCloseControl(s: BrowserState, groupId: string): CloseContro
 }
 
 export const useGroupCloseControl = (groupId: string) => useBrowser((s) => groupCloseControl(s, groupId));
-
-export const useGroupCloseControlWhile = (groupId: string, live: boolean) => useBrowserWhile(live, (s) => (live ? groupCloseControl(s, groupId) : null));
 
 export function pressGroupClose(groupId: string) {
   const s = useBrowser.getState();

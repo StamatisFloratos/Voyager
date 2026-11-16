@@ -174,6 +174,7 @@ __define("packages/core/src/index.ts", function (exports, __require) {
   __exportAll(exports, __require("packages/core/src/appUrls.ts"));
   __exportAll(exports, __require("packages/core/src/bangs.ts"));
   __exportAll(exports, __require("packages/core/src/calculator.ts"));
+  __exportAll(exports, __require("packages/core/src/chatgpt.ts"));
   __exportAll(exports, __require("packages/core/src/cleanUrl.ts"));
   __exportAll(exports, __require("packages/core/src/engines.ts"));
   __exportAll(exports, __require("packages/core/src/errors.ts"));
@@ -194,6 +195,7 @@ __define("packages/core/src/index.ts", function (exports, __require) {
   __exportAll(exports, __require("packages/core/src/textFragment.ts"));
   __exportAll(exports, __require("packages/core/src/theme.ts"));
   __exportAll(exports, __require("packages/core/src/webStore.ts"));
+
 
 
 
@@ -968,6 +970,17 @@ function calculate(raw        )                     {
 }
 
 });
+__define("packages/core/src/chatgpt.ts", function (exports, __require) {
+  __export(exports, "restorableChatGPTUrl", () => restorableChatGPTUrl);
+const HOME = "https://chatgpt.com/";
+
+function restorableChatGPTUrl(url        )         {
+  if (typeof url !== "string" || !url.startsWith(HOME + "?")) return url;
+  const fields = url.slice(HOME.length + 1).split("#", 1)[0] .split("&");
+  return fields.some(field => field.startsWith("q=")) && fields.includes("hints=search") && fields.includes("ref=ext") ? HOME : url;
+}
+
+});
 __define("packages/core/src/cleanUrl.ts", function (exports, __require) {
   __export(exports, "cleanUrl", () => cleanUrl);
   __export(exports, "markdownLink", () => markdownLink);
@@ -1098,7 +1111,7 @@ const BUILT_IN_ENGINES                          = [
     suggestUrl: "https://duckduckgo.com/ac/?q=%s&type=list",
   },
   { id: "perplexity", name: "Perplexity", keyword: "perplexity.ai", url: "https://www.perplexity.ai/search?q=%s" },
-  { id: "chatgpt", name: "ChatGPT", keyword: "chatgpt.com", url: "https://chatgpt.com/?q=%s" },
+  { id: "chatgpt", name: "ChatGPT", keyword: "chatgpt.com", url: "https://chatgpt.com/?prompt=%s" },
   {
     id: "ecosia",
     name: "Ecosia",

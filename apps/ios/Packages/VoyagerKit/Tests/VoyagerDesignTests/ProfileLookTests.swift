@@ -85,6 +85,11 @@ struct ProfileLookTests {
     #expect(ProfileLook(colorName: "green", themeColors: ["#4F7CFF", "#9B6BFF"]).preset == nil)
   }
 
+  @Test func `a Sand Dunes profile from the Mac uses its sand swatch`() {
+    #expect(ProfileLook(colorName: "sandDunes").swatch.hexString == "#DFD9C4")
+    #expect(ProfileLook(colorName: "sandDunes", themeColors: ["#4F7CFF"]).swatch.hexString == "#4F7CFF")
+  }
+
   @Test func `a widget snapshot carries the look, and one saved before it did is plum`() throws {
     let chosen = SystemSnapshot(color: "green")
     #expect(chosen.look == ProfileLook(preset: .green))

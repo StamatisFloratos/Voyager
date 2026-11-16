@@ -11,17 +11,17 @@ import { closePersonalizePanelOf, setPersonalizePanel as setOpen, usePersonalize
 const INSET = space.xl;
 const BUTTON = 30;
 const GLYPH_DROP = 1.5;
-const PANEL_WIDTH = 352;
+const PANEL_WIDTH = 384;
 const EDITING_PANEL_WIDTH = 432;
 
-export function PersonalizeButton({ windowId }: { windowId: string }) {
+export function PersonalizeButton({ windowId, pageWidth }: { windowId: string; pageWidth: number }) {
   const theme = useTheme();
   const { hovered, hoverProps } = useHover();
   const open = usePersonalizePanel((s) => s.windowId === windowId);
   useEffect(() => () => closePersonalizePanelOf(windowId), [windowId]);
   return (
     <>
-      {open ? <PersonalizePanel windowId={windowId} onClose={() => setOpen(null)} /> : null}
+      {open ? <PersonalizePanel windowId={windowId} pageWidth={pageWidth} onClose={() => setOpen(null)} /> : null}
       <View {...hoverProps} tooltip="Personalize" style={{ position: "absolute", right: INSET, bottom: INSET - GLYPH_DROP }}>
         <Pressable onPress={() => setOpen(open ? null : windowId)} accessibilityRole="button" accessibilityLabel="Personalize" accessibilityState={{ expanded: open }}>
           {({ pressed }) => (
@@ -44,7 +44,7 @@ export function PersonalizeButton({ windowId }: { windowId: string }) {
   );
 }
 
-function PersonalizePanel({ windowId, onClose }: { windowId: string; onClose: () => void }) {
+function PersonalizePanel({ windowId, pageWidth, onClose }: { windowId: string; pageWidth: number; onClose: () => void }) {
   const t = useRef(new Animated.Value(0)).current;
   const editing = useWindowProfileValue(windowId, (p) => !!p?.theme);
   useEffect(() => {
@@ -58,7 +58,7 @@ function PersonalizePanel({ windowId, onClose }: { windowId: string; onClose: ()
           position: "absolute",
           right: INSET,
           bottom: INSET + BUTTON + space.m,
-          width: editing ? EDITING_PANEL_WIDTH : PANEL_WIDTH,
+          width: Math.min(editing ? EDITING_PANEL_WIDTH : PANEL_WIDTH, Math.max(0, pageWidth - 2 * INSET)),
           opacity: t.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: "clamp" }),
           transform: [{ translateY: t.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }, { scale: t.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) }],
         }}

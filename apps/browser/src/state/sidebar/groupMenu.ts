@@ -16,6 +16,7 @@ import { runSharedFolderChoice, sharedFolderMenuItems } from "../sharedFolders/m
 type GroupChoice = Destination | { kind: "color"; color: GroupColor | null };
 
 type GroupMenuItem = ChoiceItem<GroupChoice>;
+type GroupMenuSurface = "sidebar" | "strip";
 
 const store = () => useBrowser.getState();
 
@@ -31,41 +32,41 @@ export function groupColorItems(current: GroupColor | null, siteColor: string | 
   ];
 }
 
-export function groupMenuItems(s: BrowserState, windowId: string, groupId: string): GroupMenuItem[] {
+export function groupMenuItems(s: BrowserState, windowId: string, groupId: string, surface: GroupMenuSurface = "sidebar"): GroupMenuItem[] {
   const g = s.groups[groupId];
   if (!g) return [];
   const siteColor = g.tabIds.map((id) => s.live[id]?.themeColor).find(Boolean);
   const shown = groupOf(s, activeTabId(s, windowId))?.id === groupId;
   const incognito = isIncognitoProfile(g.profileId);
   return sections<GroupMenuItem>(
-    g.parentId ? [] : [{ id: "pin", title: g.pinned ? "Unpin Group" : "Pin Group", symbol: g.pinned ? "pin.slash" : "pin" }],
+    g.parentId ? [] : [{ id: "pin", title: g.pinned ? "Unpin Category" : "Pin Category", symbol: g.pinned ? "pin.slash" : "pin" }],
     [
-      { id: "newTab", title: "New Tab in Group", symbol: "plus.app", ...hintWhen(shown, "newTabInGroup", s) },
-      { id: "nest", title: "New Nested Group" },
-      { id: "duplicate", title: "Duplicate Group", symbol: "plus.square.on.square" },
+      { id: "newTab", title: "New Tab in Category", symbol: "plus.app", ...hintWhen(shown, "newTabInGroup", s) },
+      { id: "nest", title: "New Subcategory" },
+      { id: "duplicate", title: "Duplicate Category", symbol: "plus.square.on.square" },
     ],
     [
       { id: "moveToProfile", title: "Move to Profile", symbol: "person", enabled: !incognito, children: profileItems(s, (id) => id === g.profileId) },
       ...(g.pinned ? [] : [{ id: "moveToWindow", title: "Move to Window", symbol: "macwindow", enabled: !incognito, children: windowItems(s, windowId) }]),
     ],
     [
-      { id: "rename", title: "Rename…", symbol: "pencil" },
-      { id: "icon", title: hasOwnGroupIcon(g.icon) ? "Change Icon…" : "Add Icon…", symbol: "photo" },
+      { id: "rename", title: "Rename Category…", symbol: "pencil" },
+      surface === "strip" && { id: "icon", title: hasOwnGroupIcon(g.icon) ? "Change Icon…" : "Add Icon…", symbol: "photo" },
       { id: "color", title: "Color", symbol: "paintpalette", children: groupColorItems(g.color, siteColor) },
     ],
     withAlternate({ id: "copy", title: "Copy All Links", symbol: "link" }, { id: "copyMd", title: "Copy All Links as Markdown", symbol: "link" }, null),
     sharedFolderMenuItems(s, groupId),
     [
-      { id: "ungroup", title: "Ungroup", symbol: "folder.badge.minus" },
       bookmarksShown(s.settings) && { id: "bookmarkBar", title: "Move to Bookmarks Bar", symbol: "bookmark" },
-      { id: "close", title: "Close Group", symbol: "xmark", ...hintWhen(shown, "closeTabGroup", s) },
-      { id: "delete", title: "Delete Group", symbol: "trash" },
+      { id: "ungroup", title: "Remove Category and Keep Tabs", symbol: "folder.badge.minus" },
+      { id: "close", title: "Close Category", symbol: "xmark", ...hintWhen(shown, "closeTabGroup", s) },
+      { id: "delete", title: "Delete Category", symbol: "trash" },
     ],
   );
 }
 
-export async function openGroupMenu(windowId: string, groupId: string) {
-  const choice = await chooseFromMenu(groupMenuItems(store(), windowId, groupId));
+export async function openGroupMenu(windowId: string, groupId: string, surface: GroupMenuSurface = "sidebar") {
+  const choice = await chooseFromMenu(groupMenuItems(store(), windowId, groupId, surface));
   if (!choice) return;
   const removes = typeof choice === "string" ? REMOVES_FOLDER.has(choice) : choice.kind === "profile";
   if (removes && !(await confirmRemovingShared(windowId, groupId))) return;

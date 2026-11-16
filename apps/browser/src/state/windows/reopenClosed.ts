@@ -1,9 +1,9 @@
 import type { BrowserState } from "../browser/store";
 import { rejoinGroups } from "../groups/groups";
 import { withShownTab } from "../groups/shownTabs";
-import { findLast, IDLE_LIVE, inPinnedContainer, isIncognitoProfile, makeTab, newId, pinKeyOf, resolveWindowId } from "../browser/model";
+import { findLast, IDLE_LIVE, inPinnedContainer, isIncognitoProfile, makeTab, navigationTo, newId, pinKeyOf, resolveWindowId, restorableSnapshot } from "../browser/model";
 import { restoreId } from "../tabs/adoptIds";
-import { adoptedPage, hasPage } from "../tabs/pageSession";
+import { adoptedPage, hasPage, loadedPage } from "../tabs/pageSession";
 import { adoptParkedPins } from "../pins/parkedPins";
 import { holderOf, swapPinPage } from "../pins/pinShare";
 import { isOpenRegularWindow, lastActiveProfile } from "./small";
@@ -47,7 +47,8 @@ function canRestoreTabInto(s: BrowserState, c: ClosedTab, windowId: string | und
 }
 
 export function restoreTab(s: BrowserState, entry: ClosedTab, requested?: string | null): BrowserState {
-  const owner = entry.tab.profileId;
+  const tab = restorableSnapshot(entry.tab);
+  const owner = tab.profileId;
   if (entry.pinnedTile && entry.tabId && !s.tabs[entry.tabId] && s.parkedPins[owner]?.tabs.some((p) => p.id === entry.tabId)) {
     const target = resolveWindowId(s, requested);
     let windowId = target && s.windows[target]!.kind !== "private" && s.windows[target]!.profileId === owner ? target : undefined;
@@ -77,7 +78,7 @@ export function restoreTab(s: BrowserState, entry: ClosedTab, requested?: string
   if (tile) {
     const unloaded = !hasPage(tile);
     const tabs = unloaded
-      ? { ...s.tabs, [tile.id]: { ...tile, url: entry.tab.url, title: entry.tab.title, favicon: entry.tab.favicon, muted: entry.tab.muted, page: adoptedPage(restoreId(entry.restoreFrom ?? tile.id)) } }
+      ? { ...s.tabs, [tile.id]: { ...tile, url: tab.url, title: entry.tab.title, favicon: entry.tab.favicon, muted: entry.tab.muted, page: tab.restoreByUrl ? loadedPage(navigationTo(tab.url)) : adoptedPage(restoreId(entry.restoreFrom ?? tile.id)) } }
       : s.tabs;
     const next: BrowserState = { ...s, closedTabs, tabs };
     return apply(next, activated(next, tile.id));
@@ -112,9 +113,10 @@ export function restoreWindow(s: BrowserState, entry: ClosedWindow): BrowserStat
   const tabs = { ...s.tabs };
   const live = { ...s.live };
   const ids: string[] = [];
-  for (const { active, tabId, ...snap } of entry.tabs) {
+  for (const saved of entry.tabs) {
+    const { active, tabId, ...snap } = restorableSnapshot(saved);
     const t = makeTab(id, profileOk(snap.profileId), "", { ...snap, profileId: profileOk(snap.profileId) });
-    if (tabId && snap.url) t.page = { kind: "idle", wake: restoreId(tabId) };
+    if (tabId && snap.url && !snap.restoreByUrl) t.page = { kind: "idle", wake: restoreId(tabId) };
     tabs[t.id] = t;
     live[t.id] = IDLE_LIVE;
     ids.push(t.id);

@@ -4,13 +4,11 @@ import { View } from "react-native";
 import { useTheme } from "../ui/theme";
 import { CARD_INSET } from "../../lib/windowLayout";
 import { pageHostLabel } from "../../lib/url";
-import { useTabLive } from "../../state/browser/hooks";
 import type { Tab } from "../../state/browser/types";
 import { usePage } from "../../state/tabs/pageState";
 import { font, radius, space } from "../ui/tokens";
-import { SMALL_BAR_BUTTON, SMALL_BAR_ROW, SMALL_PROGRESS } from "./tokens";
+import { SMALL_BAR_BUTTON, SMALL_BAR_ROW } from "./tokens";
 import { Favicon } from "../favicon/Favicon";
-import { TabProgressBar } from "../toolbar/ProgressBar";
 import { insecureLevel } from "../toolbar/Toolbar";
 import { SMALL_BAR_HEIGHT } from "../../state/windows/small";
 
@@ -22,7 +20,6 @@ export const SMALL_BAR_GAP = 2;
 export const SMALL_FIELD_GAP = 6;
 const HOST = { flexShrink: 0, maxWidth: "60%" } as const;
 const FLEX = { flex: 1 } as const;
-const PROGRESS_PLACE = { position: "absolute", left: SMALL_PROGRESS.left, width: SMALL_PROGRESS.share, top: 0, bottom: 0 } as const;
 
 export type SmallBarButton = { icon: string; tooltip: string; onPress: () => void; disabled?: boolean };
 
@@ -61,7 +58,6 @@ export function SmallBar({
 
 export function PageLabel({ tab, hovered = false, label }: { tab: Tab; hovered?: boolean; label?: string }) {
   const theme = useTheme();
-  const live = useTabLive(tab.id);
   const insecure = usePage(tab.id, (p) => !!insecureLevel(p)) && !!tab.url;
   const host = tab.url ? pageHostLabel(tab.url) : "";
   const title = tab.customTitle || tab.title;
@@ -98,11 +94,6 @@ export function PageLabel({ tab, hovered = false, label }: { tab: Tab; hovered?:
           Search or enter address
         </Text>
       )}
-      {live.isLoading ? (
-        <View pointerEvents="none" style={PROGRESS_PLACE}>
-          <TabProgressBar tabId={tab.id} color={theme.accent} />
-        </View>
-      ) : null}
     </View>
   );
 }

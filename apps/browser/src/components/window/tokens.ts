@@ -75,3 +75,29 @@ export const ARC_PEEK_OUT_MS = 150;
 export const ARC_HIDE_MS = duration.fast;
 
 export const PEEK_RADIUS = radius.panel;
+
+export const BLANK_PAGE_CANVAS = "#FFFFFF";
+
+export const NAVIGATION_MESH = {
+  shadow: "#322F2A",
+  light: "#FCFBF7",
+  cycle: 2400,
+  enter: 135,
+  minimum: 200,
+  reveal: 185,
+};
+
+export const NAVIGATION_PROGRESS = {
+  top: 3,
+  height: 4,
+  viewportWidth: "8%",
+  minWidth: 32,
+  maxWidth: 48,
+  track: "#807868",
+  sweep: "#575040",
+  sweepPeriod: 1100,
+  motion: {
+    show: { duration: duration.fast, easing: curve.enter },
+    hide: { duration: duration.base, easing: curve.exit },
+  },
+} as const;

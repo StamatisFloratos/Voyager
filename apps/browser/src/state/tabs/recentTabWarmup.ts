@@ -1,11 +1,15 @@
 import type { SystemState } from "../../platform/performance";
-import { useBrowser } from "../browser/store";
+import { useBrowser, type BrowserState } from "../browser/store";
 import { isInternalTab } from "../pages/urls";
 import { holderOf } from "../pins/pinShare";
 import { restoredLazily, wokenPage } from "./pageSession";
+import { pageOf, usePages } from "./pageState";
 import { shownTabIds } from "./shownTabs";
 
 const store = () => useBrowser.getState();
+const WARM_INTERVAL = 2000;
+
+const foregroundLoading = (s: BrowserState) => [...shownTabIds(s)].some((id) => s.live[id]?.isLoading || pageOf(id).documentMesh !== null);
 
 export function reloadRecentTabs(sys: SystemState) {
   const gb = sys.physicalMemory / 2 ** 30;
@@ -20,12 +24,33 @@ export function reloadRecentTabs(sys: SystemState) {
     .sort((a, b) => b.lastActiveAt - a.lastActiveAt)
     .slice(0, count)
     .map((t) => t.id);
-  ids.forEach((id, i) =>
-    setTimeout(() => {
-      const now = store();
-      const t = now.tabs[id];
-      if (t && restoredLazily(t) && !holderOf(now, id)) now.updateTab(id, { page: wokenPage(t) });
-    }, 2000 * (i + 1)),
-  );
+  let next = 0;
+  function warmNext() {
+    const now = store();
+    if (foregroundLoading(now)) {
+      const resumeIfIdle = () => {
+        if (foregroundLoading(store())) return;
+        offBrowser();
+        offPages();
+        setTimeout(warmNext, WARM_INTERVAL);
+      };
+      const offBrowser = useBrowser.subscribe((state, previous) => {
+        if (state.live !== previous.live || state.windows !== previous.windows || state.tabs !== previous.tabs) resumeIfIdle();
+      });
+      const offPages = usePages.subscribe((state, previous) => {
+        if (state.pages !== previous.pages) resumeIfIdle();
+      });
+      return;
+    }
+    while (next < ids.length) {
+      const id = ids[next++]!;
+      const tab = now.tabs[id];
+      if (!tab || now.windows[tab.windowId]?.profileId !== tab.profileId || !restoredLazily(tab) || holderOf(now, id)) continue;
+      now.updateTab(id, { page: wokenPage(tab) });
+      break;
+    }
+    if (next < ids.length) setTimeout(warmNext, WARM_INTERVAL);
+  }
+  if (ids.length) setTimeout(warmNext, WARM_INTERVAL);
   return ids;
 }

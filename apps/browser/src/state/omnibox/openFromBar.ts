@@ -1,7 +1,5 @@
 import { openWindow, switchToTab } from "../browser/actions";
 import { useBrowser } from "../browser/store";
-import { activeTabId, viewTabIds } from "../browser/model";
-import type { Tab } from "../browser/types";
 import { openSplitPane } from "../splits/actions";
 import { gateOpening, settleOpening } from "../tabs/openingGate";
 import { noteSplit } from "../telemetry/usage";
@@ -52,13 +50,4 @@ export function switchFromBar(targetTabId: string, url: string, barTabId: string
   const bar = s.tabs[barTabId];
   if (bar) s.closePanel(bar.windowId);
   switchToTab(targetTabId);
-}
-
-export function otherOpenTabs(windowId: string, limit: number): Tab[] {
-  const s = useBrowser.getState();
-  const active = activeTabId(s, windowId);
-  return viewTabIds(s, windowId)
-    .map((id) => s.tabs[id]!)
-    .filter((t) => t.id !== active && t.url)
-    .slice(0, limit);
 }

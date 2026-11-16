@@ -19,7 +19,10 @@ import { splitOf, splitTabIdsOf } from "../splits/splits";
 
 export type { AutofillPrompt, AutofillPromptAnswer, PasswordPrompt, PasswordPromptAnswer } from "../../platform/tabs";
 
+export type DocumentMesh = { id: number; background: string; colors: readonly string[] };
+
 export type PageState = {
+  documentMesh: DocumentMesh | null;
   status: string;
   statusAtTop: boolean;
   crashed: CrashInfo | null;
@@ -41,6 +44,7 @@ export type PageState = {
 };
 
 const IDLE_PAGE: PageState = {
+  documentMesh: null,
   status: "",
   statusAtTop: false,
   crashed: null,

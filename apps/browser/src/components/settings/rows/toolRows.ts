@@ -74,7 +74,7 @@ export const toolRows = {
         autoGroup: {
           advanced: true,
           title: "Automatically group tabs for meetings",
-          description: "Joining a call makes a tab group for it; links you open from the meeting join the group.",
+          description: "Joining a call creates a category for the meeting and any links you open from it.",
           keywords: ["zoom", "meet", "call", "tab groups"],
         },
       },

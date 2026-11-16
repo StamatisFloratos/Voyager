@@ -153,6 +153,12 @@ test("the bundled list has the common bangs", () => {
   assert.equal(findBang("!gh react", bundled)!.url, "https://github.com/search?q=react");
   assert.equal(findBang("react !w", bundled)!.url, "https://wikipedia.org/w/index.php?search=react");
   assert.equal(findBang("!yt", bundled)!.url, "https://www.youtube.com/");
+  for (const text of ["!chatgpt A+B & C?", "A+B & C? !cgpt"]) {
+    const url = new URL(findBang(text, bundled)!.url);
+    assert.equal(url.origin + url.pathname, "https://chatgpt.com/");
+    assert.deepEqual(Object.fromEntries(url.searchParams), { prompt: "A+B & C?" });
+  }
+  assert.equal(findBang("!chatgpt", bundled)!.url, "https://chatgpt.com/");
   assert.equal(bundled.get("t3")?.name, "T3 Chat");
 });
 

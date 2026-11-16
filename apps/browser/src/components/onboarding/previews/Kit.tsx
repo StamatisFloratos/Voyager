@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { Animated, Text, View, type StyleProp, type TextStyle, type ViewStyle } from "react-native";
-import { Surface, Symbol } from "../../ui";
+import { Surface, Symbol, WindowBackdrop } from "../../ui";
 import { hex } from "../../ui/theme";
 import { capsule, font, radius as radii, space, type ShadowLevel } from "../../ui/tokens";
 import { TAB_ROW } from "../../sidebar/tokens";
-import type { ToolbarPalette } from "../../ui/toolbarColors";
+import { toolbarPalette, type ToolbarPalette } from "../../ui/toolbarColors";
 import { trafficLights } from "../tokens";
 import { NEW_TAB, tab, type Tab } from "./content";
 import { at, atRect, CHIP, CRUMB_X, FIELD, fill, hairline, LIGHTS_Y, ROW, rowY, STRIP_H, TOOLBAR_H, TOOLBAR_ICONS, type Geo, type Rect } from "./geometry";
@@ -28,6 +28,9 @@ export function Glyph({ g, name, size, color, weight, box }: { g: Geo; name: str
 }
 
 export function Backdrop({ look }: { look: Look }) {
+  if (look.t.backdrop.themeColors.length) {
+    return <WindowBackdrop vibrancy {...look.t.backdrop} colors={look.t.windowTint} style={fill} />;
+  }
   const bands = 10;
   return (
     <View style={[fill, { backgroundColor: look.tint[0] }]} pointerEvents="none">
@@ -58,7 +61,7 @@ export function Favicon({ g, t, size = 16 }: { g: Geo; t: Tab; size?: number }) 
 }
 
 export function Highlight({ g, look, x = ROW.x, y, w = ROW.w, h = ROW.h, style }: { g: Geo; look: Look; x?: number; y: number; w?: number; h?: number; style?: Styles }) {
-  const t = look.t;
+  const t = look.sidebar;
   return (
     <Animated.View style={[at(g, x, y, w, h), style as ViewStyle]} pointerEvents="none">
       <Surface
@@ -76,14 +79,15 @@ export function Highlight({ g, look, x = ROW.x, y, w = ROW.w, h = ROW.h, style }
   );
 }
 
-export function TabRow({ g, look, t, x = ROW.x, y, w = ROW.w, selected, style, dim }: { g: Geo; look: Look; t: Tab; x?: number; y: number; w?: number; selected?: boolean; style?: Styles; dim?: boolean }) {
+export function TabRow({ g, look, t, x = ROW.x, y, w = ROW.w, selected, titleColor, style, dim }: { g: Geo; look: Look; t: Tab; x?: number; y: number; w?: number; selected?: boolean; titleColor?: string; style?: Styles; dim?: boolean }) {
+  const ink = titleColor ?? (t === NEW_TAB ? look.sidebar.textSecondary : selected ? look.sidebar.rowSelectedText : look.sidebar.textTab);
   return (
     <Animated.View style={[at(g, x, y, w, ROW.h), style as ViewStyle]}>
       {selected ? <Highlight g={g} look={look} x={0} y={0} w={w} /> : null}
       <View style={[fill, { flexDirection: "row", alignItems: "center", paddingLeft: TAB_ROW.contentLeft * g.s, paddingRight: TAB_ROW.trailing * g.s, gap: TAB_ROW.titleGap * g.s, opacity: dim ? 0.4 : 1 }]}>
         <Favicon g={g} t={t} />
         <View style={{ flex: 1 }}>
-          <Label g={g} size={font.body.fontSize} color={t === NEW_TAB ? look.t.textSecondary : selected ? look.t.tabSelectedText : look.t.textTab}>
+          <Label g={g} size={font.body.fontSize} color={ink}>
             {t.title}
           </Label>
         </View>
@@ -142,13 +146,13 @@ export function Toolbar({ g, look, w, t, site, crumb = true, icons = TOOLBAR_ICO
 }
 
 export function FieldPlate({ g, look, style, children }: { g: Geo; look: Look; style?: Styles; children?: ReactNode }) {
-  return <Animated.View style={[{ position: "absolute", borderRadius: radii.chrome * g.s, backgroundColor: look.t.pinnedResting }, style as ViewStyle]}>{children}</Animated.View>;
+  return <Animated.View style={[{ position: "absolute", borderRadius: radii.chrome * g.s, backgroundColor: look.sidebar.pinnedResting }, style as ViewStyle]}>{children}</Animated.View>;
 }
 
 export function SidebarField({ g, look, t, style, children }: { g: Geo; look: Look; t: Tab; style?: Styles; children?: ReactNode }) {
   return (
     <FieldPlate g={g} look={look} style={[atRect(g, FIELD), { justifyContent: "center", paddingHorizontal: space.l * g.s, overflow: "hidden" }, style]}>
-      {children ?? <Crumb g={g} look={look} t={t} />}
+      {children ?? <Crumb g={g} look={look} t={t} palette={toolbarPalette(look.sidebar, null)} />}
     </FieldPlate>
   );
 }

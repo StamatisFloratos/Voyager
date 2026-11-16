@@ -189,7 +189,7 @@ export const generalRows = {
         },
         newTabPosition: {
           title: "Add new tabs",
-          description: "Where ⌘T and + New Tab put the new tab. Next to the current tab, it joins that tab's group (from a pinned tab, it goes first in the list), and closing it brings you back. Links open next to their page either way.",
+          description: "Where ⌘T and + New Tab put the new tab. Next to the current tab, it joins that tab's category (from a pinned tab, it goes first in the list), and closing it brings you back. Links open next to their page either way.",
           keywords: ["new tab position", "next to current tab", "after current tab", "beside", "right of", "below", "adjacent", "end", "left", "top", "bottom", "order", "cmd t"],
         },
         newTabButtonPosition: {
@@ -255,25 +255,25 @@ export const generalRows = {
       },
     },
     {
-      section: "Tab groups",
+      section: "Tab categories",
       rows: {
         warnBeforeClosingTabGroup: {
           advanced: true,
-          title: "Warn before closing a tab group",
-          description: "Asks before Close Group closes a group and its tabs. A pinned group's − unloads its tabs instead, and keeps the group.",
+          title: "Warn before closing a category",
+          description: "Asks before closing a category and its tabs. The minus button on a pinned category unloads its tabs.",
           keywords: ["confirm", "close group", "folder", "accidentally"],
         },
-        cmdClickCreatesTabGroup: { advanced: true, title: "⌘-clicking links creates tab groups", keywords: ["command click", "cmd click"] },
+        cmdClickCreatesTabGroup: { advanced: true, title: "⌘-clicking links creates tab categories", keywords: ["command click", "cmd click"] },
         optShiftClickOpensInGroup: {
           advanced: true,
-          title: "⌥⇧-click opens tab in group",
-          description: "⌥⇧-click a tab to open it in a group with the current tab. (⌥⇧-clicking a link opens it in a split.)",
+          title: "⌥⇧-click opens tab in category",
+          description: "⌥⇧-click a tab to open it in a category with the current tab. (⌥⇧-clicking a link opens it in a split.)",
           keywords: ["option shift click", "split"],
         },
         dragToGroupInTopStrip: {
           shown: (_, env) => env.top,
           title: "Drag a tab onto another to group them",
-          description: "With tabs across the top, dropping a tab on another makes a group, and dropping it on a group adds it. Off, dragging only reorders.",
+          description: "With tabs across the top, dropping a tab on another creates a category. Drop it on a category to add it. Off, dragging only reorders.",
           keywords: ["drag", "drop", "group", "top tab strip", "horizontal tabs", "reorder"],
         },
         autoGroupMeetingTabs: { advanced: true, title: "Automatically group tabs for meetings", keywords: ["calendar", "zoom", "meet", "call"] },

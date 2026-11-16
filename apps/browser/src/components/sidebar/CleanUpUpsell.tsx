@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from "react";
-import { Animated, View } from "react-native";
+import { View } from "react-native";
 import { everySlowly } from "../../state/app/slowTimers";
 import { Button, hairline, radius, space, Symbol, Text } from "../ui";
 import { useTheme } from "../ui/theme";
@@ -9,14 +9,14 @@ import { DAILY_CLEAN_UP_MINUTES } from "../../state/settings/cleanUpAfter";
 import { updateSettings } from "../../state/settings/actions";
 import { cleanUpCandidateCount } from "../../state/sidebar/current";
 import { useShownTabId } from "../../state/sidebar/hooks";
-import { useShift } from "./EntryMotion";
+import { useShift, type RowShift } from "./EntryMotion";
 import { useSidebarTokens } from "./tokens";
 
 const UPSELL_MIN = 10;
 const FILL = { flex: 1 } as const;
 let upsellDeclined = false;
 
-export const CleanUpUpsell = memo(function CleanUpUpsell({ windowId, shift }: { windowId: string; shift: Animated.Value | null }) {
+export const CleanUpUpsell = memo(function CleanUpUpsell({ windowId, shift }: { windowId: string; shift: RowShift }) {
   const theme = useTheme();
   const tokens = useSidebarTokens();
   const [count, setCount] = useState(0);

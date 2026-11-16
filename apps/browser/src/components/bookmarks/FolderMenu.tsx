@@ -161,7 +161,7 @@ export function FolderMenu({ windowId, panel, layer, closing, onClosed }: { wind
             <ActionRow
               size={size}
               symbol="sidebar.left"
-              title="Add to Sidebar as Group"
+              title="Add to Sidebar as Category"
               disabled={!footer.group}
               onPress={() => {
                 closeFolderMenus();

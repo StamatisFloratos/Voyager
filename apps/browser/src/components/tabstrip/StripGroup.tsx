@@ -148,11 +148,11 @@ export function StripGroup({
         {...hoverProps}
         {...drag.panHandlers}
         mouseDownCanMoveWindow={false}
-        tooltip={expanded ? "Collapse Group" : "Expand Group"}
+        tooltip={expanded ? "Collapse Category" : "Expand Category"}
         onLayout={(e) => onChipWidth(Math.ceil(e.nativeEvent.layout.width * 2) / 2)}
         style={{ position: "absolute", left: 0, top: ITEM_TOP, height: ITEM_HEIGHT }}
       >
-        <ContextMenuArea onContextMenu={() => void openGroupMenu(windowId, entry.id)}>
+        <ContextMenuArea onContextMenu={() => void openGroupMenu(windowId, entry.id, "strip")}>
           <Pressable
             onPress={() => updateGroup(entry.id, { collapsed: expanded })}
             style={{ height: ITEM_HEIGHT, flexDirection: "row", alignItems: "center", paddingLeft: GROUP_CHIP_PAD.left, paddingRight: GROUP_CHIP_PAD.right }}

@@ -10,7 +10,7 @@ const SYNC_TYPES = {
   bookmarks: { title: "Bookmarks", description: "Each synced profile’s bookmarks bar and other bookmarks.", profileData: true },
   history: { title: "History", description: "The last 90 days.", profileData: true },
   tabs: { title: "Open Tabs", description: "Your other devices’ tabs show in the tab overflow menu." },
-  pinned: { title: "Pinned Tabs and Groups", description: "Pinned tabs and pinned tab groups." },
+  pinned: { title: "Pinned Tabs and Categories", description: "Pinned tabs and pinned categories." },
   passwords: { title: "Passwords", description: "Saved passwords. Turning sync off never removes them from this Mac.", profileData: true },
   extensions: {
     title: "Extensions",

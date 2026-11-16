@@ -2,6 +2,7 @@ import { WindowBackdrop } from "./components/ui";
 import { useMemo, useState } from "react";
 import { StyleSheet } from "react-native";
 import { CommandPanel } from "./components/omnibox/CommandPanel";
+import { NavigationProgress } from "./components/window/NavigationProgress";
 import { ContentCard } from "./components/window/ContentCard";
 import { BookmarkDialog } from "./components/bookmarks/BookmarkDialog";
 import { EditBookmarkDialog } from "./components/bookmarks/EditBookmarkDialog";
@@ -92,6 +93,7 @@ function BrowserWindow() {
       >
         {card}
       </DockedLayout>
+      {!fullscreen && <NavigationProgress windowId={windowId} />}
       <CommandPanel windowWidth={width} />
       <FolderMenus />
       <DownloadsPopover />

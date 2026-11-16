@@ -1,3 +1,4 @@
+import { restorableChatGPTUrl } from "@voyager/core";
 import type { BrowserState } from "../browser/store";
 import { changedIds } from "../browser/changes";
 import { pinnedGroupMembers } from "../browser/structure";
@@ -5,7 +6,7 @@ import type { Tab } from "../browser/types";
 
 type HomeSource = Pick<BrowserState, "tabs" | "groups" | "windows">;
 
-export const pinHome = (t: Pick<Tab, "url" | "pinnedUrl">, housed: boolean): string | null => (housed ? t.pinnedUrl || t.url || null : null);
+export const pinHome = (t: Pick<Tab, "url" | "pinnedUrl">, housed: boolean): string | null => (housed ? restorableChatGPTUrl(t.pinnedUrl || t.url) || null : null);
 
 export function settlePinHomes(s: HomeSource, prev: HomeSource): Pick<BrowserState, "tabs"> | null {
   if (s.tabs === prev.tabs && s.groups === prev.groups) return null;

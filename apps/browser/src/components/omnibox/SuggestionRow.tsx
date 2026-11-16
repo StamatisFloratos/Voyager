@@ -3,6 +3,7 @@ import { memo } from "react";
 import { Image, Pressable, Text as NativeText, View } from "react-native";
 import { Button, Symbol, Text, useHover, useTheme, withAlpha, type Theme } from "../ui";
 import { Favicon } from "../favicon/Favicon";
+import { ResultViewport } from "./ResultViewport";
 import { SELECTED_SUGGESTION_ALPHA, SUGGESTION } from "./tokens";
 
 const ICON_BOX = { width: SUGGESTION.iconBox, height: SUGGESTION.iconBox } as const;
@@ -19,7 +20,7 @@ export function SuggestionIcon({ suggestion: s, color }: { suggestion: Suggestio
     case "create":
       return <Favicon url={`https://${s.site}`} />;
     case "search":
-      return <Symbol name="magnifyingglass" size={SUGGESTION.icon} color={tint} style={ICON_BOX} />;
+      return <Symbol name={s.ai ? "bubble.left" : "magnifyingglass"} size={SUGGESTION.icon} color={tint} style={ICON_BOX} />;
     case "calc":
       return <Symbol name="equal.circle" size={SUGGESTION.calcIcon} color={tint} style={ICON_BOX} />;
     case "action":
@@ -41,6 +42,7 @@ function labels(s: Suggestion): [string, string | null] {
       if (s.tabId) return [s.title || displayUrl(s.url), "Switch to Tab"];
       return s.title ? [s.title, displayUrl(s.url)] : [displayUrl(s.url), null];
     case "search":
+      if (s.ai) return [`Ask ${s.engine}`, null];
       return [s.bang ? `Search ${s.engine} for ${s.query}` : s.query, null];
     case "calc":
       return [s.value, s.expression];
@@ -66,17 +68,21 @@ export const SuggestionList = memo(function SuggestionList({
   selectedIndex,
   trailing,
   dropdown,
+  popup,
+  maxHeight,
   actions,
 }: {
   items: Suggestion[];
   selectedIndex: number;
   trailing: string | null;
   dropdown: boolean;
+  popup: boolean;
+  maxHeight?: number;
   actions: RowActions;
 }) {
-  if (!items.length) return null;
-  return (
-    <View style={{ paddingHorizontal: dropdown ? SUGGESTION.dropdownListX : SUGGESTION.listX, paddingBottom: dropdown ? SUGGESTION.dropdownListBelow : SUGGESTION.listBelow }}>
+  const bottom = dropdown ? SUGGESTION.dropdownListBelow : SUGGESTION.listBelow;
+  const rows = items.length ? (
+    <View style={{ paddingHorizontal: dropdown ? SUGGESTION.dropdownListX : SUGGESTION.listX, paddingBottom: bottom }}>
       {items.map((s, i) => (
         <SuggestionRow
           key={i}
@@ -87,7 +93,8 @@ export const SuggestionList = memo(function SuggestionList({
         />
       ))}
     </View>
-  );
+  ) : null;
+  return popup ? <ResultViewport count={items.length} selected={selectedIndex} bottom={bottom} maxHeight={maxHeight}>{rows}</ResultViewport> : rows;
 });
 
 function sameSuggestion(a: Suggestion, b: Suggestion): boolean {
@@ -116,9 +123,10 @@ const SuggestionRow = memo(
     const hint = trailing ?? (s.kind === "action" ? s.hint : s.kind === "provider" ? s.provider : null);
     const onRemove = isRemovable(s) ? () => actions.remove(s.url) : undefined;
     const removable = !!onRemove && (hovered || selected);
+    const choose = () => actions.choose(s);
     return (
       <View {...hoverProps}>
-        <Pressable onPress={() => actions.choose(s)}>
+        <Pressable accessibilityRole="button" accessibilityLabel={[title, accessory, hint].filter(Boolean).join(", ")} accessibilityState={{ selected }} onAccessibilityTap={choose} onPress={choose}>
           <View
             style={{
               height: SUGGESTION.height,

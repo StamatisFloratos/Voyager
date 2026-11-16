@@ -101,6 +101,7 @@ export const privacyRows = {
     },
   ],
   search: [
+    { section: "AI", rows: { defaultAiEngine: { title: "Default AI engine", description: "Opens a new conversation when you submit a prompt from the command bar.", keywords: ["assistant", "chatgpt", "prompt"] } } },
     { section: "Default search engine", rows: { defaultEngine: { title: "Default search engine", description: "Used by the command bar and the New Tab page.", keywords: ["google", "duckduckgo", "bing", "kagi", "ecosia"] } } },
     {
       section: "Other search engines",

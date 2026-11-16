@@ -1,4 +1,4 @@
-import { reportPageCommits } from "../../platform/tabs";
+import { observePageCommits } from "../../platform/tabs";
 import { useBrowser, type BrowserState } from "../browser/store";
 import { activeTabId } from "../browser/model";
 import { focusedWindowOf } from "../windows/ui";
@@ -104,18 +104,20 @@ export function startEventFeed(send: AutomationEventSink) {
   sink = send;
   if (stopWatching) return;
   startedAt = Date.now();
-  void reportPageCommits(true).catch(() => {});
+  const releaseCommits = observePageCommits();
   const s = useBrowser.getState();
   for (const id in s.tabs) commits.set(id, { url: s.tabs[id]!.url, at: startedAt });
   const unsubscribe = useBrowser.subscribe((next, prev) => {
     diffStates(next, prev, (name, data) => sink?.(name, data));
     if (next.tabs !== prev.tabs) for (const id of commits.keys()) if (!next.tabs[id]) commits.delete(id);
   });
-  stopWatching = unsubscribe;
+  stopWatching = () => {
+    unsubscribe();
+    releaseCommits();
+  };
 }
 
 export function stopEventFeed() {
-  if (stopWatching) void reportPageCommits(false).catch(() => {});
   stopWatching?.();
   stopWatching = null;
   sink = null;

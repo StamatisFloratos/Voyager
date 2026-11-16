@@ -10,77 +10,19 @@ public struct VoyagerLogoMark: View {
   }
 
   public var body: some View {
-    Canvas { context, size in
-      let width = outline ? size.width * outlineWeight : 0
-      let shapes = LogoGeometry.shapes(in: CGRect(origin: .zero, size: size).insetBy(dx: width / 2 + 1, dy: width / 2 + 1))
-      if outline {
-        let style = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
-        for shape in shapes {
-          context.stroke(shape.path, with: .color(.white), style: style)
-          context.fill(shape.path, with: .color(.white))
-        }
-      }
-      for shape in shapes {
-        context.fill(shape.path, with: .linearGradient(
-          Gradient(colors: [shape.top, shape.bottom]),
-          startPoint: CGPoint(x: shape.path.boundingRect.midX, y: shape.path.boundingRect.minY),
-          endPoint: CGPoint(x: shape.path.boundingRect.midX, y: shape.path.boundingRect.maxY)
-        ))
-      }
+    GeometryReader { proxy in
+      let edge = outline ? min(proxy.size.width, proxy.size.height) * outlineWeight : 0
+      Image("VoyagerMark", bundle: .module)
+        .resizable()
+        .renderingMode(.template)
+        .scaledToFit()
+        .padding(edge / 2)
+        .shadow(color: outline ? .white.opacity(0.7) : .clear, radius: edge / 2)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    .aspectRatio(LogoGeometry.aspectRatio, contentMode: .fit)
+    .aspectRatio(207.0 / 199.0, contentMode: .fit)
     .accessibilityHidden(true)
   }
-}
-
-enum LogoGeometry {
-  struct Shape {
-    var path: Path
-    var top: Color
-    var bottom: Color
-  }
-
-  static let canvas = CGRect(x: 26, y: 186, width: 972, height: 772)
-  static var aspectRatio: CGFloat { canvas.width / canvas.height }
-
-  static func shapes(in rect: CGRect) -> [Shape] {
-    let scale = min(rect.width / canvas.width, rect.height / canvas.height)
-    let transform = CGAffineTransform(translationX: rect.minX, y: rect.minY)
-      .scaledBy(x: scale, y: scale)
-      .translatedBy(x: -canvas.minX, y: -canvas.minY)
-    return [
-      Shape(path: sun.applying(transform), top: Color(hex: 0xFFCB45), bottom: Color(hex: 0xF5A812)),
-      Shape(path: backHill.applying(transform), top: Color(hex: 0x8DAF63), bottom: Color(hex: 0x5E7D3E)),
-      Shape(path: frontHill.applying(transform), top: Color(hex: 0x17604B), bottom: Color(hex: 0x063528)),
-    ]
-  }
-
-  static let sun = Path(ellipseIn: CGRect(x: 432, y: 192, width: 248, height: 248))
-
-  static let backHill: Path = {
-    var path = Path()
-    path.move(to: CGPoint(x: 66, y: 828))
-    path.addCurve(to: CGPoint(x: 150, y: 430), control1: CGPoint(x: 22, y: 700), control2: CGPoint(x: 40, y: 520))
-    path.addCurve(to: CGPoint(x: 372, y: 388), control1: CGPoint(x: 210, y: 375), control2: CGPoint(x: 300, y: 352))
-    path.addCurve(to: CGPoint(x: 610, y: 548), control1: CGPoint(x: 460, y: 425), control2: CGPoint(x: 530, y: 486))
-    path.addLine(to: CGPoint(x: 640, y: 780))
-    path.addLine(to: CGPoint(x: 300, y: 820))
-    path.closeSubpath()
-    return path
-  }()
-
-  static let frontHill: Path = {
-    var path = Path()
-    path.move(to: CGPoint(x: 68, y: 834))
-    path.addCurve(to: CGPoint(x: 690, y: 466), control1: CGPoint(x: 250, y: 700), control2: CGPoint(x: 500, y: 556))
-    path.addCurve(to: CGPoint(x: 935, y: 482), control1: CGPoint(x: 770, y: 432), control2: CGPoint(x: 868, y: 424))
-    path.addCurve(to: CGPoint(x: 978, y: 820), control1: CGPoint(x: 1004, y: 545), control2: CGPoint(x: 1000, y: 705))
-    path.addCurve(to: CGPoint(x: 842, y: 952), control1: CGPoint(x: 962, y: 902), control2: CGPoint(x: 922, y: 952))
-    path.addLine(to: CGPoint(x: 204, y: 952))
-    path.addCurve(to: CGPoint(x: 68, y: 834), control1: CGPoint(x: 124, y: 950), control2: CGPoint(x: 70, y: 904))
-    path.closeSubpath()
-    return path
-  }()
 }
 
 public struct FidgetLogo: View {

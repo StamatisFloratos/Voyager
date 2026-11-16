@@ -1,7 +1,7 @@
 import type { BrowserState } from "../browser/store";
 import { leaveGroups } from "../groups/groups";
 import { withShownTab } from "../groups/shownTabs";
-import { byRecentUse, IDLE_LIVE, inPinnedContainer, makeTab, navigationTo, TILE_PIN, viewTabIds, without } from "../browser/model";
+import { byRecentUse, IDLE_LIVE, inPinnedContainer, makeTab, navigationTo, restorableSnapshot, TILE_PIN, viewTabIds, without } from "../browser/model";
 import { forgetOpeners, insertionIndex, openerSuccessor } from "./openers";
 import { onUrlChange, pruneSelection } from "../pins/organize";
 import { isClosedPin } from "../pins/tabCleanup";
@@ -265,14 +265,18 @@ export function withNewTab(s: BrowserState, windowId: string, o: NewTabOptions =
   const w = s.windows[windowId];
   if (!w) return [s, ""];
   const profileId = w.kind === "private" ? w.profileId : o.profileId && s.profiles[o.profileId] ? o.profileId : w.profileId;
-  const url = o.url ? resolveTyped(s.settings, o.url) : "";
-  const tab = makeTab(windowId, profileId, url, { ...o.snapshot, pin: o.pinned === false ? null : (o.snapshot?.pin ?? (o.pinned ? TILE_PIN : null)) });
+  const snapshot = o.snapshot && restorableSnapshot(o.snapshot);
+  const target = snapshot?.restoreByUrl ? snapshot.url : o.url;
+  const url = target ? resolveTyped(s.settings, target) : "";
+  const tab = makeTab(windowId, profileId, url, { ...snapshot, pin: o.pinned === false ? null : (snapshot?.pin ?? (o.pinned ? TILE_PIN : null)) });
   if (tab.page.kind === "loaded" && !o.snapshot) tab.page = loadedPage(navigationTo(url, !o.replaced));
   tab.openerId = o.openerId ?? null;
   if (o.background) tab.unseen = true;
   tab.pinnedUrl = tab.pin ? pinHome({ pinnedUrl: tab.pinnedUrl, url }, true) : tab.pinnedUrl || null;
-  if (o.adoptId) tab.page = adoptedPage(o.adoptId);
-  else if (o.wakeAdoptId) tab.page = { kind: "idle", wake: o.wakeAdoptId };
+  if (!snapshot?.restoreByUrl) {
+    if (o.adoptId) tab.page = adoptedPage(o.adoptId);
+    else if (o.wakeAdoptId) tab.page = { kind: "idle", wake: o.wakeAdoptId };
+  }
   const tabs = { ...s.tabs, [tab.id]: tab };
   const tabIds = [...w.tabIds];
   const at = o.index ?? (tab.pin ? pinnedInsertionIndex(s, w) : insertionIndex(s, w, tab, !!o.background));

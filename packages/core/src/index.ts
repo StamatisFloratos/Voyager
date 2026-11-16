@@ -2,6 +2,7 @@ export * from "./anonymousIdentity.ts";
 export * from "./appUrls.ts";
 export * from "./bangs.ts";
 export * from "./calculator.ts";
+export * from "./chatgpt.ts";
 export * from "./cleanUrl.ts";
 export * from "./engines.ts";
 export * from "./errors.ts";

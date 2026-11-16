@@ -1,7 +1,6 @@
-import { displayUrl, asksForBackspace, keywordBySpace, resolveInput, searchUrl, scopedSearchUrl, type Suggestion } from "@voyager/core";
+import { asksForBackspace, keywordBySpace, resolveInput, searchUrl, scopedSearchUrl, type Suggestion } from "@voyager/core";
 import { Symbol, useTheme } from "../ui";
-import { copyText, pickFiles } from "../../state/app/system";
-import { chooseFromMenu } from "../../state/app/menuChoice";
+import { copyText } from "../../state/app/system";
 import { startDictation } from "../../state/omnibox/textInput";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { findNodeHandle, type TextInput, type View } from "react-native";
@@ -16,21 +15,20 @@ import { createBangSubmitter, mayBeBang } from "../../state/omnibox/bangs";
 import { traceOmnibox, useOmniboxDriver } from "./devDriver";
 import { claimFocusTag, commandBarFocus, heroBarFocus } from "../../state/focus/focusClaims";
 import { registerHeroBar, saveNtpQuery, type BarDismissal, type BarSnapshot } from "../../state/omnibox/barState";
-import { barSplitsFrom, openFromBar, otherOpenTabs, switchFromBar, type Disposition } from "../../state/omnibox/openFromBar";
+import { barSplitsFrom, openFromBar, switchFromBar, type Disposition } from "../../state/omnibox/openFromBar";
 import { openFromNewTabBar } from "../../state/omnibox/newTabBar";
 import type { NewTabTarget } from "../../state/browser/types";
 import { showFieldMenu } from "../../state/omnibox/paste";
 import { SuggestionIcon, SuggestionList, isRemovable, type RowActions } from "./SuggestionRow";
 import { keywordScope } from "../../state/omnibox/scopes";
 import { setPopover } from "../../state/tabs/pageState";
-import { AddChip } from "./AddChip";
 import { INCOGNITO_ICON } from "../ntp/IncognitoHeading";
 import { BarField } from "./BarField";
 import { destinationLabel } from "./GoButton";
 import { BottomRow, DropdownFrame, PanelFrame } from "./OmniboxFrame";
 import { ScopePulse } from "./ScopePulse";
 import { barKeyDown, barKeyDownEvents, type BarKeyEvent } from "./omniboxKeys";
-import { ADD_CHIP, BAR } from "./tokens";
+import { BAR } from "./tokens";
 import { useBarItems } from "./useBarItems";
 import { useHeldSelection, useProviderEnter } from "./heldSelection";
 import { useBarText } from "./useBarText";
@@ -49,10 +47,12 @@ export function Omnibox({
   opensTab,
   floating = false,
   fieldRowHeight = BAR.panel.height,
+  maxResultsHeight,
 }: {
   variant: Variant;
   floating?: boolean;
   fieldRowHeight?: number;
+  maxResultsHeight?: number;
   tabId: string;
   initialText?: string;
   opensTab?: NewTabTarget;
@@ -67,7 +67,7 @@ export function Omnibox({
   const currentUrl = useTab(tabId, (t) => (opensTab ? "" : (t?.url ?? "")));
   const hero = variant === "hero";
   const dropdown = variant === "sidebar";
-  const noneSelected = opensTab ? -1 : 0;
+  const noneSelected = hero ? 0 : -1;
   const bar = useBarText(hero, tabId, initialText, noneSelected);
   const { typed, edited, suppressCompletion, selected, scope, scopeFrom, pendingSelection, dispatch, selection } = bar;
   const input = useRef<TextInput>(null);
@@ -83,8 +83,7 @@ export function Omnibox({
     scope,
     suppressCompletion,
     selected,
-    dropdown,
-    opensTab: !!opensTab,
+    popup: !hero,
     windowId,
     profileId,
     tabId,
@@ -197,7 +196,7 @@ export function Omnibox({
   const forceSearch = () => {
     const text = (previewing ? value : typed).trim();
     if (!text) return;
-    go(scope ? scopedSearchUrl(scope, text, engine) : searchUrl(engine, text));
+    go(scope ? scopedSearchUrl(scope, text, engine) : searchUrl(engine, text), "current");
   };
 
   const onKeyDown = (e: BarKeyEvent) => {
@@ -211,7 +210,7 @@ export function Omnibox({
     if (pick?.kind === "edit") {
       previewSelection.edited();
       dispatch({ kind: "edited", text: pick.text, caret: pick.caret });
-      if (opensTab && !pick.text.trim()) dispatch({ kind: "selected", index: -1 });
+      if (!hero && !pick.text.trim()) dispatch({ kind: "selected", index: -1 });
     }
     if (pick?.kind === "selectAll") dispatch({ kind: "select", selection: { start: 0, end: value.length } });
     focusField();
@@ -248,7 +247,7 @@ export function Omnibox({
     const bySpace = scope ? null : keywordBySpace(previewing ? value : typed, next);
     const keyword = bySpace ? keywordScope(bySpace.keyword, windowId) : null;
     if (bySpace && keyword) return dispatch({ kind: "enteredScope", scope: keyword, from: bySpace.from });
-    dispatch({ kind: "typed", text: change.typed, suppress: change.suppress, selected: opensTab && !change.typed.trim() ? -1 : 0 });
+    dispatch({ kind: "typed", text: change.typed, suppress: change.suppress, selected: !hero && !change.typed.trim() ? -1 : 0 });
   };
 
   useOmniboxDriver(`${windowId}:${variant}`, {
@@ -313,11 +312,9 @@ export function Omnibox({
     />
   );
 
-  const latest = useRef({ choose, profileId, go, current, onCancel, tabId, windowId });
-  latest.current = { choose, profileId, go, current, onCancel, tabId, windowId };
+  const latest = useRef({ choose, profileId, current, onCancel, tabId });
+  latest.current = { choose, profileId, current, onCancel, tabId };
   const [barActions] = useState(() => ({
-    go: (url: string) => latest.current.go(url),
-    openTabOrFile: () => void openTabOrFile(latest.current.windowId, latest.current.tabId, (url) => latest.current.go(url)),
     choose: () => latest.current.choose(latest.current.current, "current", true),
     dictate: () => {
       focusField();
@@ -338,6 +335,8 @@ export function Omnibox({
       selectedIndex={selectedIndex}
       trailing={tabScope ? `Search ${tabScope.name}  ⇥` : null}
       dropdown={dropdown}
+      popup={!hero}
+      maxHeight={maxResultsHeight}
       actions={rowActions}
     />
   );
@@ -371,7 +370,6 @@ export function Omnibox({
       bottom={
         <BottomRow
           hero={hero}
-          addChip={<AddChip onPress={barActions.openTabOrFile} />}
           onDictate={barActions.dictate}
           label={destinationLabel(current)}
           enabled={!hero || !!typed.trim() || previewing}
@@ -380,18 +378,4 @@ export function Omnibox({
       }
     />
   );
-}
-
-async function openTabOrFile(windowId: string, tabId: string, onGo: (url: string) => void) {
-  const others = otherOpenTabs(windowId, ADD_CHIP.otherTabs);
-  const choice = await chooseFromMenu<{ tab: string }, "files">([
-    ...others.map((t) => ({ value: { tab: t.id }, title: t.title || displayUrl(t.url) })),
-    ...(others.length ? [{ separator: true as const }] : []),
-    { id: "files", title: "Open File…", symbol: "doc" },
-  ]);
-  if (choice && typeof choice === "object") switchFromBar(choice.tab, "", tabId, "current");
-  if (choice === "files") {
-    const [file] = await pickFiles();
-    if (file) onGo(file);
-  }
 }

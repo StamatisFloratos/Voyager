@@ -15,14 +15,14 @@ export * from "@voyager-real/shaders";
 
 const FRAME = 1 / 60;
 
-export function WindowBackdrop({ colors, angle = 180, grainOpacity = 0.09, grainScale = 1, vibrancy, tintColor, tintAlpha, tintLightness, style }: WindowBackdropProps) {
+export function WindowBackdrop({ colors, angle = 180, grainOpacity = 0.09, grainScale = 1, vibrancy, style, ...treatment }: WindowBackdropProps) {
   const dark = useBrowser((s) => s.ui.appDark);
   const key = `${colors.join()}|${angle}|${grainOpacity}|${grainScale}`;
   const uniformsAt = useMemo(() => (css: [number, number]) => backdropUniforms({ colors, angle, grainOpacity, grainScale }, css), [key]);
   return (
     <View pointerEvents="none" style={style}>
       {vibrancy ? (
-        <Vibrancy dark={dark} tintColor={tintColor} tintAlpha={tintAlpha} tintLightness={tintLightness} />
+        <Vibrancy dark={dark} {...treatment} />
       ) : webgl2Supported() ? (
         <GLView fragment={backdropFragment} uniformsAt={uniformsAt} version={key} />
       ) : (

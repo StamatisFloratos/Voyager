@@ -70,7 +70,7 @@ enum SearchTemplates {
     "bing": "https://www.bing.com/search?q=%s",
     "duckduckgo": "https://duckduckgo.com/?q=%s",
     "perplexity": "https://www.perplexity.ai/search?q=%s",
-    "chatgpt": "https://chatgpt.com/?q=%s",
+    "chatgpt": "https://chatgpt.com/?prompt=%s",
     "ecosia": "https://www.ecosia.org/search?q=%s",
     "brave": "https://search.brave.com/search?q=%s",
     "kagi": "https://kagi.com/search?q=%s",

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title">
+  <title id="title">Voyager app icon</title>
+  <defs>
+    <radialGradient id="rainbow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" fx="0.9307" fy="0.2894" gradientTransform="translate(353.4 720.6) scale(959.9 925.6)">
+      <stop offset="0%" stop-color="#76eea2"/>
+      <stop offset="24%" stop-color="#72e6a9"/>
+      <stop offset="40%" stop-color="#5cda85"/>
+      <stop offset="50%" stop-color="#5093c3"/>
+      <stop offset="56%" stop-color="#a256ac"/>
+      <stop offset="62%" stop-color="#f34b8a"/>
+      <stop offset="68%" stop-color="#fd855a"/>
+      <stop offset="74%" stop-color="#fdaf49"/>
+      <stop offset="80%" stop-color="#fbcf7a"/>
+      <stop offset="86%" stop-color="#f8cd96"/>
+      <stop offset="92%" stop-color="#f3c791"/>
+      <stop offset="100%" stop-color="#ebbe95"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#rainbow)"/>
+  <svg x="164" y="174" width="708" height="692" viewBox="MARK_VIEWBOX" preserveAspectRatio="xMidYMid meet">
+    <path fill="#fff" fill-rule="evenodd" d="MARK_PATH"/>
+  </svg>
+</svg>

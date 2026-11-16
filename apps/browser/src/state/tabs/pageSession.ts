@@ -1,3 +1,4 @@
+import { restorableChatGPTUrl } from "@voyager/core";
 import { navigationTo } from "../browser/model";
 import type { AdoptId, Navigation, Tab, TabPage } from "../browser/types";
 
@@ -41,8 +42,9 @@ export const withWake = (page: TabPage, wake: AdoptId | undefined): TabPage => {
 };
 
 export const wokenPage = (t: PagedAt): TabPage => {
-  const wake = wakeOf(t);
-  return wake ? adoptedPage(wake) : loadedPage(navigationTo(t.url));
+  const url = restorableChatGPTUrl(t.url);
+  const wake = url === t.url && wakeOf(t);
+  return wake ? adoptedPage(wake) : loadedPage(navigationTo(url));
 };
 
 export const frozenOn = (t: Paged, holderId: string): TabPage => withWake({ kind: "frozen", holderId }, wakeOf(t));

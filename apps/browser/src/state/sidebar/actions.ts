@@ -80,7 +80,7 @@ async function renameGroupInSheet(windowId: string, groupId: string) {
   const g = store().groups[groupId];
   if (!g) return;
   const name = await prompt({
-    title: "Rename Group",
+    title: "Rename Category",
     value: g.name,
     placeholder: groupLabel(store(), g),
     confirmTitle: "Update",
@@ -115,7 +115,7 @@ export function setIcon(target: Target, icon: string | null) {
 }
 
 export function newGroupWithSelection(windowId: string, ids = selectedTabIds(store(), windowId)) {
-  const groupId = store().groupTabs(ids.filter((id) => pinSection(store().tabs[id]) !== "tile"));
+  const groupId = store().groupTabs(ids.filter((id) => pinSection(store().tabs[id]) !== "tile"), { pinned: false });
   if (groupId && sidebarShows(windowId)) void startRename(windowId, { kind: "group", id: groupId });
   return groupId;
 }

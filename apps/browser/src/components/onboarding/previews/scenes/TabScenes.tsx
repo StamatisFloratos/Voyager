@@ -20,7 +20,7 @@ export const TabsSidebar: Scene = ({ g, look, p, opts }) => {
       <Lights g={g} y={field ? LIGHTS_Y.field : LIGHTS_Y.toolbar} />
       {field ? (
         <>
-          <NavIcons g={g} color={look.t.icon} xs={SIDEBAR_ICONS} y={LIGHTS_Y.field} names={["sidebar.left", "chevron.left", "chevron.right"]} />
+          <NavIcons g={g} color={look.sidebar.icon} xs={SIDEBAR_ICONS} y={LIGHTS_Y.field} names={["sidebar.left", "chevron.left", "chevron.right"]} />
           <SidebarField g={g} look={look} t={tab(0)}>
             <View />
           </SidebarField>
@@ -103,7 +103,7 @@ export function addressMove(toSidebar: boolean): Scene {
       <>
         <Backdrop look={look} />
         <Lights g={g} style={{ transform: [{ translateY: lerp(0, (LIGHTS_Y.field - LIGHTS_Y.toolbar) * g.s) }] }} />
-        <NavIcons g={g} color={look.t.icon} xs={SIDEBAR_ICONS} y={LIGHTS_Y.field} names={["sidebar.left", "chevron.left", "chevron.right"]} style={{ opacity: lerp(0, 1) }} />
+        <NavIcons g={g} color={look.sidebar.icon} xs={SIDEBAR_ICONS} y={LIGHTS_Y.field} names={["sidebar.left", "chevron.left", "chevron.right"]} style={{ opacity: lerp(0, 1) }} />
         <Animated.View style={[fill, { transform: [{ translateY: lerp(0, (ROW.topWithField - ROW.top) * g.s) }] }]}>
           <Rows g={g} look={look} n={4} sel={0} />
         </Animated.View>

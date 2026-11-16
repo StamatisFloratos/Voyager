@@ -188,7 +188,7 @@ const WindowState = memo(function WindowState({ g, look, accent, custom, lay, ad
         <Lights g={g} />
       </Animated.View>
       <Animated.View style={[fill, { opacity: fade(lay, 1, 0), transform: [{ translateX: lerp(lay, 0, -60) }] }]}>
-        <NavIcons g={g} color={look.t.icon} xs={SIDEBAR_ICONS} y={LIGHTS_Y.field} names={["sidebar.left", "chevron.left", "chevron.right"]} style={{ opacity: fade(addr, 0, 1) }} />
+        <NavIcons g={g} color={look.sidebar.icon} xs={SIDEBAR_ICONS} y={LIGHTS_Y.field} names={["sidebar.left", "chevron.left", "chevron.right"]} style={{ opacity: fade(addr, 0, 1) }} />
         <Animated.View style={[fill, { transform: [{ translateY: lerp(addr, 0, ROW.topWithField - ROW.top) }] }]}>
           <Rows g={g} look={look} n={rows} sel={0} />
         </Animated.View>
@@ -215,7 +215,7 @@ const WindowState = memo(function WindowState({ g, look, accent, custom, lay, ad
           {bandSite}
         </TopTabPlate>
         {Array.from({ length: chips }, (_, i) => (
-          <TabRow key={i} g={g} look={look} t={tab(i)} x={CHIP.x + i * step} y={CHIP.top - 1} w={CHIP.w} />
+          <TabRow key={i} g={g} look={look} t={tab(i)} x={CHIP.x + i * step} y={CHIP.top - 1} w={CHIP.w} titleColor={i === 0 ? look.t.tabSelectedText : undefined} />
         ))}
       </Animated.View>
       <Card

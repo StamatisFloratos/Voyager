@@ -1,5 +1,5 @@
 import { curve, duration } from "../ui/motion";
-import { capsule, concentric, font, radius, space } from "../ui/tokens";
+import { concentric, font, radius, space } from "../ui/tokens";
 
 export const PANEL_TEXT_LEFT = 48;
 const PANEL_ICON_LEFT = 21;
@@ -33,25 +33,9 @@ export const BAR = {
   bottom: { left: 14, heroLeft: 13, right: 13, heroRight: 15, height: 52, heroHeight: 43, heroBelow: space.m, mic: 14 },
 } as const;
 
-export const ADD_CHIP = {
-  height: 32,
-  radius: capsule(32),
-  border: 1,
-  left: 9,
-  right: 12,
-  gap: 5,
-  glyph: 10,
-  glyphBox: 14,
-  otherTabs: 12,
-} as const;
-
 export const GO_BUTTON = {
-  before: space.m,
-  minWidth: 99,
   height: 32,
-  padX: space.xl,
-  radius: capsule(32),
-  hoverOpacity: 0.9,
+  padX: space.s,
   gap: space.s,
   glyph: 11,
   glyphBox: 14,
@@ -86,7 +70,7 @@ export const SUGGESTION = {
 
 export const SELECTED_SUGGESTION_ALPHA = { dark: 0.56, light: 0.3 } as const;
 
-export const GROW = { duration: 130, easing: curve.outExpo } as const;
+export const GROW = { duration: duration.slow, easing: curve.enter } as const;
 
 export const SCOPE_PULSE = {
   fill: { dark: 0.28, light: 0.2 },

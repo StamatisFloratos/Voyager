@@ -40,7 +40,7 @@ export const BUILT_IN_ENGINES: readonly SearchEngine[] = [
     suggestUrl: "https://duckduckgo.com/ac/?q=%s&type=list",
   },
   { id: "perplexity", name: "Perplexity", keyword: "perplexity.ai", url: "https://www.perplexity.ai/search?q=%s" },
-  { id: "chatgpt", name: "ChatGPT", keyword: "chatgpt.com", url: "https://chatgpt.com/?q=%s" },
+  { id: "chatgpt", name: "ChatGPT", keyword: "chatgpt.com", url: "https://chatgpt.com/?prompt=%s" },
   {
     id: "ecosia",
     name: "Ecosia",

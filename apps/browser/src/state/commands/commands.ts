@@ -27,7 +27,7 @@ import { openInternalPage } from "../pages/urls";
 import { isUtilityWindowId, openImport, openSettings, SETTINGS_WINDOW_ID } from "../settings/settingsWindows";
 import { focusSettingsSearch } from "../settings/searchState";
 import { closePanelToHeroBar, focusHeroBar } from "../omnibox/barState";
-import { closeNewTabBar, isEmptyCardTab, showNewTabBar, toggleNewTabBar } from "../omnibox/newTabBar";
+import { closeNewTabBar, isEmptyCardTab, showNewTabBar, toggleNewTabBar, toggleNewTabSearch } from "../omnibox/newTabBar";
 import { NEW_TAB_BAR_POLICY } from "../omnibox/newTabBarPolicy";
 import { addressBarInSidebar } from "../windows/layout";
 import { commandKeyPlacement } from "../omnibox/barPlacement";
@@ -78,7 +78,8 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
   if (isUtilityWindowId(requested)) {
     if (command === "closeTab") return void closeNativeWindow(requested!);
     if (command === "findInPage" && requested === SETTINGS_WINDOW_ID) return focusSettingsSearch();
-    requested = null;
+    requested = command === "newTab" && arg === "search" ? resolveWindowId(s) ?? null : null;
+    if (requested) focus(requested);
   }
   const targeted = targetTab && s.tabs[targetTab] && (!requested || s.tabs[targetTab]!.windowId === requested) ? targetTab : null;
   if (targetTab && !targeted) throw new NoCommandWindowError(`Tab ${targetTab} isn't open in that window.`);
@@ -137,7 +138,10 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
 
   const windowId = resolveWindowId(s, requested);
   if (!windowId) {
-    if (command === "newTab") openWindow();
+    if (command === "newTab") {
+      const opened = openWindow();
+      if (arg === "search") toggleNewTabSearch(opened);
+    }
     if (command === "reopenClosedTab" || command === "restoreClosed") {
       if (arg) s.restoreClosed(arg);
       else s.reopenClosed();
@@ -153,6 +157,7 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
 
   switch (command) {
     case "newTab":
+      if (arg === "search") return toggleNewTabSearch(windowId);
       if (toggleNewTabBar(windowId)) return;
       return void s.newTab(windowId, { newTabCommand: true });
     case "reopenClosedTab":

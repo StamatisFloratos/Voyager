@@ -15,7 +15,7 @@ const SHORTCUTS: Shortcut[] = [
   s("KeyT", ["cmd"], "newTab", { reserved: true }),
   s("KeyT", ["cmd", "alt"], "newTabInGroup"),
   s("KeyT", ["cmd", "shift"], "reopenClosedTab", { reserved: true }),
-  s("KeyN", ["cmd"], "newWindow", { reserved: true }),
+  s("KeyN", ["cmd"], "newTab", { arg: "search", reserved: true }),
   s("KeyN", ["cmd", "shift"], "newIncognitoWindow", { reserved: true }),
   s("KeyN", ["cmd", "alt"], "newLittleArdia"),
   s("KeyN", ["cmd", "ctrl"], "newGroupWithTabs"),

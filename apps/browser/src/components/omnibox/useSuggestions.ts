@@ -18,6 +18,7 @@ import { useTabs } from "../../state/tabs/hooks";
 import { defaultSearchEngine, searchEngines } from "../../state/settings/settings";
 import type { Bookmarks } from "../../state/browser/types";
 import { currentBarActions } from "../../state/omnibox/barActions";
+import { aiEngine, likelyAiRequest, withAiDestination } from "../../state/omnibox/aiDestination";
 import { useBangs } from "../../state/omnibox/bangs";
 import { useBarExtensions } from "./extensions";
 import { historyHosts } from "../../state/omnibox/knownHosts";
@@ -76,6 +77,7 @@ export function useSuggestions({
   const bookmarkEngine = useBookmarkEngine(windowId);
   const engines = useSettings((st) => searchEngines(st));
   const engine = useSettings((st) => defaultSearchEngine(st));
+  const assistant = useSettings((st) => aiEngine(st.defaultAiEngine));
   const preference = useSettings((st) => st.commandBarPreference);
   const suggestionsOn = useSettings((st) => st.searchSuggestions);
   const extensions = useBarExtensions(windowId);
@@ -109,16 +111,17 @@ export function useSuggestions({
   const fromEngine = suggestEngine(scope, engines, engine);
   const bangs = useBangs(active && !scope && query.includes("!"));
   const bang = useMemo(() => (bangs ? findBang(query, bangs) : null), [bangs, query]);
+  const preferAi = !scope && !bang && likelyAiRequest(query);
   useEffect(() => {
     const q = query.replace(/^\?/, "").trim();
-    if (!active || !suggestionsOn || !remoteAllowed || !q || bang || /^[a-z][a-z0-9+.-]*:\/\//i.test(q) || scope?.kind === "history" || scope?.kind === "provider") {
+    if (!active || !suggestionsOn || !remoteAllowed || !q || bang || preferAi || /^[a-z][a-z0-9+.-]*:\/\//i.test(q) || scope?.kind === "history" || scope?.kind === "provider") {
       fetcher.cancel();
       return;
     }
     fetcher.request(fromEngine, q, (list) => setRemote({ text: query, list }));
-  }, [active, suggestionsOn, remoteAllowed, query, bang, fromEngine, scope, fetcher]);
+  }, [active, suggestionsOn, remoteAllowed, query, bang, preferAi, fromEngine, scope, fetcher]);
 
-  const providers = useProviderSections({ text, active, scope, windowId, skip: !!bang });
+  const providers = useProviderSections({ text, active, scope, windowId, skip: !!bang || preferAi });
 
   const remoteList = useMemo(() => {
     if (remote.text === query) return remote.list;
@@ -129,7 +132,7 @@ export function useSuggestions({
 
   return useMemo(() => {
     if (!active || (!query && scope?.kind !== "provider")) return EMPTY;
-    return buildSuggestions(text, source, {
+    const ranked = buildSuggestions(text, source, {
       engine,
       preference,
       remote: remoteList,
@@ -142,5 +145,6 @@ export function useSuggestions({
       bangs,
       providers,
     });
-  }, [active, text, query, source, engine, preference, remoteList, windowId, extensions, shortcuts, menuBar, currentTabId, currentUrl, scope, preventInline, bangs, providers]);
+    return scope || bang ? ranked : withAiDestination(ranked, query, assistant, preferAi);
+  }, [active, text, query, source, engine, preference, remoteList, windowId, extensions, shortcuts, menuBar, currentTabId, currentUrl, scope, preventInline, bangs, bang, providers, assistant, preferAi]);
 }

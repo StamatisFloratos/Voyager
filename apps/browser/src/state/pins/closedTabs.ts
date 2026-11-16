@@ -85,7 +85,7 @@ export function closingGroup(s: BrowserState, groupId: string, deleted = false):
   const entry: ClosedGroup = {
     kind: "group",
     id: newId("cg"),
-    group: { id: g.id, name: groupLabel(s, g), icon: g.icon, color: g.color, pinned: g.pinned, ...(g.parentId ? { parentId: g.parentId } : {}) },
+    group: { ...closedGroupInfo(g), name: groupLabel(s, g), pinned: g.pinned, ...(g.parentId ? { parentId: g.parentId } : {}) },
     tabs: g.tabIds.map((id) => snapshotTab(s.tabs[id]!)),
     tabIds: g.tabIds.map((id) => pendingRestore(s.tabs[id]!) ?? id),
     ...(nested.length ? { nested } : {}),
@@ -216,7 +216,7 @@ export function restoringGroup(s: BrowserState, entry: ClosedGroup, requested?: 
   const [grouped, groupId] = withGroup(next, ids, { name: entry.group.name, pinned: entry.group.pinned, parentId: parent?.id ?? null });
   next = grouped;
   if (groupId && next.groups[groupId]) {
-    next = { ...next, groups: { ...next.groups, [groupId]: { ...next.groups[groupId]!, icon: entry.group.icon, color: entry.group.color } } };
+    next = { ...next, groups: { ...next.groups, [groupId]: { ...next.groups[groupId]!, icon: entry.group.icon, color: entry.group.color, ...(entry.group.tidyKey ? { tidyKey: entry.group.tidyKey } : {}) } } };
     next = rebuildNested(next, groupId, entry.group.id, ids, entry.nested);
     if (index !== undefined && entry.group.pinned && !parent) next = atSavedIndex(next, windowId, next.groups[groupId]!.tabIds, index);
   }

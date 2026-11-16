@@ -1,5 +1,4 @@
-"""Ardia's logo assets from the oil-painted "hills" (source/, picked 2026-10-10). Run from the repo root;
-the results go to output/brand/ardia/final/, then to their slots (see README.md)."""
+"""Rebuild the archived Ardia artwork under output/brand/ardia/final/ from the repository root."""
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
@@ -235,7 +234,7 @@ print("tinted marks")
 
 import shutil  # noqa: E402
 
-XCASSETS = Path("apps/browser/macos/Voyager-macOS/Assets.xcassets")
+XCASSETS = OUT / "Assets.xcassets"
 PLATE_MARK_PX = 512
 IMAGESET = '{\n  "images" : [\n    {\n      "filename" : "mark.png",\n      "idiom" : "universal"\n    }\n  ],\n  "info" : {\n    "author" : "xcode",\n    "version" : 1\n  }\n}\n'
 slots = {"AppIconMark": OUT / "plate-mark-1024.png"}
@@ -244,14 +243,14 @@ for name, im in tinted_marks(Image.open(slots["AppIconMark"]), ("plum", "blue", 
     slots[f"AppIconMark-{name}"] = OUT / f"plate-mark-{name}-1024.png"
 for slot, path in slots.items():
     folder = XCASSETS / f"{slot}.imageset"
-    folder.mkdir(exist_ok=True)
+    folder.mkdir(parents=True, exist_ok=True)
     Image.open(path).resize((PLATE_MARK_PX, PLATE_MARK_PX), LZ).save(folder / "mark.png", optimize=True)
     (folder / "Contents.json").write_text(IMAGESET)
 print("plate marks")
 
 import json  # noqa: E402
 
-ICON = Path("apps/browser/macos/Voyager-macOS/AppIcon.icon")
+ICON = OUT / "AppIcon.icon"
 
 
 def icon_layers(tile):
@@ -294,7 +293,7 @@ print("app icon (Icon Composer)")
 
 import base64, io, subprocess, tempfile  # noqa: E401, E402
 
-ENGINE = Path("engine/chromium/src")
+ENGINE = OUT / "chromium"
 BLEED = 0.92
 
 

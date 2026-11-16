@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
-import { Image, View, type StyleProp, type ViewStyle } from "react-native";
+import { View, type StyleProp, type ViewStyle } from "react-native";
 import { Panel, Text } from "../ui";
+import { VoyagerAppIcon } from "../ui/VoyagerAppIcon";
 import { capsule, font, hairline, radius, space, tracking, type ShadowLevel } from "../ui/tokens";
 import { postageStamp } from "./tokens";
-
-const ICON = require("../../../assets/app-icon.png");
 
 export type StampInk = { frame: string; ring: string; label: string; paper?: string };
 
@@ -36,7 +35,7 @@ export function PostageStamp({
           backgroundColor: ink.paper,
         }}
       >
-        <Image source={ICON} style={{ width: icon, height: icon }} />
+        <VoyagerAppIcon size={icon} />
       </View>
       <View
         style={{

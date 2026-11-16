@@ -1,3 +1,4 @@
+import { restorableChatGPTUrl } from "@voyager/core";
 import { switchOn } from "../../platform/killSwitches";
 import type { BrowserState } from "../browser/store";
 import { tabEngine } from "../engines/engines";
@@ -17,7 +18,7 @@ export function launchTab(s: Pick<BrowserState, "windows" | "tabs" | "settings" 
   const t = s.tabs[w.activeTabIds[w.profileId] ?? ""];
   if (!t || t.windowId !== w.id || t.profileId !== w.profileId || !WEB.test(t.url)) return null;
   if (wakeOf(t) || tabEngine(s, t.id) !== "chromium") return null;
-  return { id: t.id, url: t.url, profile: engineProfile(s, t.profileId) };
+  return { id: t.id, url: restorableChatGPTUrl(t.url), profile: engineProfile(s, t.profileId) };
 }
 
 export const linkProfile = (s: Pick<BrowserState, "profiles" | "windows" | "windowOrder" | "ui" | "settings">): string => engineProfile(s, lastActiveProfile(s));

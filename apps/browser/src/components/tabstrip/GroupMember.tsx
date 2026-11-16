@@ -112,7 +112,7 @@ function FolderChip({ groupId, holding }: { groupId: string; holding: boolean })
       onLayout={(e) => setMeasuredWidth(folderKey(groupId), Math.ceil(e.nativeEvent.layout.width * 2) / 2)}
       style={{ position: "absolute", left: 0, top: MID - FOLDER_HEIGHT / 2, height: FOLDER_HEIGHT }}
     >
-      <ContextMenuArea onContextMenu={() => void openGroupMenu(windowId, groupId)}>
+      <ContextMenuArea onContextMenu={() => void openGroupMenu(windowId, groupId, "strip")}>
         <Pressable onPress={() => void openFolderMenu(windowId, groupId)}>
           {({ pressed }) => (
             <View

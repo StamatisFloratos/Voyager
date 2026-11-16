@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 const { useBrowser } = await import("../browser/store.ts");
 const model = await import("../browser/model.ts");
-const { closeNewTabBar, openFromNewTabBar, showOnceOverEmptyCard, toggleNewTabBar } = await import("./newTabBar.ts");
+const { closeNewTabBar, dismissNewTabSearchOnPress, openFromNewTabBar, showOnceOverEmptyCard, toggleNewTabBar, toggleNewTabBarOnPress, toggleNewTabSearch } = await import("./newTabBar.ts");
 const { togglePinnedRows, forgetListSpots } = await import("../sidebar/movePinned.ts");
 
 const S = () => useBrowser.getState();
@@ -130,7 +130,7 @@ test("closing the last tab leaves an empty window whose pick fills it; ⌘W ther
   assert.equal(S().windows[w], undefined);
 });
 
-test("⌘T right after the bar opened on its own over an empty window keeps it; the next ⌘T closes it", () => {
+test("the first New Tab toggle closes a bar that opened automatically over an empty window", () => {
   reset("commandBar");
   const { w, ids: [a] } = windowWith("a");
   S().closeTab(a);
@@ -138,13 +138,60 @@ test("⌘T right after the bar opened on its own over an empty window keeps it; 
   showOnceOverEmptyCard(w, empty);
   assert.deepEqual(panel(w).newTab, { kind: "into", tabId: empty }, "the bar shows over the empty window");
   assert.equal(toggleNewTabBar(w), true);
-  assert.deepEqual(panel(w).newTab, { kind: "into", tabId: empty }, "⌘T keeps it");
-  toggleNewTabBar(w);
-  assert.equal(panel(w).open, false, "⌘T again closes it");
+  assert.equal(panel(w).open, false);
   toggleNewTabBar(w);
   assert.equal(panel(w).open, true);
   toggleNewTabBar(w);
   assert.equal(panel(w).open, false, "a bar ⌘T opened closes on the next ⌘T");
+});
+
+test("New Tab Search overlays the active page even with the New Tab page preference", () => {
+  reset("page");
+  const { w, ids } = windowWith("a", "b");
+  toggleNewTabSearch(w);
+  assert.deepEqual(panel(w).newTab, { kind: "list" });
+  assert.deepEqual(S().windows[w].tabIds, ids);
+  assert.equal(model.activeTabId(S(), w), ids[0]);
+  assert.equal(toggleNewTabBar(w), true, "New Tab closes the open search even in page mode");
+  assert.equal(panel(w).open, false);
+  toggleNewTabSearch(w);
+  openFromNewTabBar(w, panel(w).newTab, "https://picked.com");
+  assert.equal(S().tabs[ids[0]].url, "https://a.com/");
+  assert.equal(S().windows[w].tabIds.length, 3);
+});
+
+test("New Tab Search stays private, routes Little Voyager and Settings to the main browser, and can start without a window", async () => {
+  const { runCommand } = await import("../commands/commands.ts");
+  const { SETTINGS_WINDOW_ID } = await import("../settings/settingsWindows.ts");
+  const search = (windowId) => runCommand({ command: "newTab", arg: "search", windowId });
+  reset("page");
+  const { w } = windowWith("a");
+  const small = S().createWindow({ kind: "small", url: "https://quick.example" });
+  search(small);
+  assert.equal(panel(w).open, true);
+  assert.equal(panel(small).open, false);
+  search(SETTINGS_WINDOW_ID);
+  assert.equal(panel(w).open, false);
+  const priv = S().createWindow({ kind: "private", url: "https://private.example" });
+  search(priv);
+  assert.equal(panel(priv).open, true);
+  assert.equal(panel(w).open, false);
+  assert.equal(S().windows[priv].tabIds.length, 1);
+  for (const id of [...S().windowOrder]) S().closeWindow(id);
+  search(null);
+  assert.equal(S().windowOrder.length, 1);
+  assert.equal(panel(S().windowOrder[0]).newTab.kind, "into");
+});
+
+test("a click on New Tab that already dismissed the popup cannot reopen it", () => {
+  reset("commandBar");
+  const { w } = windowWith("a");
+  toggleNewTabSearch(w);
+  dismissNewTabSearchOnPress(w, 1204.5);
+  assert.equal(toggleNewTabBarOnPress(w, 1204.5), true);
+  assert.equal(panel(w).open, false);
+  toggleNewTabBarOnPress(w, 1300);
+  assert.equal(panel(w).open, true, "a fresh click can open immediately");
 });
 
 test("Move to Pinned: a tab goes to the pinned rows and back to where it was, in its group", () => {

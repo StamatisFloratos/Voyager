@@ -65,7 +65,7 @@ export const SETTING_FIELDS: { [K in SetupSettingKey]: Field<Settings[K]> } = {
 };
 
 const PRESET_FIELD: Field<Preset> = { key: "p", values: ["arc", "dia", "chrome", "safari", "firefox", "zen", "brave", "edge", "fresh", "helium"] };
-const COLOR_FIELD: Field<ProfileColor> = { key: "x", values: ["plum", "blue", "purple", "pink", "red", "orange", "yellow", "green", "neutral"] };
+const COLOR_FIELD: Field<ProfileColor> = { key: "x", values: ["plum", "blue", "purple", "pink", "red", "orange", "yellow", "green", "neutral", "sandDunes"] };
 const PINS_KEY = "f";
 
 export const SETUP_PIN_SITES = ["gmail", "calendar", "slack", "notion", "figma", "github", "linear", "docs", "drive", "outlook", "youtube", "spotify"] as const;
@@ -192,7 +192,10 @@ export function describeSetupChoices(choices: SetupChoices): string[] {
   if (s.addressBar && s.tabLayout !== "top") lines.push(s.addressBar === "sidebar" ? "Address in the sidebar" : "Address in the toolbar");
   if (s.newTabOpens) lines.push(s.newTabOpens === "commandBar" ? "⌘T opens the command bar" : "⌘T opens the New Tab page");
   if (s.appearance) lines.push(APPEARANCE_LINE[s.appearance]);
-  if (choices.color) lines.push(`${choices.color[0]!.toUpperCase()}${choices.color.slice(1)} theme`);
+  if (choices.color) {
+    const name = choices.color[0]!.toUpperCase() + choices.color.slice(1).replace(/[A-Z]/g, " $&");
+    lines.push(`${name} theme`);
+  }
   if (choices.pins?.length) lines.push(`${choices.pins.length} ${choices.pins.length === 1 ? "app" : "apps"} pinned`);
   return lines;
 }

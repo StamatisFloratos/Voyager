@@ -100,7 +100,7 @@ export function leaveGroups(groups: Record<string, TabGroup>, ids: Set<string>, 
 
 type GroupInfo = ClosedGroupInfo;
 
-export const closedGroupInfo = (g: TabGroup): GroupInfo => ({ id: g.id, name: g.name, icon: g.icon, color: g.color, ...(g.pinned ? { pinned: true } : {}) });
+export const closedGroupInfo = (g: TabGroup): GroupInfo => ({ id: g.id, name: g.name, icon: g.icon, color: g.color, ...(g.pinned ? { pinned: true } : {}), ...(g.tidyKey ? { tidyKey: g.tidyKey } : {}) });
 
 export function rejoinGroups(
   groups: Record<string, TabGroup>,
@@ -124,8 +124,8 @@ export function rejoinGroups(
   }
   for (const info of chain.slice(0, at < 0 ? chain.length : at).reverse()) {
     const id = next[info.id] ? newId("g") : info.id;
-    const { id: _, name, icon, color } = info;
-    next[id] = { id, name, icon, color, windowId, profileId, collapsed: false, pinned: !!info.pinned, tabIds, createdAt: Date.now(), ...(parentId ? { parentId } : {}) };
+    const { name, icon, color, tidyKey } = info;
+    next[id] = { id, name, icon, color, windowId, profileId, collapsed: false, pinned: !!info.pinned, tabIds, createdAt: Date.now(), ...(parentId ? { parentId } : {}), ...(tidyKey ? { tidyKey } : {}) };
     made.set(info.id, id);
     parentId = id;
   }

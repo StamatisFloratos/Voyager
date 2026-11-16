@@ -22,6 +22,7 @@ import { closeTabNow, updateLive, updateTab } from "../../state/tabs/actions";
 import { returnRefusedMove, setFind } from "../../state/windows/actions";
 import { activateFocusedPane, currentTabEngine, downloadNavigated, useTabEngine } from "../../state/windows/card";
 import { setPageProgress } from "../../state/tabs/pageProgress";
+import { documentLoad } from "../../state/tabs/documentLoad";
 import { shallowEqual, useBrowserWhile, useProfilesValue, useTabValue } from "../../state/tabs/tabWatch";
 import { isIncognitoProfile, navigationTo } from "../../state/browser/model";
 import type { Tab } from "../../state/browser/types";
@@ -39,7 +40,7 @@ import { noteScroll } from "../../state/windows/toolbarAutoHide";
 import { closeWebNotification, showWebNotification } from "../../state/site/webNotifications";
 import { closeLittleArdiaOnEscape } from "../../state/littleArdia/actions";
 import { closePeekOnEscape } from "../../state/peek/actions";
-import { withoutFragment } from "../../lib/url";
+import { isWebPageUrl, withoutFragment } from "../../lib/url";
 import { adoptOf, loadedPage, navigationOf } from "../../state/tabs/pageSession";
 import { noteCommit } from "../../state/automation/automationEvents";
 import { forgetUnreadIfGone, noteAppBadge, noteUnreadFavicon, noteUnreadLoading, noteUnreadPageEnded } from "../../state/tabs/unread";
@@ -49,7 +50,9 @@ import { notePagePress } from "../../state/telemetry/tabPresses";
 import { noteAutoPictureInPictureKept, notePageOverlay, noteReopenedPage, noteWebKitPageKeptHidden } from "../../state/telemetry/usage";
 import { isAdoptKind } from "../../state/tabs/adoptIds";
 import { firstPagePending, isBlankAddress, noteFirstPagePending, reportedAddress, reportedTitle } from "../../state/tabs/pendingAddress";
-import { STATUS_FLIP_BAND } from "./tokens";
+import { BLANK_PAGE_CANVAS, STATUS_FLIP_BAND } from "./tokens";
+import { NavigationMesh } from "./NavigationMesh";
+import { useReducedMotion } from "../ui/reduceMotion";
 
 const webViewTab = (t: Tab | undefined) => ({ navigation: navigationOf(t), adoptId: adoptOf(t), profileId: t?.profileId ?? "", shownUrl: t?.url ?? "" });
 
@@ -57,18 +60,37 @@ type TabWebViewProps = { tabId: string; visible: boolean; warm: boolean; peekOf?
 
 export const TabWebView = memo(function TabWebView(props: TabWebViewProps) {
   const engine = useTabEngine(props.tabId);
-  return <EngineWebView key={engine} engine={engine} {...props} />;
+  const load = useMemo(() => documentLoad(props.tabId, BLANK_PAGE_CANVAS), [engine, props.tabId]);
+  const reduced = useReducedMotion();
+  const watch = props.visible && !reduced;
+  return (
+    <>
+      <EngineWebView key={engine} engine={engine} load={load} watch={watch} {...props} />
+      {watch && <NavigationMesh key={engine + props.tabId} tabId={props.tabId} />}
+    </>
+  );
 });
 
-function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps & { engine: PageEngine }) {
+function EngineWebView({ tabId, visible, warm, peekOf, engine, load, watch }: TabWebViewProps & { engine: PageEngine; load: ReturnType<typeof documentLoad>; watch: boolean }) {
   const { navigation, adoptId, profileId, shownUrl } = useTabValue(tabId, webViewTab, shallowEqual);
   const neighbour = useBrowserWhile(warm, (s) => warm && s.windows[s.tabs[tabId]?.windowId ?? ""]?.profileId !== profileId);
   const tab = () => currentTab(tabId);
-  const ref = useMemo(() => webviewRef(tabId), [tabId]);
+  const ref = useMemo(() => {
+    const assign = webviewRef(tabId);
+    return (view: Parameters<typeof assign>[0]) => assign(view && load.wrap(view));
+  }, [tabId, load]);
   const autoPictureInPicture = useAutoPictureInPicture(tabId, visible);
-  const pageColor = useProfilesValue(profileId, (profiles) => (isIncognitoProfile(profileId) ? "incognito" : (profiles[profileId]?.color ?? "plum")));
+  const pageColor = useProfilesValue(profileId, (profiles) => {
+    if (isIncognitoProfile(profileId)) return "incognito";
+    const color = profiles[profileId]?.color ?? "plum";
+    return color === "sandDunes" ? "neutral" : color;
+  });
   const theme = useProfileTheme(profileId);
   const backdrop = useMemo(() => opaqueCard(theme), [theme.card, theme.windowTint[0], theme.windowTint[1]]);
+  useLayoutEffect(() => {
+    if (watch) return load.watchPaint(engine);
+  }, [load, watch, engine]);
+  const webCanvas = isWebPageUrl(isBlankAddress(shownUrl) ? navigation?.url ?? shownUrl : shownUrl);
 
   const lastPage = useRef<string | null>(null);
   const restore = useRef<string | null>(null);
@@ -116,6 +138,7 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
   const mountedProfile = useRef(profileId);
   useLayoutEffect(
     () => () => {
+      load.cancel();
       const t = tab();
       const sameEngine = currentTabEngine(tabId) === engine;
       if (wantsPage(t) && sameEngine && currentEngineProfile(t.profileId) === currentEngineProfile(mountedProfile.current) && !isQuitting()) handOff(tabId, currentEngineProfile(t.profileId), engine);
@@ -150,7 +173,7 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
       neighbour={neighbour}
       autoPictureInPicture={autoPictureInPicture}
       pageColor={pageColor}
-      contentsBackgroundColor={backdrop}
+      contentsBackgroundColor={webCanvas ? BLANK_PAGE_CANVAS : backdrop}
       shownUrl={shownUrl}
       onReady={() => {
         markTabReady(tabId);
@@ -169,6 +192,13 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
         const { url, untouched } = reportedAddress({ url: reported, initialDocumentAccessed, committedInitial }, { adoptId, openedByPage: !!tab()?.openerId });
         const title = reportedTitle(reportedPageTitle, url);
         const target = pending.current ?? (lastPage.current === null ? (navigationOf(tab())?.url ?? null) : null);
+        const waitingForTarget = target !== null && isBlankAddress(url) && !target.startsWith("about:") && untouched;
+        const initialDocument = engine === "chromium"
+          ? untouched
+          : committedAt === 0 && !committedUrl && !canGoBack && !canGoForward;
+        const firstCanvas = initialDocument && (isWebPageUrl(url) || isWebPageUrl(target ?? "")) ? BLANK_PAGE_CANVAS : undefined;
+        load.navigation(committedUrl, committedAt, isLoading ? firstCanvas : null);
+        if (isLoading && committedUrl) load.approaching(url);
         if (target === null && prewarmOnly()) {
           if (isBlankAddress(url)) return;
           adopted.current = url;
@@ -177,7 +207,7 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
         if (lastPage.current === null && target !== null && !target.startsWith("about:")) restore.current = target;
         if (!isLoading || (committedUrl && !isBlankAddress(committedUrl))) restore.current = null;
         const restoring = restore.current !== null;
-        if (target !== null && isBlankAddress(url) && !target.startsWith("about:") && untouched) {
+        if (waitingForTarget) {
           noteFirstPagePending(tabId, true);
           updateLive(tabId, { isLoading: true });
           return;
@@ -204,9 +234,11 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
         patchPage(tabId, { themeColorSource: themeColorSource ?? null });
       }}
       onLoadError={() => {
+        load.cancel();
         pending.current = null;
       }}
       onDownloadNavigation={({ committedUrl, skipped }) => {
+        load.cancel();
         pending.current = null;
         downloadNavigated(tabId, committedUrl, skipped);
       }}
@@ -239,8 +271,11 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
         patchPage(tabId, status ? { status, statusAtTop } : { status });
       }}
       onCrashed={(crashed) => {
+        load.cancel();
         if (!isQuitting()) {
           pageEnded(tabId);
+          updateLive(tabId, { isLoading: false });
+          setPageProgress(tabId, 0);
           patchPage(tabId, { crashed, unresponsive: false, fullscreen: false, status: "" });
           trackPageProcessGone(crashed, visible, translateCrashContext(tabId));
           releaseTranslation(tabId);
@@ -277,6 +312,7 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
       onProtectedMedia={(request) => offerWebKit(tabId, request)}
       onNotificationClose={closeWebNotification}
       onDiscarded={(url, reason) => {
+        load.cancel();
         releaseTranslation(tabId);
         pending.current = url;
         fromNewTab.current = false;

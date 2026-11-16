@@ -1192,6 +1192,9 @@
   };
   const hex = (c) => "#" + [c.r, c.g, c.b].map((n) => Math.round(n).toString(16).padStart(2, "0")).join("").toUpperCase();
   const normalize = (value) => {
+    const token = value.trim();
+    if (/^#[0-9a-f]{6}$/i.test(token)) return token.toUpperCase();
+    if (/^#[0-9a-f]{3}$/i.test(token)) return token.replace(/[0-9a-f]/gi, (digit) => digit + digit).toUpperCase();
     const probe = document.createElement("span");
     probe.style.color = value;
     if (!probe.style.color) return null;

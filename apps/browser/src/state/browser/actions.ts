@@ -69,8 +69,8 @@ export async function closeGroup(groupId: string) {
     const tabs = plural(group.tabIds.length, "tab");
     const { confirmed, suppressed } = await confirm({
       title: `Close “${groupLabel(s, group)}”?`,
-      message: w.kind === "private" ? `Its ${tabs} close with it.` : `Its ${tabs} close with it. History › Recently Closed Groups brings it back.`,
-      confirmTitle: "Close Group",
+      message: w.kind === "private" ? `Its ${tabs} close with it.` : `Its ${tabs} close with it. You can reopen it from the History menu.`,
+      confirmTitle: "Close Category",
       suppression: "Don’t ask me again",
       windowId: w.id,
     });

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Animated } from "react-native";
-import type { ClickModifiers } from "../../lib/keys";
-import { toggleNewTabBar } from "../../state/omnibox/newTabBar";
+import { pressStart, type ClickModifiers } from "../../lib/keys";
+import { toggleNewTabBarOnPress } from "../../state/omnibox/newTabBar";
 import { openNewTabInSplit } from "../../state/splits/actions";
 import { newTab } from "../../state/tabs/actions";
 import { Button, type IconPalette } from "../ui";
@@ -14,6 +14,7 @@ const NEW_TAB_HIT = { width: ITEM_HEIGHT, height: ITEM_HEIGHT, plateX: 0, plateY
 
 export function NewTabButton({ windowId, geometry }: { windowId: string; geometry: DragGeometry }) {
   const theme = useTheme();
+  const pressedAt = useRef<number>(undefined);
   const palette = useMemo<IconPalette>(
     () => ({ icon: theme.textSecondary, iconDisabled: theme.iconDisabled, hover: theme.tabHover, pressed: theme.tabPressed }),
     [theme.textSecondary, theme.iconDisabled, theme.tabHover, theme.tabPressed],
@@ -24,11 +25,11 @@ export function NewTabButton({ windowId, geometry }: { windowId: string; geometr
   useEffect(() => registerSlot(() => latest.current, () => latest.current.slots.length, shift), []);
   const open = (modifiers: ClickModifiers) => {
     if (modifiers.altKey) openNewTabInSplit(windowId);
-    else toggleNewTabBar(windowId) || newTab(windowId, { newTabCommand: true });
+    else toggleNewTabBarOnPress(windowId, pressedAt.current) || newTab(windowId, { newTabCommand: true });
   };
   return (
     <Animated.View style={{ marginTop: ITEM_TOP, transform: [{ translateX: shift }] }}>
-      <Button variant="icon" toolbar icon="plus" glyph={NEW_TAB_ICON} hit={NEW_TAB_HIT} palette={palette} tooltip="New Tab (⌘T) — ⌥-click to open in Split View" onPress={open} />
+      <Button variant="icon" toolbar icon="plus" glyph={NEW_TAB_ICON} hit={NEW_TAB_HIT} palette={palette} tooltip="New Tab (⌘T) — ⌥-click to open in Split View" onPressIn={(e) => { pressedAt.current = pressStart(e) ?? e.nativeEvent.timestamp; }} onPress={open} />
     </Animated.View>
   );
 }

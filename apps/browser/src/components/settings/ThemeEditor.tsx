@@ -184,7 +184,20 @@ export function ThemeSwatches({
 function ColorButton({ name, ring, size, selected, onPress, children }: { name: string; ring: string; size: number; selected: boolean; onPress: () => void; children?: ReactNode }) {
   return (
     <View tooltip={name}>
-      <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={name}>
+      <Pressable
+        focusable
+        onPress={onPress}
+        onKeyDown={(event) => {
+          if (event.nativeEvent.key === " ") {
+            event.preventDefault();
+            onPress();
+          }
+        }}
+        accessibilityRole="radio"
+        accessibilityState={{ checked: selected, selected }}
+        aria-checked={selected}
+        accessibilityLabel={name}
+      >
         {({ pressed }) => (
           <View style={{ transform: [{ scale: pressed ? PRESSED_SCALE : 1 }] }}>
             <Swatch animated size={size} selected={selected} ring={ring} fill={children ? undefined : ring}>

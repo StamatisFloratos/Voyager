@@ -81,6 +81,7 @@ enum MainMenu {
     littleArdiaInProfileItem = sub("New Little Voyager Window in Profile", [], menu: littleArdiaInProfile)
     _ = top("File", [
       cmd(.newTab),
+      cmd(.newTab, arg: "search"),
       cmd(.newTabInGroup),
       cmd(.newWindow),
       cmd(.newIncognitoWindow),
@@ -392,9 +393,9 @@ enum MainMenu {
     if children.isEmpty { menu.addItem(emptyItem()) }
     if let id, hasGroupLinks(children) {
       menu.addItem(.separator())
-      menu.addItem(CommandItem("Add to Sidebar as Group", "addFolderToSidebar", arg: id))
+      menu.addItem(CommandItem("Add to Sidebar as Category", "addFolderToSidebar", arg: id))
       if arcHolder && children.contains(where: { $0.children.map(hasGroupLinks) ?? false }) {
-        menu.addItem(CommandItem("Restore Arc Folders as Groups", "restoreArcFolders", arg: id))
+        menu.addItem(CommandItem("Restore Arc Folders as Categories", "restoreArcFolders", arg: id))
       }
     }
     item.submenu = menu
@@ -539,7 +540,7 @@ enum MainMenu {
     if state.recentlyClosed.isEmpty { history.addItem(emptyItem()) }
     if !state.recentlyClosedGroups.isEmpty {
       history.addItem(.separator())
-      let groupsHeader = NSMenuItem(title: "Recently Closed Groups", action: nil, keyEquivalent: "")
+      let groupsHeader = NSMenuItem(title: "Recently Closed Categories", action: nil, keyEquivalent: "")
       groupsHeader.isEnabled = false
       history.addItem(groupsHeader)
       for entry in state.recentlyClosedGroups { history.addItem(CommandItem(entry.title, "restoreClosed", arg: entry.id)) }

@@ -23,7 +23,7 @@ export type Suggestion =
       bookmarked?: boolean;
       visited?: boolean;
     }
-  | { kind: "search"; query: string; url: string; engine: string; suggested?: boolean; bang?: true }
+  | { kind: "search"; query: string; url: string; engine: string; suggested?: boolean; bang?: true; ai?: true }
   | { kind: "calc"; expression: string; value: string; url: string }
   | { kind: "action"; id: string; title: string; icon?: string; hint?: string }
   | { kind: "create"; id: string; title: string; url: string; site: string }
